@@ -1,5 +1,6 @@
 package bpr.service.backend.util;
 
+import bpr.service.backend.MqttMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -8,8 +9,15 @@ public class JsonSerializer implements ISerializer {
 
 
     @Override
-    public String toJson(Object payload) throws JsonProcessingException {
+    public String toJson(String payload) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(payload);
     }
+
+    @Override
+    public String toJson(MqttMessage payload) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(payload);
+    }
+
 }

@@ -1,5 +1,6 @@
 package bpr.service.backend.util;
 
+import bpr.service.backend.MqttMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.JSONException;
@@ -26,14 +27,12 @@ class JsonSerializerTest {
     public void toJsonSunny() throws JSONException, JsonProcessingException {
 
         // arrange
-        Map<String, Object> details = new HashMap<>();
-        details.put("id", 1);
-        details.put("testStr", "String");
-        String expectedOutput = "{\"testStr\":\"String\",\"id\":1}";
+        MqttMessage message = new MqttMessage("This is a simple test");
+        String expectedOutput = "{\"rawMessage\":\"This is a simple test\"}";
 
 
         // act
-        var actual = serializer.toJson(details);
+        var actual = serializer.toJson(message);
 
         // assert
         assertEquals(expectedOutput, actual);

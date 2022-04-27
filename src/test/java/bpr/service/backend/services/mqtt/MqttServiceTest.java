@@ -16,8 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class MqttServiceTest {
@@ -42,16 +41,18 @@ class MqttServiceTest {
         var completedFuture = Mockito.mock(CompletableFuture.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(sendMock.send()).thenReturn(completedFuture);
         Mockito.when(completedFuture.get()).thenReturn("");
-
+        Exception ex = null;
 
         // act
         try {
-            new MqttService(client, username, password, new JsonSerializer()).mqttConnect().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            new MqttService(client, username, password, new JsonSerializer()).connect();
+        } catch (Throwable e) {
+            ex = (Exception) e;
         }
 
+
         // assert
+        assertNull(ex);
         Mockito.verify(nestedMock, Mockito.times(1)).username(username);
         Mockito.verify(nestedMock, Mockito.times(1)).password(UTF_8.encode(password));
         Mockito.verify(sendMock, Mockito.times(1)).send();
@@ -71,21 +72,20 @@ class MqttServiceTest {
 
 
         var mqttService = new MqttService(client, username, password, new JsonSerializer());
+        Exception ex = null;
 
-        Exception exception = null;
 
         // act
         try {
-            var conn = mqttService.mqttConnect().get();
-        } catch (InterruptedException | ExecutionException e) {
-            exception = e;
+            mqttService.connect();
+        } catch (Throwable e) {
+            ex = (Exception) e;
         }
 
+
         // assert
-        assertNotNull(exception);
-        String expectedMessage = "Connection refused";
-        String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(expectedMessage));
+        assertNotNull(ex);
+        System.out.println(ex.getMessage());
     }
 
     @Test
@@ -94,8 +94,15 @@ class MqttServiceTest {
         // Arrange
         var client = Mockito.mock(Mqtt5AsyncClient.class, Mockito.RETURNS_DEEP_STUBS);
         // Act
-        new MqttService(client, username, password, new JsonSerializer()).mqttDisconnect();
+        Exception ex = null;
+        try {
+            new MqttService(client, username, password, new JsonSerializer()).disconnect();
+        } catch (Throwable e) {
+            ex = (Exception) e;
+        }
+
         // Assert
+        assertNull(ex);
         Mockito.verify(client, Mockito.times(1)).disconnect();
     }
 
@@ -138,7 +145,7 @@ class MqttServiceTest {
 
         // Assert
         Mockito.verify(subMock, Mockito.times(1)).topicFilter(topicToSubscribe);
-        Mockito.verify(completeMock,Mockito.times(1)).send();
+        Mockito.verify(completeMock, Mockito.times(1)).send();
 
     }
 }
