@@ -7,6 +7,7 @@ import bpr.service.backend.util.ISerializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
 import com.hivemq.client.mqtt.mqtt5.message.unsubscribe.unsuback.Mqtt5UnsubAck;
@@ -14,7 +15,9 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,10 +26,10 @@ import java.util.concurrent.ExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@Component
+@Service
 public class MqttService implements IConnectionService, IMqttConnection {
 
-    private final Mqtt5AsyncClient client;
+    private Mqtt5AsyncClient client;
     private final String username;
     private final String password;
     private final ISerializer serializer;
@@ -49,10 +52,13 @@ public class MqttService implements IConnectionService, IMqttConnection {
         this.password = configuration.getPassword();
         this.serializer = configuration.getSerializer();
         subscriptions = new HashMap<>();
-        connect();
     }
 
+    public void setClient(Mqtt5Client client) {
+        this.client = (Mqtt5AsyncClient) client;
+    }
 
+    @EventListener(ApplicationReadyEvent.class)
     @Override
     public void connect() throws Throwable {
 

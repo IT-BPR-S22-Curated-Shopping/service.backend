@@ -27,4 +27,14 @@ public class MqttConfiguration {
     @Qualifier("JsonSerializer")
     private ISerializer serializer;
 
+    public MqttConfiguration() {
+    }
+
+    public MqttConfiguration(String host, int port, String username, String password, ISerializer serializer) {
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+        this.serializer = serializer;
+    }
 }
