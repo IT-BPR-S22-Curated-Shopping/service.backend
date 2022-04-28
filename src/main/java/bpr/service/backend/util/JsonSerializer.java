@@ -1,6 +1,6 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.MqttMessage;
+import bpr.service.backend.models.DeviceModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
@@ -8,16 +8,17 @@ import org.springframework.stereotype.Component;
 @Component("JsonSerializer")
 public class JsonSerializer implements ISerializer {
 
+
     @Override
-    public String toJson(String payload) throws JsonProcessingException {
+    public String toJson(DeviceModel payload) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(payload);
     }
 
     @Override
-    public String toJson(MqttMessage payload) throws JsonProcessingException {
+    public DeviceModel fromJson(String json) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(payload);
+        return objectMapper.readValue(json, DeviceModel.class);
     }
 
 }

@@ -1,16 +1,15 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.MqttMessage;
+import bpr.service.backend.models.DeviceModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
+import java.time.temporal.Temporal;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,11 +23,18 @@ class JsonSerializerTest {
     }
 
     @Test
-    public void toJsonSunny() throws JSONException, JsonProcessingException {
+    public void toJsonSunny() throws JsonProcessingException {
 
         // arrange
-        MqttMessage message = new MqttMessage("This is a simple test");
-        String expectedOutput = "{\"rawMessage\":\"This is a simple test\"}";
+        var time = 1580897313933L;
+        String uuid = "d47a6f18-83d7-4ab1-be3e-568e5b9f4987";
+        String deviceId = "some_device_id";
+        DeviceModel message = new DeviceModel(
+                uuid,
+                deviceId,
+                new Date(time)
+        );
+        String expectedOutput = "{\"uuid\":\"" + uuid + "\",\"deviceId\":\"" + deviceId + "\",\"time\":" + time + "}";
 
 
         // act

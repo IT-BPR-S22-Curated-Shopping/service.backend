@@ -1,6 +1,6 @@
 package bpr.service.backend.services.mqtt;
 
-import bpr.service.backend.MqttMessage;
+import bpr.service.backend.models.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
 import bpr.service.backend.services.IConnectionServiceCallback;
 import bpr.service.backend.util.ISerializer;
@@ -96,19 +96,9 @@ public class MqttService implements IConnectionService, IMqttConnection {
         }
     }
 
-    @Override
-    public void sendMessage(String payload) throws Throwable {
-        try {
-            publish(serializer.toJson(payload));
-        } catch (JsonProcessingException e) {
-            logger.error("MqttService.sendMessage: " + e.getMessage());
-            throw e;
-        }
-    }
-
 
     @Override
-    public CompletableFuture<Mqtt5PublishResult> publish(String topic, MqttMessage payload) {
+    public CompletableFuture<Mqtt5PublishResult> publish(String topic, DeviceModel payload) {
         if (client == null || payload == null) {
             return null;
         }
@@ -134,7 +124,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
         if (payload.isBlank()) return;
 
         for (String topic : subscriptions.keySet()) {
-            publish(topic, new MqttMessage(payload));
+            publish(topic, new DeviceModel());
         }
     }
 
@@ -146,7 +136,11 @@ public class MqttService implements IConnectionService, IMqttConnection {
                 .topicFilter(topic)
                 .callback(cb -> {
                     if (cb.getPayload().isPresent() && callback != null) {
-                        callback.onMessageReceived(String.valueOf(UTF_8.decode(cb.getPayload().get())));
+                        try {
+                            callback.onMessageReceived(serializer.fromJson(String.valueOf(UTF_8.decode(cb.getPayload().get()))));
+                        } catch (JsonProcessingException e) {
+                            logger.error("MqttService.subscribe: " + e.getMessage());
+                        }
                     }
                 })
                 .send()
