@@ -15,9 +15,10 @@ import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@Service
+@Component("MqttService")
 public class MqttService implements IConnectionService, IMqttConnection {
 
     private Mqtt5AsyncClient client;
@@ -39,7 +40,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
 
 
     @SneakyThrows
-    public MqttService(@Autowired MqttConfiguration configuration) {
+    public MqttService(@Autowired MqttConfiguration configuration, @Autowired @Qualifier("JsonSerializer") ISerializer serializer) {
 
         this.client = MqttClient.builder()
                 .useMqttVersion5()
@@ -50,7 +51,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
 
         this.username = configuration.getUsername();
         this.password = configuration.getPassword();
-        this.serializer = configuration.getSerializer();
+        this.serializer = serializer;
         subscriptions = new HashMap<>();
     }
 
@@ -71,14 +72,15 @@ public class MqttService implements IConnectionService, IMqttConnection {
                     .send()
                     .whenComplete((act, throwable) -> {
                         if (throwable == null) {
-                            logger.info("MQTT is connected.");
+                            logger.info("MqttService.connect: MQTT is connected.");
                         } else {
-                            logger.error(throwable.getMessage());
+                            logger.error("MqttService.connect: " + throwable.getMessage());
                         }
                     })
                     .get();
         } catch (InterruptedException | ExecutionException e) {
-            throw e.getCause();
+            logger.error("MqttService.connect: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -89,7 +91,8 @@ public class MqttService implements IConnectionService, IMqttConnection {
                     .disconnect()
                     .get();
         } catch (InterruptedException | ExecutionException e) {
-            throw e.getCause();
+            logger.error("MqttService.disconnect: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -98,6 +101,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
         try {
             publish(serializer.toJson(payload));
         } catch (JsonProcessingException e) {
+            logger.error("MqttService.sendMessage: " + e.getMessage());
             throw e;
         }
     }
@@ -108,18 +112,19 @@ public class MqttService implements IConnectionService, IMqttConnection {
         if (client == null || payload == null) {
             return null;
         }
-        logger.info("Publishing payload:" + payload);
+        logger.debug("Publishing payload:" + payload);
         try {
             return client.publishWith()
                     .topic(topic)
                     .payload(UTF_8.encode(serializer.toJson(payload)))
                     .send()
                     .whenComplete((ack, throwable) -> {
-                        System.out.println(ack);
-                        System.out.println(throwable);
+                        if (throwable != null) {
+                            logger.error("MqttService.publish: " + throwable.getMessage());
+                        }
                     });
         } catch (JsonProcessingException e) {
-            logger.error("Could not serialize object with error: " + e.getMessage());
+            logger.error("MqttService.publish: " + e.getMessage());
             return null;
         }
 
@@ -148,11 +153,11 @@ public class MqttService implements IConnectionService, IMqttConnection {
                 .whenComplete((ack, throwable) -> {
                     if (throwable != null) {
                         // Handle connection failure
-                        System.out.println("MqttService.subscribe: Error " + throwable.getMessage());
+                        logger.error("MqttService.subscribe: " + throwable.getMessage());
                     } else {
                         // success
                         subscriptions.put(topic, callback);
-                        System.out.println("MqttService.subscribe: success");
+                        logger.debug("MqttService.subscribe: success");
                     }
                 });
 
@@ -166,11 +171,11 @@ public class MqttService implements IConnectionService, IMqttConnection {
                 .whenComplete((ack, throwable) -> {
                     if (throwable != null) {
                         // Handle connection failure
-                        System.out.println("MqttService.unsubscribe: Error " + throwable.getMessage());
+                        logger.error("MqttService.unsubscribe: " + throwable.getMessage());
                     } else {
                         // success
                         subscriptions.remove(topic);
-                        System.out.println("MqttService.unsubscribe: success");
+                        logger.debug("MqttService.unsubscribe: success");
                     }
                 });
     }

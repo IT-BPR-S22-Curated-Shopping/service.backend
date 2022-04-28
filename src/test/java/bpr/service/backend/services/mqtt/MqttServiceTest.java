@@ -10,7 +10,6 @@ import com.hivemq.client.mqtt.mqtt5.message.unsubscribe.Mqtt5UnsubscribeBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -26,9 +25,6 @@ class MqttServiceTest {
     final String host = "localhost";
     final String username = "app_backend";
     final String password = "some password";
-
-    @MockBean
-    private Mqtt5AsyncClient client;
 
     @Test
     @Timeout(value = 1, unit = TimeUnit.MINUTES)
@@ -46,8 +42,8 @@ class MqttServiceTest {
         Mockito.when(sendMock.send()).thenReturn(completedFuture);
         Mockito.when(completedFuture.get()).thenReturn("");
         Exception ex = null;
-        var conf = new MqttConfiguration(host, 8883, username, password, new JsonSerializer());
-        var service = new MqttService(conf);
+        var conf = new MqttConfiguration(host, 8883, username, password);
+        var service = new MqttService(conf, new JsonSerializer());
         service.setClient(client);
 
         // act
@@ -77,9 +73,9 @@ class MqttServiceTest {
                 .serverPort(8883)
                 .sslWithDefaultConfig()
                 .buildAsync();
-        var conf = new MqttConfiguration(host, 8883, username, password, new JsonSerializer());
+        var conf = new MqttConfiguration(host, 8883, username, password);
 
-        var mqttService = new MqttService(conf);
+        var mqttService = new MqttService(conf, new JsonSerializer());
         mqttService.setClient(client);
         Exception ex = null;
 
@@ -102,8 +98,8 @@ class MqttServiceTest {
 
         // Arrange
         var client = Mockito.mock(Mqtt5AsyncClient.class, Mockito.RETURNS_DEEP_STUBS);
-        var conf = new MqttConfiguration(host, 8883, username, password, new JsonSerializer());
-        var mqttService = new MqttService(conf);
+        var conf = new MqttConfiguration(host, 8883, username, password);
+        var mqttService = new MqttService(conf, new JsonSerializer());
         mqttService.setClient(client);
         Exception ex = null;
 
@@ -130,8 +126,8 @@ class MqttServiceTest {
         var subMock = Mockito.mock(Mqtt5AsyncClient.Mqtt5SubscribeAndCallbackBuilder.Start.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(client.subscribeWith()).thenReturn(subMock);
 
-        var conf = new MqttConfiguration(host, 8883, username, password, new JsonSerializer());
-        var mqttService = new MqttService(conf);
+        var conf = new MqttConfiguration(host, 8883, username, password);
+        var mqttService = new MqttService(conf, new JsonSerializer());
         mqttService.setClient(client);
 
         // Act
@@ -156,8 +152,8 @@ class MqttServiceTest {
         Mockito.when(subMock.topicFilter(topicToSubscribe)).thenReturn(completeMock);
         Mockito.when(completeMock.send()).thenReturn(new CompletableFuture<>());
 
-        var conf = new MqttConfiguration(host, 8883, username, password, new JsonSerializer());
-        var mqttService = new MqttService(conf);
+        var conf = new MqttConfiguration(host, 8883, username, password);
+        var mqttService = new MqttService(conf, new JsonSerializer());
         mqttService.setClient(client);
 
         // Act
