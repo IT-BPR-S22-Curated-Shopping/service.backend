@@ -1,5 +1,5 @@
 package bpr.service.backend.services;
 
 public interface IConnectionServiceCallback {
-    void invoke(String payload);
+    void onMessageReceived(String payload);
 }

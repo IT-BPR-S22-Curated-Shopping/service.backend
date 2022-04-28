@@ -5,13 +5,16 @@ import bpr.service.backend.services.IConnectionService;
 import bpr.service.backend.services.IConnectionServiceCallback;
 import bpr.service.backend.util.ISerializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
-import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
 import com.hivemq.client.mqtt.mqtt5.message.unsubscribe.unsuback.Mqtt5UnsubAck;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+@Component
 public class MqttService implements IConnectionService, IMqttConnection {
 
     private final Mqtt5AsyncClient client;
@@ -31,17 +35,27 @@ public class MqttService implements IConnectionService, IMqttConnection {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
-    public MqttService(Mqtt5Client client, String username, String password, ISerializer serializer) {
-        this.client = (Mqtt5AsyncClient) client;
-        this.username = username;
-        this.password = password;
-        this.serializer = serializer;
+    @SneakyThrows
+    public MqttService(@Autowired MqttConfiguration configuration) {
+
+        this.client = MqttClient.builder()
+                .useMqttVersion5()
+                .serverHost(configuration.getHost())
+                .serverPort(configuration.getPort())
+                .sslWithDefaultConfig()
+                .buildAsync();
+
+        this.username = configuration.getUsername();
+        this.password = configuration.getPassword();
+        this.serializer = configuration.getSerializer();
         subscriptions = new HashMap<>();
+        connect();
     }
 
 
     @Override
     public void connect() throws Throwable {
+
         try {
             client.connectWith()
                     .simpleAuth()
@@ -51,7 +65,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
                     .send()
                     .whenComplete((act, throwable) -> {
                         if (throwable == null) {
-                            logger.info("Is connected.");
+                            logger.info("MQTT is connected.");
                         } else {
                             logger.error(throwable.getMessage());
                         }
@@ -85,10 +99,10 @@ public class MqttService implements IConnectionService, IMqttConnection {
 
     @Override
     public CompletableFuture<Mqtt5PublishResult> publish(String topic, MqttMessage payload) {
-        if ( client == null || payload == null) {
+        if (client == null || payload == null) {
             return null;
         }
-        logger.info("Publising payload:" + payload);
+        logger.info("Publishing payload:" + payload);
         try {
             return client.publishWith()
                     .topic(topic)
@@ -120,8 +134,8 @@ public class MqttService implements IConnectionService, IMqttConnection {
         return client.subscribeWith()
                 .topicFilter(topic)
                 .callback(cb -> {
-                    if (cb.getPayload().isPresent()) {
-                        callback.invoke(String.valueOf(UTF_8.decode(cb.getPayload().get())));
+                    if (cb.getPayload().isPresent() && callback != null) {
+                        callback.onMessageReceived(String.valueOf(UTF_8.decode(cb.getPayload().get())));
                     }
                 })
                 .send()
