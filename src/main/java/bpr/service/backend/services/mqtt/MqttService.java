@@ -120,14 +120,6 @@ public class MqttService implements IConnectionService, IMqttConnection {
 
     }
 
-    private void publish(String payload) {
-        if (payload.isBlank()) return;
-
-        for (String topic : subscriptions.keySet()) {
-            publish(topic, new DeviceModel());
-        }
-    }
-
     @Override
     public CompletableFuture<Mqtt5SubAck> subscribe(String topic, IConnectionServiceCallback callback) {
         if (subscriptions.get(topic) != null) return null;

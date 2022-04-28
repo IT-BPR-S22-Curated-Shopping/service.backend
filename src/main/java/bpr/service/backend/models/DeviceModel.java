@@ -5,6 +5,7 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.Date;
 
+
 public class DeviceModel implements Serializable {
 
     @Getter
