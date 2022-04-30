@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### SENSITIVE FILES
+application-dev.properties
+application-prod.properties
+hibernate.cfg.xml
