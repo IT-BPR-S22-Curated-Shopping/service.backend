@@ -1,6 +1,6 @@
 package bpr.service.backend.services.mqtt;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.models.mqtt.DeviceModel;
 import bpr.service.backend.services.IConnectionServiceCallback;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult;
 import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;

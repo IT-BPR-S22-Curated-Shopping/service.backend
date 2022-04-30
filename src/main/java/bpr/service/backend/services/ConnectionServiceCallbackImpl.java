@@ -1,6 +1,6 @@
 package bpr.service.backend.services;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.models.mqtt.DeviceModel;
 
 public class ConnectionServiceCallbackImpl implements IConnectionServiceCallback {
     @Override

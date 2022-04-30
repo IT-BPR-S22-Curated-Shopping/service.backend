@@ -1,6 +1,6 @@
 package bpr.service.backend.services.mqtt;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.models.mqtt.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
 import bpr.service.backend.services.IConnectionServiceCallback;
 import bpr.service.backend.util.ISerializer;

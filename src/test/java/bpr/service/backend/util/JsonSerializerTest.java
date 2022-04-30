@@ -1,14 +1,10 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.models.mqtt.DeviceModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
