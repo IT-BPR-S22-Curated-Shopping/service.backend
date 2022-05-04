@@ -1,4 +1,4 @@
-package bpr.service.backend.services.websocket.handlers;
+package bpr.service.backend.controllers.websocket.handlers;
 
 import bpr.service.backend.controllers.mqtt.MqttService;
 import bpr.service.backend.models.mqtt.DeviceModel;

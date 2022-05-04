@@ -1,7 +1,7 @@
-package bpr.service.backend.services.websocket.config;
+package bpr.service.backend.controllers.websocket.config;
 
 import bpr.service.backend.controllers.mqtt.MqttService;
-import bpr.service.backend.services.websocket.handlers.WebSocketHandler;
+import bpr.service.backend.controllers.websocket.handlers.WebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
