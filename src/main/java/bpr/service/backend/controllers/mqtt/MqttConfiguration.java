@@ -1,11 +1,6 @@
-package bpr.service.backend.services.mqtt;
+package bpr.service.backend.controllers.mqtt;
 
-import bpr.service.backend.util.ISerializer;
-import bpr.service.backend.util.JsonSerializer;
 import lombok.Getter;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

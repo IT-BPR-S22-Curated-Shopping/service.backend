@@ -1,6 +1,6 @@
-package bpr.service.backend.services.mqtt;
+package bpr.service.backend.controllers.mqtt;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.models.mqtt.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
 import bpr.service.backend.services.IConnectionServiceCallback;
 import bpr.service.backend.util.ISerializer;
@@ -118,14 +118,6 @@ public class MqttService implements IConnectionService, IMqttConnection {
             return null;
         }
 
-    }
-
-    private void publish(String payload) {
-        if (payload.isBlank()) return;
-
-        for (String topic : subscriptions.keySet()) {
-            publish(topic, new DeviceModel());
-        }
     }
 
     @Override

@@ -1,9 +1,10 @@
-package bpr.service.backend.models;
+package bpr.service.backend.models.mqtt;
 
 import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.Date;
+
 
 public class DeviceModel implements Serializable {
 

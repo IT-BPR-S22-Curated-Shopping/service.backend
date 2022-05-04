@@ -1,6 +1,6 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.models.mqtt.DeviceModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;

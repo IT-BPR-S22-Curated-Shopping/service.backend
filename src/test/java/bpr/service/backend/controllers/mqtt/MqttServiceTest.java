@@ -1,4 +1,4 @@
-package bpr.service.backend.services.mqtt;
+package bpr.service.backend.controllers.mqtt;
 
 import bpr.service.backend.services.ConnectionServiceCallbackImpl;
 import bpr.service.backend.util.JsonSerializer;
