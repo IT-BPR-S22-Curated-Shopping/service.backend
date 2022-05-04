@@ -1,8 +1,8 @@
 package bpr.service.backend.services.websocket.handlers;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.controllers.mqtt.MqttService;
+import bpr.service.backend.models.mqtt.DeviceModel;
 import bpr.service.backend.services.IConnectionServiceCallback;
-import bpr.service.backend.services.mqtt.MqttService;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
