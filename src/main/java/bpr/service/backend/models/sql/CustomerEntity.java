@@ -22,8 +22,4 @@ public class CustomerEntity implements Serializable {
 
     public CustomerEntity() {
     }
-
-
-
-
 }
