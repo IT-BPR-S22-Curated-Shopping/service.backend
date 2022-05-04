@@ -1,4 +1,4 @@
-package bpr.service.backend.services.mqtt;
+package bpr.service.backend.controllers.mqtt;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

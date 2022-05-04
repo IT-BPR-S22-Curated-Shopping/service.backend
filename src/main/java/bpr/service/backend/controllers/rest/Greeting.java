@@ -1,4 +1,4 @@
-package bpr.service.backend;
+package bpr.service.backend.controllers.rest;
 
 public class Greeting {
 

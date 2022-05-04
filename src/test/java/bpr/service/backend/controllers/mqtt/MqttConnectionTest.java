@@ -1,11 +1,10 @@
-package bpr.service.backend.services.mqtt;
+package bpr.service.backend.controllers.mqtt;
 
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 
 import static com.hivemq.client.mqtt.MqttGlobalPublishFilter.ALL;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.*;
 
 class MqttConnectionTest {
 
