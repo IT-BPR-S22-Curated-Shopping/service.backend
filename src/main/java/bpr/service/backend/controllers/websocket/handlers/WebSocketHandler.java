@@ -1,23 +1,22 @@
 package bpr.service.backend.controllers.websocket.handlers;
 
-import bpr.service.backend.controllers.mqtt.MqttService;
-import bpr.service.backend.models.mqtt.DeviceModel;
-import bpr.service.backend.services.IConnectionServiceCallback;
+import bpr.service.backend.managers.events.Event;
+import bpr.service.backend.managers.events.IEventManager;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
+import java.beans.PropertyChangeEvent;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
-public class WebSocketHandler extends TextWebSocketHandler implements IConnectionServiceCallback {
+public class WebSocketHandler extends TextWebSocketHandler {
 
     CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
-    public WebSocketHandler(MqttService mqttService) {
-        mqttService.subscribe("0462/rpi3/detection", this);
+    public WebSocketHandler(IEventManager eventManager) {
+        eventManager.addListener(Event.UUID_DETECTED, this::onMessageReceived);
     }
 
     @Override
@@ -31,10 +30,9 @@ public class WebSocketHandler extends TextWebSocketHandler implements IConnectio
     }
 
     @SneakyThrows
-    @Override
-    public void onMessageReceived(DeviceModel payload) {
+    public void onMessageReceived(PropertyChangeEvent event) {
         for (WebSocketSession session : sessions) {
-            session.sendMessage(new TextMessage(payload.getUuid()));
+            session.sendMessage(new TextMessage(event.getNewValue().toString()));
         }
     }
 }

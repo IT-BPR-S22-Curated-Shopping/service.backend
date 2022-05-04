@@ -1,5 +1,7 @@
 package bpr.service.backend.controllers.mqtt;
 
+import bpr.service.backend.managers.events.Event;
+import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.mqtt.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
 import bpr.service.backend.services.IConnectionServiceCallback;
@@ -30,17 +32,19 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Component("MqttService")
 public class MqttService implements IConnectionService, IMqttConnection {
 
+    private final IEventManager eventManager;
     private Mqtt5AsyncClient client;
     private final String username;
     private final String password;
     private final ISerializer serializer;
-    private final Map<String, IConnectionServiceCallback> subscriptions;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
     @SneakyThrows
-    public MqttService(@Autowired MqttConfiguration configuration, @Autowired @Qualifier("JsonSerializer") ISerializer serializer) {
+    public MqttService(@Autowired MqttConfiguration configuration,
+                       @Autowired @Qualifier("JsonSerializer") ISerializer serializer,
+                       @Autowired @Qualifier("EventManager") IEventManager eventManager) {
 
         this.client = MqttClient.builder()
                 .useMqttVersion5()
@@ -52,7 +56,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
         this.username = configuration.getUsername();
         this.password = configuration.getPassword();
         this.serializer = serializer;
-        subscriptions = new HashMap<>();
+        this.eventManager = eventManager;
     }
 
     public void setClient(Mqtt5Client client) {
@@ -76,6 +80,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
                         } else {
                             logger.error("MqttService.connect: " + throwable.getMessage());
                         }
+                        subscribe("0462/rpi3/detection"); //TODO: Handle this differently
                     })
                     .get();
         } catch (InterruptedException | ExecutionException e) {
@@ -121,18 +126,13 @@ public class MqttService implements IConnectionService, IMqttConnection {
     }
 
     @Override
-    public CompletableFuture<Mqtt5SubAck> subscribe(String topic, IConnectionServiceCallback callback) {
-        if (subscriptions.get(topic) != null) return null;
+    public CompletableFuture<Mqtt5SubAck> subscribe(String topic) {
 
         return client.subscribeWith()
                 .topicFilter(topic)
                 .callback(cb -> {
-                    if (cb.getPayload().isPresent() && callback != null) {
-                        try {
-                            callback.onMessageReceived(serializer.fromJson(String.valueOf(UTF_8.decode(cb.getPayload().get()))));
-                        } catch (JsonProcessingException e) {
-                            logger.error("MqttService.subscribe: " + e.getMessage());
-                        }
+                    if (cb.getPayload().isPresent()) {
+                        eventManager.invoke(Event.UUID_DETECTED, String.valueOf(UTF_8.decode(cb.getPayload().get())));
                     }
                 })
                 .send()
@@ -142,7 +142,7 @@ public class MqttService implements IConnectionService, IMqttConnection {
                         logger.error("MqttService.subscribe: " + throwable.getMessage());
                     } else {
                         // success
-                        subscriptions.put(topic, callback);
+                        //subscriptions.put(topic, callback);
                         logger.debug("MqttService.subscribe: success");
                     }
                 });
@@ -160,7 +160,6 @@ public class MqttService implements IConnectionService, IMqttConnection {
                         logger.error("MqttService.unsubscribe: " + throwable.getMessage());
                     } else {
                         // success
-                        subscriptions.remove(topic);
                         logger.debug("MqttService.unsubscribe: success");
                     }
                 });
