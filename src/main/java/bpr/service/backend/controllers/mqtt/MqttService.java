@@ -1,4 +1,4 @@
-package bpr.service.backend.services.mqtt;
+package bpr.service.backend.controllers.mqtt;
 
 import bpr.service.backend.models.mqtt.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
