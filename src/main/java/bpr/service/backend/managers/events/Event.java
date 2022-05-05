@@ -1,5 +1,5 @@
 package bpr.service.backend.managers.events;
 
 public enum Event {
-    UUID_DETECTED
+    CUSTOMER_DETECT, UUID_DETECTED
 }

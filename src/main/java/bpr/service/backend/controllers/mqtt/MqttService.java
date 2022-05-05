@@ -4,9 +4,7 @@ import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.mqtt.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
-import bpr.service.backend.services.IConnectionServiceCallback;
 import bpr.service.backend.util.ISerializer;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
@@ -22,8 +20,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -108,20 +104,17 @@ public class MqttService implements IConnectionService, IMqttConnection {
             return null;
         }
         logger.debug("Publishing payload:" + payload);
-        try {
-            return client.publishWith()
-                    .topic(topic)
-                    .payload(UTF_8.encode(serializer.toJson(payload)))
-                    .send()
-                    .whenComplete((ack, throwable) -> {
-                        if (throwable != null) {
-                            logger.error("MqttService.publish: " + throwable.getMessage());
-                        }
-                    });
-        } catch (JsonProcessingException e) {
-            logger.error("MqttService.publish: " + e.getMessage());
-            return null;
-        }
+
+        return client.publishWith()
+                .topic(topic)
+                .payload(UTF_8.encode(serializer.toJson(payload)))
+                .send()
+                .whenComplete((ack, throwable) -> {
+                    if (throwable != null) {
+                        logger.error("MqttService.publish: " + throwable.getMessage());
+                    }
+                });
+
 
     }
 

@@ -1,9 +1,11 @@
 package bpr.service.backend.util;
 
 import bpr.service.backend.models.mqtt.DeviceModel;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import bpr.service.backend.models.sql.CustomerEntity;
 
 public interface ISerializer {
-    String toJson(DeviceModel payload) throws JsonProcessingException;
-    DeviceModel fromJson(String json) throws JsonProcessingException;
+    String toJson(DeviceModel payload);
+    String toJson(CustomerEntity payload);
+    DeviceModel fromJsonToDeviceModel(String json);
+    CustomerEntity fromJsonToCustomer(String json);
 }
