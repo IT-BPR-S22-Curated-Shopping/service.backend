@@ -1,7 +1,7 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.models.mqtt.DeviceModel;
-import bpr.service.backend.models.sql.CustomerEntity;
+import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.persistence.repository.entities.CustomerEntity;
 
 public interface ISerializer {
     String toJson(DeviceModel payload);

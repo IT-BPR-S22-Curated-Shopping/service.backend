@@ -1,7 +1,6 @@
 package bpr.service.backend.controllers.mqtt;
 
 import bpr.service.backend.managers.events.EventManager;
-import bpr.service.backend.services.ConnectionServiceCallbackImpl;
 import bpr.service.backend.util.JsonSerializer;
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
@@ -122,7 +121,7 @@ class MqttServiceTest {
     public void canSubscribe() {
         // Arrange
         var topicToSubscribe = "test/topic";
-        ConnectionServiceCallbackImpl callback = new ConnectionServiceCallbackImpl();
+//        ConnectionServiceCallbackImpl callback = new ConnectionServiceCallbackImpl();
         var client = Mockito.mock(Mqtt5AsyncClient.class, Mockito.RETURNS_DEEP_STUBS);
         var subMock = Mockito.mock(Mqtt5AsyncClient.Mqtt5SubscribeAndCallbackBuilder.Start.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(client.subscribeWith()).thenReturn(subMock);

@@ -1,9 +1,11 @@
 package bpr.service.backend.persistence.repository.customerRepository;
 
-import bpr.service.backend.models.sql.CustomerEntity;
-import org.springframework.data.repository.Repository;
+import bpr.service.backend.persistence.repository.entities.CustomerEntity;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ICustomerRepository extends Repository<CustomerEntity, Long> {
+@Repository
+public interface ICustomerRepository extends CrudRepository<CustomerEntity, Long> {
 
     CustomerEntity findByUuid(String uuid);
 }

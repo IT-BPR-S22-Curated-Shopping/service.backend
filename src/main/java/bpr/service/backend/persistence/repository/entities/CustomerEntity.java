@@ -1,4 +1,4 @@
-package bpr.service.backend.models.sql;
+package bpr.service.backend.persistence.repository.entities;
 
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
@@ -8,15 +8,21 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "customers")
 @Data
 public class CustomerEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String uuid;
+
+    @OneToMany
+
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private List<TrackingIdEntity> uuid;
+
     @ManyToMany
+    @Column(unique=true)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<TagEntity> tags;
 

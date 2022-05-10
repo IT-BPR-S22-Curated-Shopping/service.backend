@@ -2,7 +2,7 @@ package bpr.service.backend.controllers.mqtt;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
-import bpr.service.backend.models.mqtt.DeviceModel;
+import bpr.service.backend.models.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
 import bpr.service.backend.util.ISerializer;
 import com.hivemq.client.mqtt.MqttClient;

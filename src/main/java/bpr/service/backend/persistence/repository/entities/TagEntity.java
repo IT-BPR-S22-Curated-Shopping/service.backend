@@ -1,4 +1,4 @@
-package bpr.service.backend.models.sql;
+package bpr.service.backend.persistence.repository.entities;
 
 
 import lombok.Data;
@@ -16,6 +16,5 @@ public class TagEntity {
 
     private String tag;
 
-    public TagEntity() {
-    }
+    public TagEntity() { }
 }

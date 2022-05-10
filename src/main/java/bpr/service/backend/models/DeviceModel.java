@@ -1,4 +1,4 @@
-package bpr.service.backend.models.mqtt;
+package bpr.service.backend.models;
 
 import lombok.Getter;
 
