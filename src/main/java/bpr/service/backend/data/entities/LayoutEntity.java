@@ -1,4 +1,4 @@
-package bpr.service.backend.persistence.repository.entities;
+package bpr.service.backend.data.entities;
 
 import lombok.Data;
 

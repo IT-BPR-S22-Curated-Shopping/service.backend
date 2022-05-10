@@ -1,6 +1,6 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.data.models.DeviceModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

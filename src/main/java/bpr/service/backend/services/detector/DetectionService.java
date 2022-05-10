@@ -1,8 +1,8 @@
-package bpr.service.backend.services.detecter;
+package bpr.service.backend.services.detector;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.data.models.DeviceModel;
 import bpr.service.backend.persistence.repository.customerRepository.ICustomerRepository;
 import bpr.service.backend.util.ISerializer;
 import org.springframework.beans.factory.annotation.Autowired;

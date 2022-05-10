@@ -1,6 +1,6 @@
 package bpr.service.backend.persistence.repository.customerRepository;
 
-import bpr.service.backend.persistence.repository.entities.CustomerEntity;
+import bpr.service.backend.data.entities.CustomerEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

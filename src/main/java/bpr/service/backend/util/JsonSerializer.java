@@ -1,7 +1,7 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.models.DeviceModel;
-import bpr.service.backend.persistence.repository.entities.CustomerEntity;
+import bpr.service.backend.data.models.DeviceModel;
+import bpr.service.backend.data.entities.CustomerEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class JsonSerializer implements ISerializer {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(json, DeviceModel.class);
         } catch (JsonProcessingException e) {
-            logger.error("Problem deserialing json: " + e.getMessage());
+            logger.error("Problem deserializing json: " + e.getMessage());
         }
         return null;
     }
@@ -50,9 +50,11 @@ public class JsonSerializer implements ISerializer {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(json, CustomerEntity.class);
         } catch (JsonProcessingException e) {
-            logger.error("Problem deserialing json: " + e.getMessage());
+            logger.error("Problem deserializing json: " + e.getMessage());
         }
         return null;
     }
+
+
 
 }

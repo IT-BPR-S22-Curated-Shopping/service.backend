@@ -43,7 +43,7 @@ class MqttServiceTest {
         Mockito.when(completedFuture.get()).thenReturn("");
         Exception ex = null;
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var service = new MqttService(conf, new JsonSerializer(), new EventManager());
+        var service = new MqttConnection(conf, new JsonSerializer(), new EventManager());
         service.setClient(client);
 
         // act
@@ -75,7 +75,7 @@ class MqttServiceTest {
                 .buildAsync();
         var conf = new MqttConfiguration(host, 8883, username, password);
 
-        var mqttService = new MqttService(conf, new JsonSerializer(), new EventManager());
+        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
         mqttService.setClient(client);
         Exception ex = null;
 
@@ -99,7 +99,7 @@ class MqttServiceTest {
         // Arrange
         var client = Mockito.mock(Mqtt5AsyncClient.class, Mockito.RETURNS_DEEP_STUBS);
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var mqttService = new MqttService(conf, new JsonSerializer(), new EventManager());
+        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
         mqttService.setClient(client);
         Exception ex = null;
 
@@ -127,7 +127,7 @@ class MqttServiceTest {
         Mockito.when(client.subscribeWith()).thenReturn(subMock);
 
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var mqttService = new MqttService(conf, new JsonSerializer(), new EventManager());
+        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
         mqttService.setClient(client);
 
         // Act
@@ -153,7 +153,7 @@ class MqttServiceTest {
         Mockito.when(completeMock.send()).thenReturn(new CompletableFuture<>());
 
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var mqttService = new MqttService(conf, new JsonSerializer(), new EventManager());
+        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
         mqttService.setClient(client);
 
         // Act

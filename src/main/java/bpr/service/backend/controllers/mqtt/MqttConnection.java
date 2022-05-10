@@ -2,7 +2,7 @@ package bpr.service.backend.controllers.mqtt;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
-import bpr.service.backend.models.DeviceModel;
+import bpr.service.backend.data.models.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
 import bpr.service.backend.util.ISerializer;
 import com.hivemq.client.mqtt.MqttClient;
@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component("MqttService")
-public class MqttService implements IConnectionService, IMqttConnection {
+public class MqttConnection implements IConnectionService, IMqttConnection {
 
     private final IEventManager eventManager;
     private Mqtt5AsyncClient client;
@@ -38,9 +38,9 @@ public class MqttService implements IConnectionService, IMqttConnection {
 
 
     @SneakyThrows
-    public MqttService(@Autowired MqttConfiguration configuration,
-                       @Autowired @Qualifier("JsonSerializer") ISerializer serializer,
-                       @Autowired @Qualifier("EventManager") IEventManager eventManager) {
+    public MqttConnection(@Autowired MqttConfiguration configuration,
+                          @Autowired @Qualifier("JsonSerializer") ISerializer serializer,
+                          @Autowired @Qualifier("EventManager") IEventManager eventManager) {
 
         this.client = MqttClient.builder()
                 .useMqttVersion5()

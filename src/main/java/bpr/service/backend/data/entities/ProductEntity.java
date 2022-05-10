@@ -1,31 +1,31 @@
-package bpr.service.backend.persistence.repository.entities;
+package bpr.service.backend.data.entities;
 
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "products")
 @Data
-public class CustomerEntity implements Serializable {
+public class ProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany
-
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<TrackingIdEntity> uuid;
+    private String productNo;
 
     @ManyToMany
-    @Column(unique=true)
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    private List<ProductEntity> relatedProducts;
+
+    @ManyToMany
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<TagEntity> tags;
 
-    public CustomerEntity() {
-    }
+    //TODO: Add images and information.
+
+    public ProductEntity() { }
 }

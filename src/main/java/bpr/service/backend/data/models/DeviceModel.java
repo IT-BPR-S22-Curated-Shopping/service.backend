@@ -1,4 +1,4 @@
-package bpr.service.backend.models;
+package bpr.service.backend.data.models;
 
 import lombok.Getter;
 
