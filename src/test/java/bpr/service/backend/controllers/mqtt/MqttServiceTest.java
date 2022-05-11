@@ -1,5 +1,6 @@
 package bpr.service.backend.controllers.mqtt;
 
+import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.EventManager;
 import bpr.service.backend.util.JsonSerializer;
 import com.hivemq.client.mqtt.MqttClient;
@@ -43,7 +44,7 @@ class MqttServiceTest {
         Mockito.when(completedFuture.get()).thenReturn("");
         Exception ex = null;
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var service = new MqttConnection(conf, new JsonSerializer(), new EventManager());
+        var service = new MqttController(conf, new EventManager());
         service.setClient(client);
 
         // act
@@ -75,7 +76,7 @@ class MqttServiceTest {
                 .buildAsync();
         var conf = new MqttConfiguration(host, 8883, username, password);
 
-        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
+        var mqttService = new MqttController(conf, new EventManager());
         mqttService.setClient(client);
         Exception ex = null;
 
@@ -99,7 +100,7 @@ class MqttServiceTest {
         // Arrange
         var client = Mockito.mock(Mqtt5AsyncClient.class, Mockito.RETURNS_DEEP_STUBS);
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
+        var mqttService = new MqttController(conf, new EventManager());
         mqttService.setClient(client);
         Exception ex = null;
 
@@ -116,28 +117,26 @@ class MqttServiceTest {
         Mockito.verify(client, Mockito.times(1)).disconnect();
     }
 
-
     @Test
     public void canSubscribe() {
         // Arrange
         var topicToSubscribe = "test/topic";
-//        ConnectionServiceCallbackImpl callback = new ConnectionServiceCallbackImpl();
         var client = Mockito.mock(Mqtt5AsyncClient.class, Mockito.RETURNS_DEEP_STUBS);
         var subMock = Mockito.mock(Mqtt5AsyncClient.Mqtt5SubscribeAndCallbackBuilder.Start.class, Mockito.RETURNS_DEEP_STUBS);
         Mockito.when(client.subscribeWith()).thenReturn(subMock);
 
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
+        EventManager eventManager = new EventManager();
+        var mqttService = new MqttController(conf, eventManager);
         mqttService.setClient(client);
 
         // Act
-        mqttService.subscribe(topicToSubscribe);
+        eventManager.invoke(Event.MQTT_SUBSCRIBE, topicToSubscribe);
 
         // Assert
         Mockito.verify(subMock, Mockito.times(1)).topicFilter(topicToSubscribe);
 
     }
-
 
     @Test
     public void canUnsubscribe() {
@@ -153,11 +152,12 @@ class MqttServiceTest {
         Mockito.when(completeMock.send()).thenReturn(new CompletableFuture<>());
 
         var conf = new MqttConfiguration(host, 8883, username, password);
-        var mqttService = new MqttConnection(conf, new JsonSerializer(), new EventManager());
+        EventManager eventManager = new EventManager();
+        var mqttService = new MqttController(conf, eventManager);
         mqttService.setClient(client);
 
         // Act
-        mqttService.unsubscribe(topicToSubscribe);
+        eventManager.invoke(Event.MQTT_UNSUBSCRIBE, topicToSubscribe);
 
         // Assert
         Mockito.verify(subMock, Mockito.times(1)).topicFilter(topicToSubscribe);

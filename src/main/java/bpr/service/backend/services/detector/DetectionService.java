@@ -36,6 +36,7 @@ public class DetectionService implements IDetectionService, PropertyChangeListen
     }
 
     private void UuidLookup(String uuid) {
+        System.out.println(uuid);
         var customer = customerRepository.findByUuid(uuid);
         if (customer != null) {
             eventManager.invoke(Event.CUSTOMER_DETECT, serializer.toJson(customer));

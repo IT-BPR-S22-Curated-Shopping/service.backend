@@ -1,11 +1,11 @@
 package bpr.service.backend.controllers.mqtt;
 
+import bpr.service.backend.data.dto.MqttPublishDto;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
-import bpr.service.backend.data.models.DeviceModel;
 import bpr.service.backend.services.IConnectionService;
-import bpr.service.backend.util.ISerializer;
 import com.hivemq.client.mqtt.MqttClient;
+import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult;
@@ -20,26 +20,25 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.beans.PropertyChangeEvent;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component("MqttService")
-public class MqttConnection implements IConnectionService, IMqttConnection {
+public class MqttController implements IConnectionService {
 
     private final IEventManager eventManager;
     private Mqtt5AsyncClient client;
     private final String username;
     private final String password;
-    private final ISerializer serializer;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
     @SneakyThrows
-    public MqttConnection(@Autowired MqttConfiguration configuration,
-                          @Autowired @Qualifier("JsonSerializer") ISerializer serializer,
+    public MqttController(@Autowired MqttConfiguration configuration,
                           @Autowired @Qualifier("EventManager") IEventManager eventManager) {
 
         this.client = MqttClient.builder()
@@ -51,8 +50,25 @@ public class MqttConnection implements IConnectionService, IMqttConnection {
 
         this.username = configuration.getUsername();
         this.password = configuration.getPassword();
-        this.serializer = serializer;
         this.eventManager = eventManager;
+        this.eventManager.addListener(Event.MQTT_PUBLISH, this::InvokePublish);
+        this.eventManager.addListener(Event.MQTT_SUBSCRIBE, this::InvokeSubscribe);
+        this.eventManager.addListener(Event.MQTT_UNSUBSCRIBE, this::InvokeUnsubscribe);
+    }
+
+    private void InvokeUnsubscribe(PropertyChangeEvent propertyChangeEvent) {
+        var topic = (String) propertyChangeEvent.getNewValue();
+        unsubscribe(topic);
+    }
+
+    private void InvokeSubscribe(PropertyChangeEvent propertyChangeEvent) {
+        var topic = (String) propertyChangeEvent.getNewValue();
+        subscribe(topic);
+    }
+
+    private void InvokePublish(PropertyChangeEvent propertyChangeEvent) {
+        var info = (MqttPublishDto) propertyChangeEvent.getNewValue();
+        publish(info.getTopic(), info.getPayload(), MqttQos.AT_MOST_ONCE, false);
     }
 
     public void setClient(Mqtt5Client client) {
@@ -69,6 +85,12 @@ public class MqttConnection implements IConnectionService, IMqttConnection {
                     .username(username)
                     .password(UTF_8.encode(password))
                     .applySimpleAuth()
+                    .willPublish()
+                        .topic("0462/backend/status")
+                        .payload("OFFLINE".getBytes())
+                        .qos(MqttQos.AT_LEAST_ONCE)
+                        .retain(true)
+                        .applyWillPublish()
                     .send()
                     .whenComplete((act, throwable) -> {
                         if (throwable == null) {
@@ -76,7 +98,8 @@ public class MqttConnection implements IConnectionService, IMqttConnection {
                         } else {
                             logger.error("MqttService.connect: " + throwable.getMessage());
                         }
-                        subscribe("0462/rpi3/detection"); //TODO: Handle this differently
+                        subscribe("0462/backend/hello");
+                        publish("0462/backend/status", "ONLINE", MqttQos.AT_LEAST_ONCE, true);
                     })
                     .get();
         } catch (InterruptedException | ExecutionException e) {
@@ -97,9 +120,7 @@ public class MqttConnection implements IConnectionService, IMqttConnection {
         }
     }
 
-
-    @Override
-    public CompletableFuture<Mqtt5PublishResult> publish(String topic, DeviceModel payload) {
+    private CompletableFuture<Mqtt5PublishResult> publish(String topic, String payload, MqttQos qos, boolean retain) {
         if (client == null || payload == null) {
             return null;
         }
@@ -107,27 +128,23 @@ public class MqttConnection implements IConnectionService, IMqttConnection {
 
         return client.publishWith()
                 .topic(topic)
-                .payload(UTF_8.encode(serializer.toJson(payload)))
+                .payload(UTF_8.encode(payload))
+                .qos(qos)
+                .retain(retain)
                 .send()
                 .whenComplete((ack, throwable) -> {
                     if (throwable != null) {
                         logger.error("MqttService.publish: " + throwable.getMessage());
                     }
                 });
-
-
     }
 
-    @Override
-    public CompletableFuture<Mqtt5SubAck> subscribe(String topic) {
+
+    private CompletableFuture<Mqtt5SubAck> subscribe(String topic) {
 
         return client.subscribeWith()
                 .topicFilter(topic)
-                .callback(cb -> {
-                    if (cb.getPayload().isPresent()) {
-                        eventManager.invoke(Event.UUID_DETECTED, String.valueOf(UTF_8.decode(cb.getPayload().get())));
-                    }
-                })
+                .callback(cb -> eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, cb))
                 .send()
                 .whenComplete((ack, throwable) -> {
                     if (throwable != null) {
@@ -142,8 +159,7 @@ public class MqttConnection implements IConnectionService, IMqttConnection {
 
     }
 
-    @Override
-    public CompletableFuture<Mqtt5UnsubAck> unsubscribe(String topic) {
+    private CompletableFuture<Mqtt5UnsubAck> unsubscribe(String topic) {
         return client.unsubscribeWith()
                 .topicFilter(topic)
                 .send()

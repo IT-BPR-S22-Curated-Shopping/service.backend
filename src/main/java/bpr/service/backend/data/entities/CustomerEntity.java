@@ -17,7 +17,6 @@ public class CustomerEntity implements Serializable {
     private Long id;
 
     @OneToMany
-
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<TrackingIdEntity> uuid;
 
