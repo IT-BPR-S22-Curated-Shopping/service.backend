@@ -1,4 +1,4 @@
-package bpr.service.backend.data.dto;
+package bpr.service.backend.models.dto;
 
 import lombok.Data;
 

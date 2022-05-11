@@ -1,6 +1,6 @@
 package bpr.service.backend.services.data;
 
-import bpr.service.backend.data.entities.LocationEntity;
+import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

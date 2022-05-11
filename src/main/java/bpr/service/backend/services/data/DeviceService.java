@@ -1,8 +1,8 @@
 package bpr.service.backend.services.data;
 
-import bpr.service.backend.data.dto.ConnectedDeviceDto;
-import bpr.service.backend.data.dto.DeviceStatusDto;
-import bpr.service.backend.data.entities.TrackerEntity;
+import bpr.service.backend.models.dto.ConnectedDeviceDto;
+import bpr.service.backend.models.dto.DeviceStatusDto;
+import bpr.service.backend.models.entities.TrackerEntity;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;

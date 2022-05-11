@@ -1,6 +1,6 @@
 package bpr.service.backend.controllers.mqtt;
 
-import bpr.service.backend.data.dto.MqttPublishDto;
+import bpr.service.backend.models.dto.MqttPublishDto;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.services.IConnectionService;

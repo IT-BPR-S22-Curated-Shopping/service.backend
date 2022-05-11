@@ -1,4 +1,4 @@
-package bpr.service.backend.data.entities;
+package bpr.service.backend.models.entities;
 
 import lombok.Data;
 

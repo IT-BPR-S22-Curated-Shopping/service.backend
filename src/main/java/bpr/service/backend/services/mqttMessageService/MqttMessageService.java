@@ -1,7 +1,7 @@
 package bpr.service.backend.services.mqttMessageService;
 
-import bpr.service.backend.data.dto.*;
-import bpr.service.backend.data.entities.TrackerEntity;
+import bpr.service.backend.models.dto.*;
+import bpr.service.backend.models.entities.TrackerEntity;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.util.ISerializer;
