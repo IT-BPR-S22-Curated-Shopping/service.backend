@@ -1,8 +1,5 @@
 package bpr.service.backend.managers.events;
 
-import bpr.service.backend.data.dto.ConnectedDeviceDto;
-import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-
 import java.beans.PropertyChangeListener;
 
 public interface IEventManager {
