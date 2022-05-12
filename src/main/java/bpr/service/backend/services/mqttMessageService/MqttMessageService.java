@@ -46,6 +46,7 @@ public class MqttMessageService {
 
     private void initDeviceCommunication(PropertyChangeEvent propertyChangeEvent) {
         var device = (TrackerEntity) propertyChangeEvent.getNewValue();
+        logger.info("MQTT Message Service: Subscribing to " + device.getDeviceId());
         var root = String.format("%s/%s", device.getCompanyId(), device.getDeviceId());
         eventManager.invoke(Event.MQTT_SUBSCRIBE, String.format("%s/detection", root));
         eventManager.invoke(Event.MQTT_SUBSCRIBE, String.format("%s/status", root));
