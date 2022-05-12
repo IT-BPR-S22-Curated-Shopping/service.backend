@@ -23,6 +23,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     public WebSocketHandler(IEventManager eventManager) {
         eventManager.addListener(Event.CUSTOMER_IDENTIFIED, this::onMessageReceived);
+        logger.info("websockethandler constructor");
     }
 
     @Override
@@ -44,6 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @SneakyThrows
     public void onMessageReceived(PropertyChangeEvent event) {
+
         var idDto = (IdentifiedCustomerDto) event.getNewValue();
         logger.info("onMessageReceived: " + Arrays.toString(Arrays.stream(sessions.stream().toArray()).toArray()));
         if (!sessions.isEmpty()) {
