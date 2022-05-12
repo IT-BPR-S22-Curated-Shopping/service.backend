@@ -11,6 +11,7 @@ public class MqttConfiguration {
     @Value("${service.mqtt.host}")
     private String host;
     @Getter
+
     @Value("${service.mqtt.port}")
     private int port;
     @Getter
@@ -19,9 +20,7 @@ public class MqttConfiguration {
     @Getter
     @Value("${service.mqtt.password}")
     private String password;
-    @Getter
-    @Value("${service.mqtt.topic.default}")
-    private String defaultTopic;
+
 
 
     public MqttConfiguration() {
