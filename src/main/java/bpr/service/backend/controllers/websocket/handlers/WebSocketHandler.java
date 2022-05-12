@@ -36,9 +36,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @SneakyThrows
     public void onMessageReceived(PropertyChangeEvent event) {
         var idDto = (IdentifiedCustomerDto) event.getNewValue();
-        for (WebSocketSession session : sessions) {
-            logger.info("Websocket: sending message received from tracker: " + idDto.getTrackerDeviceId());
-            session.sendMessage(new TextMessage(idDto.getTrackerDeviceId()));
+        if (!sessions.isEmpty()) {
+            for (WebSocketSession session : sessions) {
+                logger.info("Websocket: sending message received from tracker: " + idDto.getTrackerDeviceId());
+                session.sendMessage(new TextMessage(idDto.getTrackerDeviceId()));
+            }
+        }
+        else {
+            logger.info("Websocket: No active clients connected.");
         }
     }
+
 }
