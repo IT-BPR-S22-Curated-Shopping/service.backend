@@ -6,6 +6,8 @@ import bpr.service.backend.models.dto.IdentifiedCustomerDto;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -15,14 +17,14 @@ import java.beans.PropertyChangeEvent;
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Component
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
-    public WebSocketHandler(IEventManager eventManager) {
+    public WebSocketHandler(@Autowired @Qualifier("EventManager") IEventManager eventManager) {
         eventManager.addListener(Event.CUSTOMER_IDENTIFIED, this::onMessageReceived);
-        logger.info("websockethandler constructor");
     }
 
     @Override
