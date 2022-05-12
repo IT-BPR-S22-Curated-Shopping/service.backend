@@ -12,6 +12,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.beans.PropertyChangeEvent;
+import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
@@ -27,13 +28,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         sessions.add(session);
-        logger.debug("Session added: " + session);
+        logger.info("Session added: " + session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         sessions.remove(session);
-        logger.debug("Session removed: " + session);
+        logger.info("Session removed: " + session);
     }
 
     @Override
@@ -44,6 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @SneakyThrows
     public void onMessageReceived(PropertyChangeEvent event) {
         var idDto = (IdentifiedCustomerDto) event.getNewValue();
+        logger.info("onMessageReceived: " + Arrays.toString(Arrays.stream(sessions.stream().toArray()).toArray()));
         if (!sessions.isEmpty()) {
             for (WebSocketSession session : sessions) {
                 logger.info("Websocket: sending message received from tracker: " + idDto.getTrackerDeviceId());
