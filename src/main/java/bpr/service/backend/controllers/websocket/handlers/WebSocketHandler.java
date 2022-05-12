@@ -15,7 +15,6 @@ import java.beans.PropertyChangeEvent;
 import java.util.Arrays;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Component
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
