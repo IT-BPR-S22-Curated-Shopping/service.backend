@@ -18,7 +18,7 @@ public class CustomerEntity implements Serializable {
 
     @OneToMany
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<TrackingIdEntity> uuid;
+    private List<UuidEntity> uuids;
 
     @ManyToMany
     @Column(unique=true)
@@ -28,8 +28,8 @@ public class CustomerEntity implements Serializable {
     public CustomerEntity() {
     }
 
-    public CustomerEntity(List<TrackingIdEntity> uuid, List<TagEntity> tags) {
-        this.uuid = uuid;
+    public CustomerEntity(List<UuidEntity> uuid, List<TagEntity> tags) {
+        this.uuids = uuid;
         this.tags = tags;
     }
 }

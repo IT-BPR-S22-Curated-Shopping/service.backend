@@ -8,13 +8,14 @@ import bpr.service.backend.util.ISerializer;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import java.beans.PropertyChangeEvent;
 import java.util.Date;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@Component("MqttMessageService")
+@Service("MqttMessageService")
 public class MqttMessageService {
 
     private final IEventManager eventManager;
@@ -119,7 +120,7 @@ public class MqttMessageService {
                             device,
                             messageNode.get("uuid").asText()
                     );
-                    eventManager.invoke(Event.CUSTOMER_DETECT, detection);
+                    eventManager.invoke(Event.CUSTOMER_DETECTED, detection);
                 }
                 break;
             default:

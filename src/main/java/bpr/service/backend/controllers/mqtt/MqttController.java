@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.beans.PropertyChangeEvent;
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@Component("MqttService")
+@Controller("MqttController")
 public class MqttController implements IConnectionService {
 
     private final IEventManager eventManager;

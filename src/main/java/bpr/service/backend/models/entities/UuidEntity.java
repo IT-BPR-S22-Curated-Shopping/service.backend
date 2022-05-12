@@ -5,9 +5,9 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "tracking_ids")
+@Table(name = "uuids")
 @Data
-public class TrackingIdEntity {
+public class UuidEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,5 +16,5 @@ public class TrackingIdEntity {
     @Column(unique=true)
     private String uuid;
 
-    public TrackingIdEntity() { }
+    public UuidEntity() { }
 }
