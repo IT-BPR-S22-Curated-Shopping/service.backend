@@ -9,13 +9,13 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JsonSerializerTest {
-
-    private ISerializer serializer;
-
-    @BeforeEach
-    public void beforeAll() {
-        serializer = new JsonSerializer();
-    }
+//
+//    private ISerializer serializer;
+//
+//    @BeforeEach
+//    public void beforeAll() {
+//        serializer = new JsonSerializer();
+//    }
 
 //    @Test
 //    public void toJsonSunny() throws JsonProcessingException {
