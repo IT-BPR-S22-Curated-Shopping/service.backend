@@ -6,6 +6,8 @@ import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.util.ISerializer;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ public class MqttMessageService {
 
     private final IEventManager eventManager;
     private final ISerializer serializer;
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public MqttMessageService(@Autowired @Qualifier("EventManager") IEventManager eventManager,
                               @Autowired @Qualifier("JsonSerializer")ISerializer serializer) {
