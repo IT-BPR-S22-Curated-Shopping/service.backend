@@ -1,11 +1,9 @@
 package bpr.service.backend.persistence.repository.tagRepository;
 
-import bpr.service.backend.models.sql.TagEntity;
+import bpr.service.backend.models.entities.TagEntity;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.Repository;
 
-public interface ITagRepository extends Repository<TagEntity, Long> {
+public interface ITagRepository extends CrudRepository<TagEntity, Long> {
 
     TagEntity findByTag(String name);
-
 }

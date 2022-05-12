@@ -1,21 +1,19 @@
-package bpr.service.backend.models.sql;
-
+package bpr.service.backend.models.entities;
 
 import lombok.Data;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "tags")
+@Table(name = "topics")
 @Data
-public class TagEntity {
+public class TopicEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String tag;
+    private String topic;
 
-    public TagEntity() {
-    }
+    public TopicEntity() { }
 }

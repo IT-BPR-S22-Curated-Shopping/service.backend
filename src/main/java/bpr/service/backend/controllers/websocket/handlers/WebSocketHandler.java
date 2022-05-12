@@ -2,6 +2,7 @@ package bpr.service.backend.controllers.websocket.handlers;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
+import bpr.service.backend.models.dto.IdentifiedCustomerDto;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -16,7 +17,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
     public WebSocketHandler(IEventManager eventManager) {
-        eventManager.addListener(Event.UUID_DETECTED, this::onMessageReceived);
+        eventManager.addListener(Event.CUSTOMER_IDENTIFIED, this::onMessageReceived);
     }
 
     @Override
@@ -31,8 +32,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @SneakyThrows
     public void onMessageReceived(PropertyChangeEvent event) {
+        var idDto = (IdentifiedCustomerDto) event.getNewValue();
         for (WebSocketSession session : sessions) {
-            session.sendMessage(new TextMessage(event.getNewValue().toString()));
+            session.sendMessage(new TextMessage(idDto.getTrackerDeviceId()));
         }
     }
 }
