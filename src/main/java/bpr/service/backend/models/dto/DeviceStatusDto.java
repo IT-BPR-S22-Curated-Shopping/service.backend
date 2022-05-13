@@ -6,14 +6,14 @@ import lombok.Data;
 public class DeviceStatusDto {
     private long timestamp;
     private String deviceId;
-    private String status;
+    private boolean online;
 
     public DeviceStatusDto() {
     }
 
-    public DeviceStatusDto(long timestamp, String deviceId, String status) {
+    public DeviceStatusDto(long timestamp, String deviceId, boolean online) {
         this.timestamp = timestamp;
         this.deviceId = deviceId;
-        this.status = status;
+        this.online = online;
     }
 }

@@ -33,6 +33,7 @@ public class MqttController implements IConnectionService {
     private Mqtt5AsyncClient client;
     private final String username;
     private final String password;
+    private final String backendId;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -50,6 +51,7 @@ public class MqttController implements IConnectionService {
 
         this.username = configuration.getUsername();
         this.password = configuration.getPassword();
+        this.backendId = configuration.getBackendId();
         this.eventManager = eventManager;
         this.eventManager.addListener(Event.MQTT_PUBLISH, this::InvokePublish);
         this.eventManager.addListener(Event.MQTT_SUBSCRIBE, this::InvokeSubscribe);
@@ -78,7 +80,6 @@ public class MqttController implements IConnectionService {
     @EventListener(ApplicationReadyEvent.class)
     @Override
     public void connect() throws Throwable {
-
         try {
             client.connectWith()
                     .simpleAuth()
@@ -86,8 +87,8 @@ public class MqttController implements IConnectionService {
                     .password(UTF_8.encode(password))
                     .applySimpleAuth()
                     .willPublish()
-                        .topic("0462/backend/status")
-                        .payload("OFFLINE".getBytes())
+                        .topic(String.format("%s/backend/status" , backendId))
+                        .payload("{\"online\":false}".getBytes())
                         .qos(MqttQos.AT_LEAST_ONCE)
                         .retain(true)
                         .applyWillPublish()
@@ -98,8 +99,8 @@ public class MqttController implements IConnectionService {
                         } else {
                             logger.error("MqttService.connect: " + throwable.getMessage());
                         }
-                        subscribe("0462/backend/hello");
-                        publish("0462/backend/status", "ONLINE", MqttQos.AT_LEAST_ONCE, true);
+                        subscribe(String.format("%s/backend/hello" , backendId));
+                        publish(String.format("%s/backend/status" , backendId), "{\"online\":true}", MqttQos.AT_LEAST_ONCE, true);
                     })
                     .get();
         } catch (InterruptedException | ExecutionException e) {

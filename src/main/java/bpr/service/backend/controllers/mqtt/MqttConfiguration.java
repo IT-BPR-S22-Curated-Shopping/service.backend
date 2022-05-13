@@ -20,7 +20,10 @@ public class MqttConfiguration {
     @Getter
     @Value("${service.mqtt.password}")
     private String password;
-
+    
+    @Getter
+    @Value("${service.mqtt.backendId}")
+    private String backendId;
 
 
     public MqttConfiguration() {
