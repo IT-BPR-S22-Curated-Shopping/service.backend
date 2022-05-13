@@ -43,14 +43,20 @@ public class DeviceService implements ICRUDService<TrackerEntity> {
 
     private void HandleConnectedDevice(PropertyChangeEvent propertyChangeEvent) {
         var connectedDevice = (ConnectedDeviceDto) propertyChangeEvent.getNewValue();
+
+        // Check if device is known.
         var device = deviceRepository.findByDeviceId(connectedDevice.getDeviceId());
+
+        // If not known persist the new device.
         if (device == null) {
             device = Create(new TrackerEntity(
                     connectedDevice.getCompanyId(),
                     connectedDevice.getDeviceId(),
                     connectedDevice.getDeviceType()));
         }
-        if (device != null)
+
+        // Checks if the connected device belongs to the company before init communication.
+        if (device != null && connectedDevice.getCompanyId().equals(device.getCompanyId()))
             eventManager.invoke(Event.DEVICE_INIT_COMM, device);
     }
 
