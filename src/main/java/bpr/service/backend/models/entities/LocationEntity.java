@@ -14,6 +14,8 @@ public class LocationEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private String name;
+
     @OneToOne
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private ProductEntity product;

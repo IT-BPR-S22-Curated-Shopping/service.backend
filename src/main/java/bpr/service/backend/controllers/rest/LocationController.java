@@ -41,6 +41,14 @@ public class LocationController {
         return locationService.Create(location);
     }
 
+    @PostMapping(value = "/name")
+    @ResponseStatus(HttpStatus.CREATED)
+    public LocationEntity createLocationWithName(@RequestBody Map<String, String> map) {
+        LocationEntity entity = new LocationEntity();
+        entity.setName(map.get("name"));
+        return locationService.Create(entity);
+    }
+
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity updateLocation(@PathVariable("id") Long id, @RequestBody LocationEntity location) {
