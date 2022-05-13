@@ -32,7 +32,7 @@ public class DeviceService implements ICRUDService<TrackerEntity> {
         var deviceStatus = (DeviceStatusDto) propertyChangeEvent.getNewValue();
         var device = deviceRepository.findByDeviceId(deviceStatus.getDeviceId());
         if (device != null) {
-            if ((deviceStatus.getStatus().equalsIgnoreCase("ONLINE"))) {
+            if ((deviceStatus.isOnline())) {
                 eventManager.invoke(Event.DEVICE_ONLINE, device);
             }
             else {
