@@ -17,4 +17,8 @@ public class UuidEntity {
     private String uuid;
 
     public UuidEntity() { }
+
+    public UuidEntity(String uuid) {
+        this.uuid = uuid;
+    }
 }

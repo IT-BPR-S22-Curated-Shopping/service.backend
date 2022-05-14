@@ -2,23 +2,46 @@ package bpr.service.backend.services.mqttMessageService;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.EventManager;
+import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.dto.*;
+import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
+import bpr.service.backend.util.IDateTime;
+import bpr.service.backend.util.ISerializer;
 import bpr.service.backend.util.JsonSerializer;
 import com.hivemq.client.mqtt.datatypes.MqttTopic;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import java.beans.PropertyChangeEvent;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class MqttMessageServiceTest {
 
-    private EventManager eventManager;
-    private Mqtt5Publish message;
+    @Spy
+    private IEventManager eventManager = new EventManager();
 
+    @Spy
+    private ISerializer jsonSerializer = new JsonSerializer();
+
+    @Mock
+    private IDeviceRepository deviceRepository;
+
+    @Mock
+    private IDateTime dateTime;
+
+    @InjectMocks
+    MqttMessageService messageService;
+
+    private final Mqtt5Publish message = Mockito.mock(Mqtt5Publish.class, Mockito.RETURNS_DEEP_STUBS);;
     private final String channelHello = "hello";
     private final String channelTelemetry = "telemetry";
     private final String channelStatus = "status";
@@ -28,7 +51,7 @@ class MqttMessageServiceTest {
     private final Long timestamp = 1652463743476L;
     private final String uuid = "010D2108-0462-4F97-BAB8-000000000002";
     private final String telemetryLevel = "Info";
-    private final String telemetryMsg = "Info";
+    private final String telemetryMsg = "Telemetry Message.";
     private final String deviceType = "BLE";
     private MqttPublishDto errorDto;
     private DetectedCustomerDto detectedDto;
@@ -39,19 +62,6 @@ class MqttMessageServiceTest {
     private final String jsonStatus = String.format("{\"online\":%s}", true);
     private final String jsonTelemetry = String.format("{\"level\":\"%s\",\"message\":\"%s\"}", telemetryLevel, telemetryMsg);
     private final String jsonHello = String.format("{\"company\":\"%s\",\"device\":{\"id\":\"%s\",\"type\":\"%s\"}}", companyId, deviceId, deviceType);
-
-    @BeforeEach
-    public void beforeEach() {
-        message = Mockito.mock(Mqtt5Publish.class, Mockito.RETURNS_DEEP_STUBS);
-        errorDto = null;
-        detectedDto = null;
-        statusDto = null;
-        telemetryDto = null;
-        helloDto = null;
-        eventManager = new EventManager();
-        new MqttMessageService(eventManager, new JsonSerializer());
-        eventManager.addListener(Event.MQTT_PUBLISH, this::setErrorDto);
-    }
 
     private void setErrorDto(PropertyChangeEvent event) {
         errorDto = (MqttPublishDto) event.getNewValue();
@@ -73,11 +83,25 @@ class MqttMessageServiceTest {
         helloDto = (ConnectedDeviceDto) event.getNewValue();
     }
 
-    private void setMock(String channel, String json) {
+    @BeforeEach
+    public void beforeEach() {
+        eventManager.addListener(Event.MQTT_PUBLISH, this::setErrorDto);
+        errorDto = null;
+        detectedDto = null;
+        statusDto = null;
+        telemetryDto = null;
+        helloDto = null;
+    }
+
+    private void setTopicMock(String channel, String json) {
         Mockito.when(message.getTopic())
                 .thenReturn(MqttTopic.of(String.format("%s/%s/%s", companyId, deviceId, channel)));
         Optional<ByteBuffer> byteBuf = Optional.of(ByteBuffer.wrap(json.getBytes()));
         Mockito.when(message.getPayload()).thenReturn(byteBuf);
+    }
+
+    private void setTimeMock() {
+        Mockito.when(dateTime.getEpochSeconds()).thenReturn(timestamp);
     }
 
     @Test
@@ -92,23 +116,34 @@ class MqttMessageServiceTest {
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(1)).getTopic();
+        Mockito.verify(message, Mockito.times(1)).getPayload();
+        Mockito.verify(eventManager, Mockito.times(1))
+                .invoke(Event.MQTT_PUBLISH,
+                        new MqttPublishDto(
+                                String.format("%s/%s/error", companyId, deviceId),
+                                String.format("Payload not found in channel: %s. Cannot be empty!", channelDetection)
+                        ));
         Assertions.assertNull(detectedDto);
         Assertions.assertNotNull(errorDto);
     }
 
     @Test
-    public void emptyPayloadContent() {
+    public void emptyPayloadMessage() {
         // Arrange.
         Mockito.when(message.getTopic()).thenReturn(MqttTopic.of(String.format("%s/%s/%s", companyId, deviceId, channelDetection)));
         Optional<ByteBuffer> byteBuf = Optional.empty();
         Mockito.when(message.getPayload()).thenReturn(byteBuf);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
         var expected = String.format("Payload not found in channel: %s. Cannot be empty!", channelDetection);
-
+        ;
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(1)).getTopic();
+        Mockito.verify(message, Mockito.times(1)).getPayload();
+        Assertions.assertNull(detectedDto);
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
 
@@ -125,6 +160,9 @@ class MqttMessageServiceTest {
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(2)).getTopic();
+        Mockito.verify(message, Mockito.times(0)).getPayload();
+        Assertions.assertNull(detectedDto);
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
 
@@ -141,19 +179,32 @@ class MqttMessageServiceTest {
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(2)).getTopic();
+        Mockito.verify(message, Mockito.times(0)).getPayload();
+        Assertions.assertNull(detectedDto);
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
 
     @Test
     public void invokeEventCustomerDetected() {
         // Arrange.
-        setMock(channelDetection, jsonDetected);
+        setTopicMock(channelDetection, jsonDetected);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(1)).getTopic();
+        Mockito.verify(message, Mockito.times(2)).getPayload();
+        Mockito.verify(jsonSerializer, Mockito.times(1)).getJsonNode(Mockito.anyString());
+        Mockito.verify(eventManager, Mockito.times(1))
+                .invoke(Event.CUSTOMER_DETECTED,
+                        new DetectedCustomerDto(
+                                timestamp,
+                                deviceId,
+                                uuid
+                        ));
         Assertions.assertNull(errorDto);
         Assertions.assertNotNull(detectedDto);
     }
@@ -161,39 +212,43 @@ class MqttMessageServiceTest {
     @Test
     public void customerDetectedCorrectTimestamp() {
         // Arrange.
-        setMock(channelDetection, jsonDetected);
+        setTopicMock(channelDetection, jsonDetected);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(timestamp, detectedDto.getTimestamp());
     }
 
     @Test
     public void customerDetectedCorrectUuid() {
         // Arrange.
-        setMock(channelDetection, jsonDetected);
+        setTopicMock(channelDetection, jsonDetected);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(uuid, detectedDto.getUuid());
     }
 
     @Test
     public void customerDetectedCorrectDeviceId() {
         // Arrange.
-        setMock(channelDetection, jsonDetected);
+        setTopicMock(channelDetection, jsonDetected);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(deviceId, detectedDto.getDeviceId());
     }
 
@@ -201,7 +256,7 @@ class MqttMessageServiceTest {
     public void customerDetectedUuidNotString() {
         // Arrange.
         var json = String.format("{\"timestamp\":%s,\"uuid\":%S}", timestamp, 15);
-        setMock(channelDetection, json);
+        setTopicMock(channelDetection, json);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
         var expected = "Incorrect type. uuid must be type String";
 
@@ -210,8 +265,6 @@ class MqttMessageServiceTest {
 
         // Assert.
         Assertions.assertNull(detectedDto);
-        Assertions.assertNotNull(errorDto);
-
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
 
@@ -219,7 +272,7 @@ class MqttMessageServiceTest {
     public void customerDetectedTimestampNotLong() {
         // Arrange.
         var json = String.format("{\"timestamp\":\"%s\",\"uuid\":\"%S\"}", timestamp, uuid);
-        setMock(channelDetection, json);
+        setTopicMock(channelDetection, json);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
         var expected = "Incorrect type. timestamp must be type Long";
 
@@ -228,8 +281,6 @@ class MqttMessageServiceTest {
 
         // Assert.
         Assertions.assertNull(detectedDto);
-        Assertions.assertNotNull(errorDto);
-
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
 
@@ -237,7 +288,7 @@ class MqttMessageServiceTest {
     public void customerDetectedNoTimestamp() {
         // Arrange.
         var json = String.format("{\"uuid\":\"%S\"}", uuid);
-        setMock(channelDetection, json);
+        setTopicMock(channelDetection, json);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
         var expected = "Incorrect detection payload. Expected 'timestamp': Long";
 
@@ -246,8 +297,6 @@ class MqttMessageServiceTest {
 
         // Assert.
         Assertions.assertNull(detectedDto);
-        Assertions.assertNotNull(errorDto);
-
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
 
@@ -255,7 +304,7 @@ class MqttMessageServiceTest {
     public void customerDetectedNoUuid() {
         // Arrange.
         var json = String.format("{\"timestamp\":\"%s\"}", timestamp);
-        setMock(channelDetection, json);
+        setTopicMock(channelDetection, json);
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
         var expected = "Incorrect detection payload.Expected 'uuid': 'detected uuid'";
 
@@ -264,21 +313,30 @@ class MqttMessageServiceTest {
 
         // Assert.
         Assertions.assertNull(detectedDto);
-        Assertions.assertNotNull(errorDto);
-
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
 
     @Test
     public void invokeStatusUpdate() {
         // Arrange.
-        setMock(channelStatus, jsonStatus);
+        setTopicMock(channelStatus, jsonStatus);
+        setTimeMock();
         eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::setStatusDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(1)).getTopic();
+        Mockito.verify(message, Mockito.times(2)).getPayload();
+        Mockito.verify(jsonSerializer, Mockito.times(1)).getJsonNode(Mockito.anyString());
+        Mockito.verify(eventManager, Mockito.times(1))
+                .invoke(Event.DEVICE_STATUS_UPDATE,
+                        new DeviceStatusDto(
+                                timestamp,
+                                deviceId,
+                                statusDto.isOnline()
+                        ));
         Assertions.assertNull(errorDto);
         Assertions.assertNotNull(statusDto);
     }
@@ -286,26 +344,30 @@ class MqttMessageServiceTest {
     @Test
     public void statusUpdateOnlineTrue() {
         // Arrange.
-        setMock(channelStatus, jsonStatus);
+        setTopicMock(channelStatus, jsonStatus);
+        setTimeMock();
         eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::setStatusDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
-        Assertions.assertEquals(true, statusDto.isOnline());
+        Assertions.assertNull(errorDto);
+        Assertions.assertTrue(statusDto.isOnline());
     }
 
     @Test
     public void statusUpdateDeviceId() {
         // Arrange.
-        setMock(channelStatus, jsonStatus);
+        setTopicMock(channelStatus, jsonStatus);
+        setTimeMock();
         eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::setStatusDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(deviceId, statusDto.getDeviceId());
     }
 
@@ -313,7 +375,8 @@ class MqttMessageServiceTest {
     public void statusUpdateOnlineNotFound() {
         // Arrange.
         var json = String.format("{\"offline\":%s}", true);
-        setMock(channelStatus, json);
+        setTopicMock(channelStatus, json);
+
         eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::setStatusDto);
         var expected = "Incorrect status payload. structure. Expected: 'online': boolean";
 
@@ -321,6 +384,7 @@ class MqttMessageServiceTest {
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+
         Assertions.assertNull(statusDto);
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
@@ -329,7 +393,8 @@ class MqttMessageServiceTest {
     public void statusUpdateOnlineNotBoolean() {
         // Arrange.
         var json = String.format("{\"online\":\"%s\"}", true);
-        setMock(channelStatus, json);
+        setTopicMock(channelStatus, json);
+
         eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::setStatusDto);
         var expected = "Incorrect type. online must be type boolean";
 
@@ -337,6 +402,10 @@ class MqttMessageServiceTest {
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.MQTT_PUBLISH, new MqttPublishDto(
+                String.format("%s/%s/error", companyId, deviceId),
+                expected
+        ));
         Assertions.assertNull(statusDto);
         Assertions.assertEquals(expected, errorDto.getPayload());
     }
@@ -344,13 +413,25 @@ class MqttMessageServiceTest {
     @Test
     public void invokeEventTelemetry() {
         // Arrange.
-        setMock(channelTelemetry, jsonTelemetry);
+        setTopicMock(channelTelemetry, jsonTelemetry);
+        setTimeMock();
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(1)).getTopic();
+        Mockito.verify(message, Mockito.times(2)).getPayload();
+        Mockito.verify(jsonSerializer, Mockito.times(1)).getJsonNode(Mockito.anyString());
+        Mockito.verify(eventManager, Mockito.times(1))
+                .invoke(Event.TELEMETRY_RECEIVED,
+                        new TelemetryDto(
+                                timestamp,
+                                deviceId,
+                                telemetryLevel,
+                                telemetryMsg
+                        ));
         Assertions.assertNull(errorDto);
         Assertions.assertNotNull(telemetryDto);
     }
@@ -358,39 +439,42 @@ class MqttMessageServiceTest {
     @Test
     public void telemetryLevelCorrect() {
         // Arrange.
-        setMock(channelTelemetry, jsonTelemetry);
+        setTopicMock(channelTelemetry, jsonTelemetry);
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(telemetryLevel, telemetryDto.getLevel());
     }
 
     @Test
     public void telemetryMsgCorrect() {
         // Arrange.
-        setMock(channelTelemetry, jsonTelemetry);
+        setTopicMock(channelTelemetry, jsonTelemetry);
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(telemetryMsg, telemetryDto.getMessage());
     }
 
     @Test
     public void telemetryCorrectDeviceId() {
         // Arrange.
-        setMock(channelTelemetry, jsonTelemetry);
+        setTopicMock(channelTelemetry, jsonTelemetry);
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(deviceId, telemetryDto.getDeviceId());
     }
 
@@ -398,7 +482,7 @@ class MqttMessageServiceTest {
     public void telemetryLevelNotString() {
         // Arrange.
         var json = String.format("{\"level\":%s,\"message\":\"%s\"}", 2, telemetryMsg);
-        setMock(channelTelemetry, json);
+        setTopicMock(channelTelemetry, json);
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
         var expected = "Incorrect type. level must be type String";
 
@@ -414,7 +498,7 @@ class MqttMessageServiceTest {
     public void telemetryLevelMissing() {
         // Arrange.
         var json = String.format("{\"message\":\"%s\"}", telemetryMsg);
-        setMock(channelTelemetry, json);
+        setTopicMock(channelTelemetry, json);
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
         var expected = "Incorrect telemetry payload. Expected: 'level': 'messageLevel'";
 
@@ -430,7 +514,7 @@ class MqttMessageServiceTest {
     public void telemetryMsgNotString() {
         // Arrange.
         var json = String.format("{\"level\":\"%s\",\"message\":%s}", telemetryLevel, 2);
-        setMock(channelTelemetry, json);
+        setTopicMock(channelTelemetry, json);
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
         var expected = "Incorrect type. message must be type String";
 
@@ -446,7 +530,7 @@ class MqttMessageServiceTest {
     public void telemetryMsgMissing() {
         // Arrange.
         var json = String.format("{\"level\":\"%s\"}", telemetryLevel);
-        setMock(channelTelemetry, json);
+        setTopicMock(channelTelemetry, json);
         eventManager.addListener(Event.TELEMETRY_RECEIVED, this::setTelemetryDto);
         var expected = "Incorrect telemetry payload. Expected: 'message': 'String'";
 
@@ -461,13 +545,25 @@ class MqttMessageServiceTest {
     @Test
     public void invokeEventHello() {
         // Arrange.
-        setMock(channelHello, jsonHello);
+        setTopicMock(channelHello, jsonHello);
+        setTimeMock();
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Mockito.verify(message, Mockito.times(1)).getTopic();
+        Mockito.verify(message, Mockito.times(2)).getPayload();
+        Mockito.verify(jsonSerializer, Mockito.times(2)).getJsonNode(Mockito.anyString());
+        Mockito.verify(eventManager, Mockito.times(1))
+                .invoke(Event.DEVICE_CONNECTED,
+                        new ConnectedDeviceDto(
+                                timestamp,
+                                companyId,
+                                deviceId,
+                                deviceType
+                        ));
         Assertions.assertNull(errorDto);
         Assertions.assertNotNull(helloDto);
     }
@@ -475,39 +571,42 @@ class MqttMessageServiceTest {
     @Test
     public void helloCorrectCompanyId() {
         // Arrange.
-        setMock(channelHello, jsonHello);
+        setTopicMock(channelHello, jsonHello);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(companyId, helloDto.getCompanyId());
     }
 
     @Test
     public void helloCorrectDeviceId() {
         // Arrange.
-        setMock(channelHello, jsonHello);
+        setTopicMock(channelHello, jsonHello);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(deviceId, helloDto.getDeviceId());
     }
 
     @Test
     public void helloCorrectDeviceType() {
         // Arrange.
-        setMock(channelHello, jsonHello);
+        setTopicMock(channelHello, jsonHello);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
 
         // Act.
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        Assertions.assertNull(errorDto);
         Assertions.assertEquals(deviceType, helloDto.getDeviceType());
     }
 
@@ -515,7 +614,7 @@ class MqttMessageServiceTest {
     public void helloCompanyMissing() {
         // Arrange.
         var json = String.format("{\"device\":{\"id\":\"%s\",\"type\":\"%s\"}}", deviceId, deviceType);
-        setMock(channelHello, json);
+        setTopicMock(channelHello, json);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
         var expected = "Incorrect hello payload. Expected: 'company': 'companyId'";
 
@@ -531,7 +630,7 @@ class MqttMessageServiceTest {
     public void helloCompanyNotString() {
         // Arrange.
         var json = String.format("{\"company\":%s,\"device\":{\"id\":\"%s\",\"type\":\"%s\"}}", 5, deviceId, deviceType);
-        setMock(channelHello, json);
+        setTopicMock(channelHello, json);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
         var expected = "Incorrect type. companyId must be type String";
 
@@ -547,7 +646,7 @@ class MqttMessageServiceTest {
     public void helloDeviceMissing() {
         // Arrange.
         var json = String.format("{\"company\":\"%s\"}", companyId);
-        setMock(channelHello, json);
+        setTopicMock(channelHello, json);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
         var expected = "Incorrect hello payload. Expected: 'device': { 'id': 'deviceId', 'type': 'deviceType' }";
 
@@ -563,7 +662,7 @@ class MqttMessageServiceTest {
     public void helloDeviceIdNotString() {
         // Arrange.
         var json = String.format("{\"company\":\"%s\",\"device\":{\"id\":%s,\"type\":\"%s\"}}", companyId, 5, deviceType);
-        setMock(channelHello, json);
+        setTopicMock(channelHello, json);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
         var expected = "Incorrect type. deviceId must be type String";
 
@@ -579,7 +678,7 @@ class MqttMessageServiceTest {
     public void helloDeviceIdMissing() {
         // Arrange.
         var json = String.format("{\"company\":\"%s\",\"device\":{\"type\":\"%s\"}}", companyId, deviceType);
-        setMock(channelHello, json);
+        setTopicMock(channelHello, json);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
         var expected = "Incorrect hello payload. Expected device id: 'device': { 'id': 'deviceId' }";
 
@@ -595,7 +694,7 @@ class MqttMessageServiceTest {
     public void helloDeviceTypeNotString() {
         // Arrange.
         var json = String.format("{\"company\":\"%s\",\"device\":{\"id\":\"%s\",\"type\":%s}}", companyId, deviceId, 2);
-        setMock(channelHello, json);
+        setTopicMock(channelHello, json);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
         var expected = "Incorrect type. deviceType must be type String";
 
@@ -611,7 +710,7 @@ class MqttMessageServiceTest {
     public void helloDeviceTypeMissing() {
         // Arrange.
         var json = String.format("{\"company\":\"%s\",\"device\":{\"id\":\"%s\"}}", companyId, deviceId);
-        setMock(channelHello, json);
+        setTopicMock(channelHello, json);
         eventManager.addListener(Event.DEVICE_CONNECTED, this::setHelloDto);
         var expected = "Incorrect hello payload. Expected device type: 'device': { 'type': 'deviceType' }";
 

@@ -4,6 +4,7 @@ import bpr.service.backend.models.dto.*;
 import bpr.service.backend.models.entities.TrackerEntity;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
+import bpr.service.backend.util.IDateTime;
 import bpr.service.backend.util.ISerializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import java.beans.PropertyChangeEvent;
-import java.util.Date;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -23,17 +23,20 @@ public class MqttMessageService {
     private final IEventManager eventManager;
     private final ISerializer serializer;
 
+    private final IDateTime dateTime;
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public MqttMessageService(@Autowired @Qualifier("EventManager") IEventManager eventManager,
-                              @Autowired @Qualifier("JsonSerializer")ISerializer serializer) {
+                              @Autowired @Qualifier("JsonSerializer")ISerializer serializer,
+                              @Autowired @Qualifier("DateTime") IDateTime dateTime) {
         this.eventManager = eventManager;
         this.serializer = serializer;
+        this.dateTime = dateTime;
         eventManager.addListener(Event.MQTT_MESSAGE_RECEIVED, this::handleMessage);
         eventManager.addListener(Event.DEVICE_INIT_COMM, this::initDeviceCommunication);
         eventManager.addListener(Event.DEVICE_OFFLINE, this::closeDeviceCommunication);
-        eventManager.addListener(Event.ACTIVATE_DEVICE, this::activateDevice);
-        eventManager.addListener(Event.DEACTIVATE_DEVICE, this::deactivateDevice);
+        eventManager.addListener(Event.DEVICE_ACTIVATE, this::activateDevice);
+        eventManager.addListener(Event.DEVICE_DEACTIVATE, this::deactivateDevice);
     }
 
     private void closeDeviceCommunication(PropertyChangeEvent propertyChangeEvent) {
@@ -129,7 +132,7 @@ public class MqttMessageService {
         }
 
         var client = new ConnectedDeviceDto(
-                new Date().getTime(),
+                dateTime.getEpochSeconds(),
                 companyId.asText(),
                 deviceId.asText(),
                 deviceType.asText()
@@ -163,7 +166,7 @@ public class MqttMessageService {
         }
 
         var telemetry = new TelemetryDto(
-                new Date().getTime(),
+                dateTime.getEpochSeconds(),
                 deviceId,
                 level.asText(),
                 message.asText()
@@ -186,13 +189,12 @@ public class MqttMessageService {
         }
 
         var status = new DeviceStatusDto(
-                new Date().getTime(),
+                dateTime.getEpochSeconds(),
                 deviceId,
                 online.asBoolean()
         );
         eventManager.invoke(Event.DEVICE_STATUS_UPDATE, status);
     }
-
 
     private void handleDetection(String deviceId, JsonNode messageNode, String errorTopic) {
         if (!messageNode.has("timestamp")) {
