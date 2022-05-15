@@ -17,7 +17,7 @@ public class DateTime implements IDateTime{
     }
 
     @Override
-    public Instant convertToDate(long timestamp) {
-        return Instant.ofEpochSecond(timestamp);
+    public Instant convertToDate(long epochSeconds) {
+        return Instant.ofEpochSecond(epochSeconds);
     }
 }
