@@ -15,10 +15,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Controller;
-
 import java.beans.PropertyChangeEvent;
 import java.util.concurrent.ExecutionException;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Controller("MqttController")
