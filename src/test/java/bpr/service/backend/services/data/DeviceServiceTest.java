@@ -8,6 +8,7 @@ import bpr.service.backend.models.dto.ConnectedDeviceErrorDto;
 import bpr.service.backend.models.dto.DeviceStatusDto;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
+import bpr.service.backend.util.DateTime;
 import bpr.service.backend.util.IDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import java.beans.PropertyChangeEvent;
 @ExtendWith(MockitoExtension.class)
 class DeviceServiceTest {
 
+
     @Spy
     private IEventManager eventManager = new EventManager();
 
@@ -31,6 +33,7 @@ class DeviceServiceTest {
 
     @InjectMocks
     DeviceService deviceService;
+
 
     private final IdentificationDeviceEntity repositoryTracker = new IdentificationDeviceEntity(
             "010d2108",

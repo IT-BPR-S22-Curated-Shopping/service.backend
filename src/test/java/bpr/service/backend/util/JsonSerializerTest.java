@@ -4,6 +4,7 @@ import bpr.service.backend.models.entities.CustomerEntity;
 import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.models.entities.UuidEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,15 +23,39 @@ class JsonSerializerTest {
     }
 
     @Test
-    public void toJsonSunny() {
+    public void canCreateJsonNode() {
         //arrange
-        CustomerEntity customerEntity = new CustomerEntity(List.of(new UuidEntity("Uuuid1")), List.of(new TagEntity("tag1")));
-        String expectedOutput = "{\"id\":null,\"uuids\":[{\"id\":null,\"uuid\":\"Uuuid1\"}],\"tags\":[{\"id\":null,\"tag\":\"tag1\"}]}";
+        String actual = "{\"id\":\"1\",\"uuids\":[{\"id\":null,\"uuid\":\"Uuuid1\"}],\"tags\":[{\"id\":null,\"tag\":\"tag1\"}]}";
 
         // act
-        var actual = serializer.toJson(customerEntity);
+        var result = serializer.getJsonNode(actual);
 
         // assert
-        assertEquals(expectedOutput, actual);
+        assertEquals(actual, result.toString());
+    }
+
+    @Test
+    public void canCreateJson() throws JsonProcessingException {
+        // arrange
+        TestClass t = new TestClass(1L, "testField");
+        ObjectMapper mapper = new ObjectMapper();
+        String expected = mapper.writeValueAsString(t);
+
+        // act
+        String test = serializer.toJson(t);
+
+        // assert
+        assertEquals(expected, test);
+    }
+
+
+    private static class TestClass {
+        public Long id;
+        public String testField;
+
+        public TestClass(Long id, String testField) {
+            this.id = id;
+            this.testField = testField;
+        }
     }
 }

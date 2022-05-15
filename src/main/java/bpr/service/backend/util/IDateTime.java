@@ -1,9 +1,9 @@
 package bpr.service.backend.util;
 
-import java.util.Date;
+import java.time.Instant;
 
 public interface IDateTime {
 
     long getEpochSeconds();
-    Date convertToDate(long timestamp);
+    Instant convertToDate(long timestamp);
 }
