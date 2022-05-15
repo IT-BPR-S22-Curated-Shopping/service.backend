@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
-class MqttServiceTest {
+class MqttControllerTest {
 
     final String host = "localhost";
     final String username = "app_backend";

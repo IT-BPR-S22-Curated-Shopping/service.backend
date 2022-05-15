@@ -18,6 +18,6 @@ public class DateTime implements IDateTime{
 
     @Override
     public Instant convertToDate(long timestamp) {
-        return Instant.ofEpochMilli(timestamp);
+        return Instant.ofEpochSecond(timestamp);
     }
 }

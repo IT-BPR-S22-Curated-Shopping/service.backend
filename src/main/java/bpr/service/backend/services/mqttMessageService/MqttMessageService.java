@@ -194,7 +194,7 @@ public class MqttMessageService {
     private void handleStatusUpdate(String deviceId, JsonNode messageNode, String errorTopic) {
         if (!messageNode.has("state")) {
             invokeMqttError(errorTopic,
-                    "Incorrect status payload. structure. Expected: 'online': boolean");
+                    "Incorrect status payload. structure. Expected: 'state': 'String'");
             return;
         }
         var state = messageNode.get("state");
