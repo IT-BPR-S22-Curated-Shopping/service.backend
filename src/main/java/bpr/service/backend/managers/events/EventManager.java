@@ -25,11 +25,6 @@ public class EventManager implements IEventManager{
     }
 
     @Override
-    public void invoke(Event event, String payload) {
-        manager.firePropertyChange(event.name(), null, payload);
-    }
-
-    @Override
     public void invoke(Event event, Object payload) {
         manager.firePropertyChange(event.name(), null, payload);
     }

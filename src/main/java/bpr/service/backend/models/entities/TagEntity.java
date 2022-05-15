@@ -17,4 +17,8 @@ public class TagEntity {
     private String tag;
 
     public TagEntity() { }
+
+    public TagEntity(String tag) {
+        this.tag = tag;
+    }
 }
