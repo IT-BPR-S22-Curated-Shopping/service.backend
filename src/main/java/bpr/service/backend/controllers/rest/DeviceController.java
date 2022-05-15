@@ -1,5 +1,6 @@
 package bpr.service.backend.controllers.rest;
 
+import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.TrackerEntity;
 import bpr.service.backend.services.data.ICRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,4 +31,5 @@ public class DeviceController {
     public TrackerEntity getDeviceById(@PathVariable("id") Long id) {
         return deviceService.ReadById(id);
     }
+
 }

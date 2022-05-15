@@ -1,10 +1,12 @@
 package bpr.service.backend.managers.events;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-@Component("EventManager")
+@Service("EventManager")
 public class EventManager implements IEventManager{
     private final PropertyChangeSupport manager;
 
