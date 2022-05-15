@@ -1,6 +1,7 @@
 package bpr.service.backend.controllers.rest;
 
 import bpr.service.backend.models.entities.LocationEntity;
+import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.services.data.ICRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,18 +36,31 @@ public class LocationController {
         return locationService.readById(id);
     }
 
+//    @PostMapping
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public LocationEntity createLocation(@RequestBody LocationEntity location) {
+//        return locationService.Create(location);
+//    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public LocationEntity createLocation(@RequestBody LocationEntity location) {
-        return locationService.create(location);
-    }
-
-    @PostMapping(value = "/name")
-    @ResponseStatus(HttpStatus.CREATED)
-    public LocationEntity createLocationWithName(@RequestBody Map<String, String> map) {
+    public LocationEntity createLocation(@RequestBody Map<String, String> map) {
         LocationEntity entity = new LocationEntity();
-        entity.setName(map.get("name"));
-        return locationService.create(entity);
+
+        if (map.containsKey("name")) {
+            entity.setName(map.get("name"));
+        }
+        if (map.containsKey("productId")) {
+            // not implemented, needs lookup
+        }
+        if (map.containsKey("deviceId")) {
+            // not implemented, needs lookup
+        }
+        if (map.containsKey("presentationId")) {
+            // not implemented, needs lookup
+        }
+
+        return locationService.Create(entity);
     }
 
     @PutMapping(value = "/{id}")

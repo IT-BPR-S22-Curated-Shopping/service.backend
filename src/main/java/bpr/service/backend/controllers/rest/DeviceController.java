@@ -1,6 +1,7 @@
 package bpr.service.backend.controllers.rest;
 
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
+import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.services.data.ICRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,4 +31,5 @@ public class DeviceController {
     public IdentificationDeviceEntity getDeviceById(@PathVariable("id") Long id) {
         return deviceService.readById(id);
     }
+
 }
