@@ -19,14 +19,14 @@ public class LocationService implements ICRUDService<LocationEntity> {
     }
 
     @Override
-    public List<LocationEntity> ReadAll() {
+    public List<LocationEntity> readAll() {
         var locations = new ArrayList<LocationEntity>();
         locationRepository.findAll().forEach(locations::add);
         return locations;
     }
 
     @Override
-    public LocationEntity ReadById(Long id) {
+    public LocationEntity readById(Long id) {
         if (locationRepository.findById(id).isPresent()) {
             return locationRepository.findById(id).get();
         }
@@ -34,21 +34,21 @@ public class LocationService implements ICRUDService<LocationEntity> {
     }
 
     @Override
-    public LocationEntity Create(LocationEntity entity) {
+    public LocationEntity create(LocationEntity entity) {
         return locationRepository.save(entity);
     }
 
     @Override
-    public LocationEntity Update(Long id, LocationEntity entity) {
+    public LocationEntity update(Long id, LocationEntity entity) {
         var databaseLocation = locationRepository.findById(id).get();
         databaseLocation.setProduct(entity.getProduct());
         databaseLocation.setPresentationDevices(entity.getPresentationDevices());
-        databaseLocation.setTrackingDevices(entity.getTrackingDevices());
+        databaseLocation.setIdentificationDevices(entity.getIdentificationDevices());
         return locationRepository.save(databaseLocation);
     }
 
     @Override
-    public void Delete(Long id) {
+    public void delete(Long id) {
         locationRepository.deleteById(id);
     }
 }

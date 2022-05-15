@@ -1,7 +1,7 @@
 package bpr.service.backend.services.mqttMessageService;
 
 import bpr.service.backend.models.dto.*;
-import bpr.service.backend.models.entities.TrackerEntity;
+import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.util.IDateTime;
@@ -33,14 +33,31 @@ public class MqttMessageService {
         this.serializer = serializer;
         this.dateTime = dateTime;
         eventManager.addListener(Event.MQTT_MESSAGE_RECEIVED, this::handleMessage);
-        eventManager.addListener(Event.DEVICE_INIT_COMM, this::initDeviceCommunication);
+        eventManager.addListener(Event.INIT_DEVICE_COMM, this::initDeviceCommunication);
         eventManager.addListener(Event.DEVICE_OFFLINE, this::closeDeviceCommunication);
-        eventManager.addListener(Event.DEVICE_ACTIVATE, this::activateDevice);
-        eventManager.addListener(Event.DEVICE_DEACTIVATE, this::deactivateDevice);
+        eventManager.addListener(Event.ACTIVATE_DEVICE, this::activateDevice);
+        eventManager.addListener(Event.DEACTIVATE_DEVICE, this::deactivateDevice);
+        eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::handleConnectionError);
+    }
+
+    private void handleConnectionError(PropertyChangeEvent propertyChangeEvent) {
+        var errorDto = (ConnectedDeviceErrorDto) propertyChangeEvent.getNewValue();
+        eventManager.invoke(
+                Event.MQTT_PUBLISH,
+                new MqttPublishDto(
+                        String.format(
+                                "%s/%s/error",
+                                errorDto.getDevice().getCompanyId(),
+                                errorDto.getDevice().getDeviceId()),
+                        String.format(
+                                "{\"payload\": \"%s Connection error: %s\"}",
+                                dateTime.convertToDate(errorDto.getTimestamp()),
+                                errorDto.getMessage())
+                ));
     }
 
     private void closeDeviceCommunication(PropertyChangeEvent propertyChangeEvent) {
-        var device = (TrackerEntity) propertyChangeEvent.getNewValue();
+        var device = (IdentificationDeviceEntity) propertyChangeEvent.getNewValue();
         var root = String.format("%s/%s", device.getCompanyId(), device.getDeviceId());
         eventManager.invoke(Event.MQTT_UNSUBSCRIBE, String.format("%s/detection", root));
         eventManager.invoke(Event.MQTT_UNSUBSCRIBE, String.format("%s/status", root));
@@ -48,7 +65,7 @@ public class MqttMessageService {
     }
 
     private void initDeviceCommunication(PropertyChangeEvent propertyChangeEvent) {
-        var device = (TrackerEntity) propertyChangeEvent.getNewValue();
+        var device = (IdentificationDeviceEntity) propertyChangeEvent.getNewValue();
         logger.info("MQTT Message Service: Subscribing to " + device.getDeviceId());
         var root = String.format("%s/%s", device.getCompanyId(), device.getDeviceId());
         eventManager.invoke(Event.MQTT_SUBSCRIBE, String.format("%s/detection", root));
@@ -58,7 +75,7 @@ public class MqttMessageService {
                 new MqttPublishDto(String.format("%s/command", root), "{\"instruction\":\"READY\"}"));
     }
 
-    private void updateDeviceState(TrackerEntity device, boolean setActive)
+    private void updateDeviceState(IdentificationDeviceEntity device, boolean setActive)
     {
         var state = setActive ? "{\"instruction\":\"ACTIVATE\"}" : "{\"instruction\":\"DEACTIVATE\"}";
         eventManager.invoke(Event.MQTT_PUBLISH,
@@ -66,12 +83,12 @@ public class MqttMessageService {
     }
 
     private void deactivateDevice(PropertyChangeEvent propertyChangeEvent) {
-        var device = (TrackerEntity) propertyChangeEvent.getNewValue();
+        var device = (IdentificationDeviceEntity) propertyChangeEvent.getNewValue();
         updateDeviceState(device, false);
     }
 
     private void activateDevice(PropertyChangeEvent propertyChangeEvent) {
-        var device = (TrackerEntity) propertyChangeEvent.getNewValue();
+        var device = (IdentificationDeviceEntity) propertyChangeEvent.getNewValue();
         updateDeviceState(device, true);
     }
 
@@ -175,23 +192,23 @@ public class MqttMessageService {
     }
 
     private void handleStatusUpdate(String deviceId, JsonNode messageNode, String errorTopic) {
-        if (!messageNode.has("online")) {
+        if (!messageNode.has("state")) {
             invokeMqttError(errorTopic,
                     "Incorrect status payload. structure. Expected: 'online': boolean");
             return;
         }
-        var online = messageNode.get("online");
+        var state = messageNode.get("state");
 
-        if (!online.isBoolean()) {
+        if (!state.isTextual()) {
             invokeMqttError(errorTopic,
-                    "Incorrect type. online must be type boolean");
+                    "Incorrect type. state must be type string. Options [ OFFLINE, ONLINE, READY, ACTIVE ]");
             return;
         }
 
         var status = new DeviceStatusDto(
                 dateTime.getEpochSeconds(),
                 deviceId,
-                online.asBoolean()
+                state.asText()
         );
         eventManager.invoke(Event.DEVICE_STATUS_UPDATE, status);
     }

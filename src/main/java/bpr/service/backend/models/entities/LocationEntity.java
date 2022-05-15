@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,12 +24,15 @@ public class LocationEntity {
     @OneToMany
     @Column(unique=true)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<TrackerEntity> trackingDevices;
+    private List<IdentificationDeviceEntity> identificationDevices;
 
     @OneToMany
     @Column(unique=true)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<PresenterEntity> presentationDevices;
 
-    public LocationEntity() { }
+    public LocationEntity() {
+        identificationDevices = new ArrayList<>();
+        presentationDevices = new ArrayList<>();
+    }
 }

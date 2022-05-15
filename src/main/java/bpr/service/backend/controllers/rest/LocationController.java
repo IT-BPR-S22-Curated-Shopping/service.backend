@@ -1,7 +1,6 @@
 package bpr.service.backend.controllers.rest;
 
 import bpr.service.backend.models.entities.LocationEntity;
-import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.services.data.ICRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,13 +26,13 @@ public class LocationController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<LocationEntity> getAllLocations() {
-        return locationService.ReadAll();
+        return locationService.readAll();
     }
 
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity getLocationById(@PathVariable("id") Long id) {
-        return locationService.ReadById(id);
+        return locationService.readById(id);
     }
 
 //    @PostMapping
@@ -60,19 +59,19 @@ public class LocationController {
             // not implemented, needs lookup
         }
 
-        return locationService.Create(entity);
+        return locationService.create(entity);
     }
 
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity updateLocation(@PathVariable("id") Long id, @RequestBody LocationEntity location) {
-        return locationService.Update(id, location);
+        return locationService.update(id, location);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteLocation(@PathVariable("id") Long id) {
-        locationService.Delete(id);
+        locationService.delete(id);
     }
 
     // Source: https://www.baeldung.com/spring-boot-bean-validation

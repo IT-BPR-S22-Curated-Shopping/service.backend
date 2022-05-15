@@ -1,4 +1,4 @@
-package bpr.service.backend.controllers.websocket.handlers;
+package bpr.service.backend.controllers.websocket;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
@@ -45,14 +45,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     @SneakyThrows
-    public void onMessageReceived(PropertyChangeEvent event) {
+    private void onMessageReceived(PropertyChangeEvent event) {
 
         var idDto = (IdentifiedCustomerDto) event.getNewValue();
         logger.info("onMessageReceived: " + Arrays.toString(Arrays.stream(sessions.stream().toArray()).toArray()));
         if (!sessions.isEmpty()) {
             for (WebSocketSession session : sessions) {
-                logger.info("Websocket: sending message received from tracker: " + idDto.getTrackerDeviceId());
-                session.sendMessage(new TextMessage(idDto.getTrackerDeviceId()));
+                logger.info("Websocket: sending message received from tracker: " + idDto.getIdentificationDeviceId());
+                session.sendMessage(new TextMessage(idDto.getIdentificationDeviceId()));
             }
         }
         else {

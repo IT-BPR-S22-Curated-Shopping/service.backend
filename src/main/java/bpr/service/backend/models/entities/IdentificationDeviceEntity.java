@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "trackers")
 @Data
-public class TrackerEntity {
+public class IdentificationDeviceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -24,9 +24,9 @@ public class TrackerEntity {
 
     private String deviceType;
 
-    public TrackerEntity() { }
+    public IdentificationDeviceEntity() { }
 
-    public TrackerEntity(String companyId, String deviceId, String deviceType) {
+    public IdentificationDeviceEntity(String companyId, String deviceId, String deviceType) {
         this.companyId = companyId;
         this.deviceId = deviceId;
         this.deviceType = deviceType;
