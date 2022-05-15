@@ -61,10 +61,7 @@ class IdentificationServiceTest {
     public void beforeEach() {
         repositoryUUID = new UuidEntity("010D2108-0462-4F97-BAB8-000000000002");
         TagEntity repositoryTag = new TagEntity("awesome");
-        repositoryCustomer = new CustomerEntity(
-                new ArrayList<>(List.of(repositoryUUID)),
-                new ArrayList<>(List.of(repositoryTag))
-                );
+        repositoryCustomer = new CustomerEntity(List.of(repositoryUUID), List.of(repositoryTag));
         customerDto = null;
     }
 
