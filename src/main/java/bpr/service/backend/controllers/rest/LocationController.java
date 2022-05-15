@@ -26,19 +26,19 @@ public class LocationController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<LocationEntity> getAllLocations() {
-        return locationService.ReadAll();
+        return locationService.readAll();
     }
 
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity getLocationById(@PathVariable("id") Long id) {
-        return locationService.ReadById(id);
+        return locationService.readById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public LocationEntity createLocation(@RequestBody LocationEntity location) {
-        return locationService.Create(location);
+        return locationService.create(location);
     }
 
     @PostMapping(value = "/name")
@@ -46,19 +46,19 @@ public class LocationController {
     public LocationEntity createLocationWithName(@RequestBody Map<String, String> map) {
         LocationEntity entity = new LocationEntity();
         entity.setName(map.get("name"));
-        return locationService.Create(entity);
+        return locationService.create(entity);
     }
 
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity updateLocation(@PathVariable("id") Long id, @RequestBody LocationEntity location) {
-        return locationService.Update(id, location);
+        return locationService.update(id, location);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteLocation(@PathVariable("id") Long id) {
-        locationService.Delete(id);
+        locationService.delete(id);
     }
 
     // Source: https://www.baeldung.com/spring-boot-bean-validation

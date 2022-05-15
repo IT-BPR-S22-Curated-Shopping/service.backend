@@ -13,26 +13,6 @@ public class JsonSerializer implements ISerializer {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public String toJson(CustomerEntity payload) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
-            logger.error("Problem Serializing payload: " + payload + ", with error: " + e.getMessage());
-        }
-        return null;
-    }
-
-    public CustomerEntity fromJsonToCustomer(String json) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(json, CustomerEntity.class);
-        } catch (JsonProcessingException e) {
-            logger.error("Problem deserializing json: " + e.getMessage());
-        }
-        return null;
-    }
-
     @Override
     public JsonNode getJsonNode(String json) {
         ObjectMapper mapper = new ObjectMapper();

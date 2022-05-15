@@ -28,8 +28,8 @@ public class CustomerEntity implements Serializable {
     public CustomerEntity() {
     }
 
-    public CustomerEntity(List<UuidEntity> uuid, List<TagEntity> tags) {
-        this.uuids = uuid;
+    public CustomerEntity(List<UuidEntity> uuids, List<TagEntity> tags) {
+        this.uuids = uuids;
         this.tags = tags;
     }
 }

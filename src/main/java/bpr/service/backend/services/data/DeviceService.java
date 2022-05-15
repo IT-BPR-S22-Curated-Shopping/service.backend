@@ -3,7 +3,7 @@ package bpr.service.backend.services.data;
 import bpr.service.backend.models.dto.ConnectedDeviceDto;
 import bpr.service.backend.models.dto.ConnectedDeviceErrorDto;
 import bpr.service.backend.models.dto.DeviceStatusDto;
-import bpr.service.backend.models.entities.TrackerEntity;
+import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service("DeviceService")
-public class DeviceService implements ICRUDService<TrackerEntity> {
+public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
 
     private final IDeviceRepository deviceRepository;
     private final IEventManager eventManager;
@@ -33,30 +33,43 @@ public class DeviceService implements ICRUDService<TrackerEntity> {
         this.deviceRepository = deviceRepository;
         this.eventManager = eventManager;
         this.dateTime = dateTime;
-        eventManager.addListener(Event.DEVICE_CONNECTED, this::HandleConnectedDevice);
-        eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::HandleUpdatedDeviceStatus);
+        eventManager.addListener(Event.DEVICE_CONNECTED, this::handleConnectedDevice);
+        eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::handleUpdatedDeviceStatus);
     }
 
     private void invokeConnectionError(ConnectedDeviceDto device, String message) {
         var errorDto = new ConnectedDeviceErrorDto(
                 dateTime.getEpochSeconds(),
                 device,
-                String.format("Device connection error: %s", message)
+                message
         );
         eventManager.invoke(Event.DEVICE_CONNECTED_ERROR, errorDto);
     }
 
-    private void HandleUpdatedDeviceStatus(PropertyChangeEvent propertyChangeEvent) {
+    private void handleUpdatedDeviceStatus(PropertyChangeEvent propertyChangeEvent) {
         var deviceStatus = (DeviceStatusDto) propertyChangeEvent.getNewValue();
         var device = deviceRepository.findByDeviceId(deviceStatus.getDeviceId());
         if (device != null) {
-            if ((deviceStatus.isOnline())) {
-                logger.info(String.format("Device online: %s", device.getDeviceId()));
-                eventManager.invoke(Event.DEVICE_ONLINE, device);
-            }
-            else {
-                logger.info(String.format("Device offline: %s", device.getDeviceId()));
-                eventManager.invoke(Event.DEVICE_OFFLINE, device);
+            switch (deviceStatus.getState().toUpperCase()) {
+                case ("OFFLINE"):
+                    logger.info(String.format("Device offline: %s", device.getDeviceId()));
+                    eventManager.invoke(Event.DEVICE_OFFLINE, device);
+                    break;
+                case ("ONLINE"):
+                    logger.info(String.format("Device online: %s", device.getDeviceId()));
+                    eventManager.invoke(Event.DEVICE_ONLINE, device);
+                    break;
+                case ("READY"):
+                    logger.info(String.format("Device ready: %s", device.getDeviceId()));
+                    eventManager.invoke(Event.DEVICE_READY, device);
+                    break;
+                case ("ACTIVE"):
+                    logger.info(String.format("Device active: %s", device.getDeviceId()));
+                    eventManager.invoke(Event.DEVICE_ACTIVE, device);
+                    break;
+                default:
+                    logger.info(String.format("Device status error: %s unknown state.", device.getDeviceId()));
+                    break;
             }
         }
         else {
@@ -64,7 +77,7 @@ public class DeviceService implements ICRUDService<TrackerEntity> {
         }
     }
 
-    private void HandleConnectedDevice(PropertyChangeEvent propertyChangeEvent) {
+    private void handleConnectedDevice(PropertyChangeEvent propertyChangeEvent) {
         var connectedDevice = (ConnectedDeviceDto) propertyChangeEvent.getNewValue();
 
         // Check if device is known.
@@ -73,7 +86,7 @@ public class DeviceService implements ICRUDService<TrackerEntity> {
         // If not known persist the new device.
         if (device == null) {
             logger.info("New device connected. Creating creating device: " + connectedDevice.getDeviceId());
-            device = Create(new TrackerEntity(
+            device = create(new IdentificationDeviceEntity(
                     connectedDevice.getCompanyId(),
                     connectedDevice.getDeviceId(),
                     connectedDevice.getDeviceType()));
@@ -89,18 +102,19 @@ public class DeviceService implements ICRUDService<TrackerEntity> {
             invokeConnectionError(connectedDevice, "Device id must be unique.");
             return;
         }
-        eventManager.invoke(Event.DEVICE_INIT_COMM, device);
+        eventManager.invoke(Event.INIT_DEVICE_COMM, device);
+        eventManager.invoke(Event.DEVICE_ONLINE, device);
     }
 
     @Override
-    public List<TrackerEntity> ReadAll() {
-        var devices = new ArrayList<TrackerEntity>();
+    public List<IdentificationDeviceEntity> readAll() {
+        var devices = new ArrayList<IdentificationDeviceEntity>();
         deviceRepository.findAll().forEach(devices::add);
         return devices;
     }
 
     @Override
-    public TrackerEntity ReadById(Long id) {
+    public IdentificationDeviceEntity readById(Long id) {
         if (deviceRepository.findById(id).isPresent()) {
             return deviceRepository.findById(id).get();
         }
@@ -108,13 +122,13 @@ public class DeviceService implements ICRUDService<TrackerEntity> {
     }
 
     @Override
-    public TrackerEntity Create(TrackerEntity entity) {
+    public IdentificationDeviceEntity create(IdentificationDeviceEntity entity) {
         return deviceRepository.save(entity);
     }
 
     @Override
-    public TrackerEntity Update(Long id, TrackerEntity entity) {return null;}
+    public IdentificationDeviceEntity update(Long id, IdentificationDeviceEntity entity) {return null;}
 
     @Override
-    public void Delete(Long id) {}
+    public void delete(Long id) {}
 }

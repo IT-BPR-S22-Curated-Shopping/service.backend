@@ -8,14 +8,14 @@ public class IdentifiedCustomerDto {
 
     private long timestamp;
     private CustomerEntity customer;
-    private String trackerDeviceId;
+    private String identificationDeviceId;
 
     public IdentifiedCustomerDto() {
     }
 
-    public IdentifiedCustomerDto(long timestamp, CustomerEntity customer, String trackerDeviceId) {
+    public IdentifiedCustomerDto(long timestamp, CustomerEntity customer, String identificationDeviceId) {
         this.timestamp = timestamp;
         this.customer = customer;
-        this.trackerDeviceId = trackerDeviceId;
+        this.identificationDeviceId = identificationDeviceId;
     }
 }

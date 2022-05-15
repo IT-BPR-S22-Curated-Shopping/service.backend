@@ -28,10 +28,10 @@ public class IdentificationService {
         this.customerRepository = customerRepository;
         this.idRepository = idRepository;
         this.eventManager = eventManager;
-        eventManager.addListener(Event.CUSTOMER_DETECTED, this::IdentifyCustomer);
+        eventManager.addListener(Event.CUSTOMER_DETECTED, this::identifyCustomer);
     }
 
-    private void IdentifyCustomer(PropertyChangeEvent propertyChangeEvent) {
+    private void identifyCustomer(PropertyChangeEvent propertyChangeEvent) {
         var detection = (DetectedCustomerDto) propertyChangeEvent.getNewValue();
         var uuid = idRepository.findByUuid(detection.getUuid());
         if (uuid == null) {

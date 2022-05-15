@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,5 +28,8 @@ public class ProductEntity {
 
     //TODO: Add images and information.
 
-    public ProductEntity() { }
+    public ProductEntity() {
+        relatedProducts = new ArrayList<>();
+        tags = new ArrayList<>();
+    }
 }

@@ -6,7 +6,7 @@ import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.dto.ConnectedDeviceDto;
 import bpr.service.backend.models.dto.ConnectedDeviceErrorDto;
 import bpr.service.backend.models.dto.DeviceStatusDto;
-import bpr.service.backend.models.entities.TrackerEntity;
+import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.util.IDateTime;
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +32,7 @@ class DeviceServiceTest {
     @InjectMocks
     DeviceService deviceService;
 
-    private final TrackerEntity repositoryTracker = new TrackerEntity(
+    private final IdentificationDeviceEntity repositoryTracker = new IdentificationDeviceEntity(
             "010d2108",
             "bb:27:eb:02:ee:fe",
             "BLE");
@@ -45,17 +45,17 @@ class DeviceServiceTest {
             repositoryTracker.getDeviceType()
     );
 
-    private TrackerEntity trackerEntity;
+    private IdentificationDeviceEntity identificationDeviceEntity;
     private ConnectedDeviceErrorDto errorDto;
 
 
     @BeforeEach
     public void beforeEach() {
-        trackerEntity = null;
+        identificationDeviceEntity = null;
         errorDto = null;
     }
 
-    private void setFindByIdMock(TrackerEntity tracker) {
+    private void setFindByIdMock(IdentificationDeviceEntity tracker) {
         Mockito.when(deviceRepository.findByDeviceId(tracker.getDeviceId()))
                 .thenReturn(tracker.getDeviceId().equals(repositoryTracker.getDeviceId()) ? repositoryTracker : null);
     }
@@ -65,7 +65,7 @@ class DeviceServiceTest {
     }
 
     private void setTrackerEntity(PropertyChangeEvent event) {
-        trackerEntity = (TrackerEntity) event.getNewValue();
+        identificationDeviceEntity = (IdentificationDeviceEntity) event.getNewValue();
     }
 
     private void setErrorDto(PropertyChangeEvent event) {
@@ -76,24 +76,24 @@ class DeviceServiceTest {
     public void invokeDeviceConnected() {
         // Arrange
         setFindByIdMock(repositoryTracker);
-        eventManager.addListener(Event.DEVICE_INIT_COMM, this::setTrackerEntity);
+        eventManager.addListener(Event.INIT_DEVICE_COMM, this::setTrackerEntity);
         eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::setErrorDto);
 
         // Act
         eventManager.invoke(Event.DEVICE_CONNECTED, connectionDto);
 
         // Assert
-        Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.DEVICE_INIT_COMM, repositoryTracker);
+        Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.INIT_DEVICE_COMM, repositoryTracker);
         Mockito.verify(deviceRepository, Mockito.times(1)).findByDeviceId(repositoryTracker.getDeviceId());
         Assertions.assertNull(errorDto);
-        Assertions.assertNotNull(trackerEntity);
+        Assertions.assertNotNull(identificationDeviceEntity);
     }
 
     @Test
     public void connectedDeviceCorrectId() {
         // Arrange
         setFindByIdMock(repositoryTracker);
-        eventManager.addListener(Event.DEVICE_INIT_COMM, this::setTrackerEntity);
+        eventManager.addListener(Event.INIT_DEVICE_COMM, this::setTrackerEntity);
         eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::setErrorDto);
 
         // Act
@@ -101,14 +101,14 @@ class DeviceServiceTest {
 
         // Assert
         Assertions.assertNull(errorDto);
-        Assertions.assertEquals(repositoryTracker.getDeviceId(), trackerEntity.getDeviceId());
+        Assertions.assertEquals(repositoryTracker.getDeviceId(), identificationDeviceEntity.getDeviceId());
     }
 
     @Test
     public void connectedDeviceCompanyId() {
         // Arrange
         setFindByIdMock(repositoryTracker);
-        eventManager.addListener(Event.DEVICE_INIT_COMM, this::setTrackerEntity);
+        eventManager.addListener(Event.INIT_DEVICE_COMM, this::setTrackerEntity);
         eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::setErrorDto);
 
         // Act
@@ -116,13 +116,13 @@ class DeviceServiceTest {
 
         // Assert
         Assertions.assertNull(errorDto);
-        Assertions.assertEquals(repositoryTracker.getCompanyId(), trackerEntity.getCompanyId());
+        Assertions.assertEquals(repositoryTracker.getCompanyId(), identificationDeviceEntity.getCompanyId());
     }
 
     @Test
     public void newConnectedDevice() {
         // Arrange
-        var tracker = new TrackerEntity(
+        var tracker = new IdentificationDeviceEntity(
                 "010d2108",
                 "ff:27:eb:02:ee:ff",
                 "BLE");
@@ -132,7 +132,7 @@ class DeviceServiceTest {
         setFindByIdMock(tracker);
         Mockito.when(deviceRepository.save(tracker)).thenReturn(tracker);
 
-        eventManager.addListener(Event.DEVICE_INIT_COMM, this::setTrackerEntity);
+        eventManager.addListener(Event.INIT_DEVICE_COMM, this::setTrackerEntity);
         eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::setErrorDto);
 
         // Act
@@ -141,15 +141,15 @@ class DeviceServiceTest {
         // Assert
         Mockito.verify(deviceRepository, Mockito.times(1)).findByDeviceId(tracker.getDeviceId());
         Mockito.verify(deviceRepository, Mockito.times(1)).save(tracker);
-        Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.DEVICE_INIT_COMM, tracker);
+        Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.INIT_DEVICE_COMM, tracker);
         Assertions.assertNull(errorDto);
-        Assertions.assertEquals(tracker.getCompanyId(), trackerEntity.getCompanyId());
+        Assertions.assertEquals(tracker.getCompanyId(), identificationDeviceEntity.getCompanyId());
     }
 
     @Test
     public void existingDeviceIdNewCompanyId() {
         // Arrange
-        var tracker = new TrackerEntity(
+        var tracker = new IdentificationDeviceEntity(
                 "010d2109",
                 "bb:27:eb:02:ee:fe",
                 "BLE");
@@ -159,7 +159,7 @@ class DeviceServiceTest {
         setFindByIdMock(tracker);
         setTimeMock();
 
-        eventManager.addListener(Event.DEVICE_INIT_COMM, this::setTrackerEntity);
+        eventManager.addListener(Event.INIT_DEVICE_COMM, this::setTrackerEntity);
         eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::setErrorDto);
 
         // Act
@@ -172,16 +172,16 @@ class DeviceServiceTest {
                 new ConnectedDeviceErrorDto(
                         timestamp,
                         connectionDto,
-                        "Device connection error: Device id must be unique."));
-        Mockito.verify(eventManager, Mockito.times(0)).invoke(Event.DEVICE_INIT_COMM, tracker);
-        Assertions.assertNull(trackerEntity);
+                        "Device id must be unique."));
+        Mockito.verify(eventManager, Mockito.times(0)).invoke(Event.INIT_DEVICE_COMM, tracker);
+        Assertions.assertNull(identificationDeviceEntity);
         Assertions.assertNotNull(errorDto);
     }
 
     @Test
     public void newConnectedDeviceUnableToCreate() {
         // Arrange
-        var tracker = new TrackerEntity(
+        var tracker = new IdentificationDeviceEntity(
                 "010d2108",
                 "ff:27:eb:02:ee:ff",
                 "BLE");
@@ -192,7 +192,7 @@ class DeviceServiceTest {
         setTimeMock();
         Mockito.when(deviceRepository.save(tracker)).thenReturn(null);
 
-        eventManager.addListener(Event.DEVICE_INIT_COMM, this::setTrackerEntity);
+        eventManager.addListener(Event.INIT_DEVICE_COMM, this::setTrackerEntity);
         eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::setErrorDto);
 
         // Act
@@ -205,9 +205,9 @@ class DeviceServiceTest {
                 new ConnectedDeviceErrorDto(
                         timestamp,
                         connectionDto,
-                        "Device connection error: Unable to verify connected device."));
-        Assertions.assertNull(trackerEntity);
-        Assertions.assertEquals("Device connection error: Unable to verify connected device.", errorDto.getMessage());
+                        "Unable to verify connected device."));
+        Assertions.assertNull(identificationDeviceEntity);
+        Assertions.assertEquals("Unable to verify connected device.", errorDto.getMessage());
     }
 
 
@@ -219,7 +219,7 @@ class DeviceServiceTest {
         var statusDto = new DeviceStatusDto(
                 timestamp,
                 repositoryTracker.getDeviceId(),
-                true
+                "ONLINE"
         );
 
         eventManager.addListener(Event.DEVICE_ONLINE, this::setTrackerEntity);
@@ -232,7 +232,7 @@ class DeviceServiceTest {
         Mockito.verify(deviceRepository, Mockito.times(1)).findByDeviceId(repositoryTracker.getDeviceId());
         Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.DEVICE_ONLINE, repositoryTracker);
         Mockito.verify(eventManager, Mockito.times(0)).invoke(Event.DEVICE_OFFLINE, repositoryTracker);
-        Assertions.assertNotNull(trackerEntity);
+        Assertions.assertNotNull(identificationDeviceEntity);
     }
 
     @Test
@@ -243,7 +243,7 @@ class DeviceServiceTest {
         var statusDto = new DeviceStatusDto(
                 timestamp,
                 repositoryTracker.getDeviceId(),
-                false
+                "OFFLINE"
         );
 
         eventManager.addListener(Event.DEVICE_ONLINE, this::setTrackerEntity);
@@ -256,13 +256,13 @@ class DeviceServiceTest {
         Mockito.verify(deviceRepository, Mockito.times(1)).findByDeviceId(repositoryTracker.getDeviceId());
         Mockito.verify(eventManager, Mockito.times(0)).invoke(Event.DEVICE_ONLINE, repositoryTracker);
         Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.DEVICE_OFFLINE, repositoryTracker);
-        Assertions.assertNotNull(trackerEntity);
+        Assertions.assertNotNull(identificationDeviceEntity);
     }
 
     @Test
     public void unknownDeviceAnnouncement() {
         // Arrange
-        var unknown = new TrackerEntity(
+        var unknown = new IdentificationDeviceEntity(
                 "010d2108",
                 "ff:27:eb:02:ee:ff",
                 "BLE");
@@ -270,7 +270,7 @@ class DeviceServiceTest {
         var statusDto = new DeviceStatusDto(
                 timestamp,
                 unknown.getDeviceId(),
-                false
+                "OFFLINE"
         );
         setFindByIdMock(unknown);
 
@@ -284,6 +284,6 @@ class DeviceServiceTest {
         Mockito.verify(deviceRepository, Mockito.times(1)).findByDeviceId(unknown.getDeviceId());
         Mockito.verify(eventManager, Mockito.times(0)).invoke(Event.DEVICE_ONLINE, unknown);
         Mockito.verify(eventManager, Mockito.times(0)).invoke(Event.DEVICE_OFFLINE, unknown);
-        Assertions.assertNull(trackerEntity);
+        Assertions.assertNull(identificationDeviceEntity);
     }
 }
