@@ -367,9 +367,11 @@ class DeviceServiceTest {
 
     @Test
     public void Create_InvalidDevice_ExpectNull() {
-
+        //Arrange
+        //Act
         var result = deviceService.Create(null);
 
+        // Assert
         Assertions.assertNull(result);
     }
 
