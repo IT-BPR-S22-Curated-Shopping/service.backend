@@ -339,8 +339,13 @@ class DeviceServiceTest {
     }
 
     @Test
-    public void ReadById_NoDeviceWithId_ExpectError() {
-
+    public void ReadById_NoDeviceWithId_ExpectNullValue() {
+        // Arrange
+        // Act
+        var result = deviceService.ReadById(1L);
+        // Assert
+        Mockito.verify(deviceRepository, Mockito.times(1)).findById(1L);
+        Assertions.assertNull(result);
     }
 
     @Test
@@ -361,8 +366,11 @@ class DeviceServiceTest {
     }
 
     @Test
-    public void Create_InvalidDevice_ExpectError() {
+    public void Create_InvalidDevice_ExpectNull() {
 
+        var result = deviceService.Create(null);
+
+        Assertions.assertNull(result);
     }
 
 }
