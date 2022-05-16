@@ -1,8 +1,8 @@
 package bpr.service.backend.services.data;
 
+import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.ProductEntity;
-import bpr.service.backend.models.entities.TrackerEntity;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,14 +36,14 @@ class LocationServiceTest {
         product.setId(1L);
         product.setProductNo("testProductNo");
 
-        TrackerEntity device = new TrackerEntity("010d2108","ff:27:eb:02:ee:ff","BLE");
-        List<TrackerEntity> deviceList = new ArrayList<>() {{add(device);}};
+        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:27:eb:02:ee:ff","BLE");
+        List<IdentificationDeviceEntity> deviceList = new ArrayList<>() {{add(device);}};
 
         locationEntity = new LocationEntity();
         locationEntity.setId(3L);
         locationEntity.setName("testLocation");
         locationEntity.setProduct(product);
-        locationEntity.setTrackingDevices(deviceList);
+        locationEntity.setIdentificationDevices(deviceList);
     }
 
     @Test
@@ -54,7 +54,7 @@ class LocationServiceTest {
         Mockito.when(locationRepository.findAll()).thenReturn(locationList);
 
         // Act
-        List<LocationEntity> resultList = locationService.ReadAll();
+        List<LocationEntity> resultList = locationService.readAll();
 
         // Assert
         Mockito.verify(locationRepository, Mockito.times(1)).findAll();
@@ -68,7 +68,7 @@ class LocationServiceTest {
         Mockito.when(locationRepository.findAll()).thenReturn(locationList);
 
         // Act
-        List<LocationEntity> resultList = locationService.ReadAll();
+        List<LocationEntity> resultList = locationService.readAll();
 
         // Assert
         Mockito.verify(locationRepository, Mockito.times(1)).findAll();
@@ -81,7 +81,7 @@ class LocationServiceTest {
         Mockito.when(locationRepository.findById(3L)).thenReturn(Optional.of(locationEntity));
 
         // Act
-        LocationEntity result = locationService.ReadById(3L);
+        LocationEntity result = locationService.readById(3L);
 
         // Assert
         Mockito.verify(locationRepository, Mockito.times(2)).findById(3L);
@@ -92,7 +92,7 @@ class LocationServiceTest {
     public void ReadById_NoLocations_ExpectNullValue() {
         // Arrange
         // Act
-        LocationEntity result = locationService.ReadById(3L);
+        LocationEntity result = locationService.readById(3L);
 
         // Assert
         Mockito.verify(locationRepository, Mockito.times(1)).findById(3L);
@@ -105,7 +105,7 @@ class LocationServiceTest {
         Mockito.when(locationRepository.save(any())).thenReturn(locationEntity);
 
         // Act
-        LocationEntity result = locationService.Create(locationEntity);
+        LocationEntity result = locationService.create(locationEntity);
 
         // Assert
         Mockito.verify(locationRepository, Mockito.times(1)).save(locationEntity);
@@ -121,7 +121,7 @@ class LocationServiceTest {
         Mockito.when(locationRepository.save(any())).thenReturn(updatedLocation);
 
         // Act
-        LocationEntity result = locationService.Update(3L, updatedLocation);
+        LocationEntity result = locationService.update(3L, updatedLocation);
 
         // Assert
         Mockito.verify(locationRepository, Mockito.times(1)).save(updatedLocation);
@@ -132,7 +132,7 @@ class LocationServiceTest {
     public void Delete_ValidLocationId_ExpectLocationDeleted() {
         // Arrange
         // Act
-        locationService.Delete(3L);
+        locationService.delete(3L);
 
         // Assert
         Mockito.verify(locationRepository, Mockito.times(1)).deleteById(3L);
