@@ -20,6 +20,11 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class DeviceServiceConnectedDeviceTest {
@@ -215,4 +220,84 @@ class DeviceServiceConnectedDeviceTest {
         Assertions.assertNull(identificationDeviceEntity);
         Assertions.assertEquals("Unable to verify connected device.", errorDto.getMessage());
     }
+
+    @Test
+    public void ReadAll_AddedDevice_ExpectListWithDevice() {
+        // Arrange
+        List<TrackerEntity> deviceList = new ArrayList<>();
+        deviceList.add(repositoryTracker);
+        Mockito.when(deviceRepository.findAll()).thenReturn(deviceList);
+
+        // Act
+        List<TrackerEntity> resultList = deviceService.ReadAll();
+
+        // Assert
+        Mockito.verify(deviceRepository, Mockito.times(1)).findAll();
+        Assertions.assertEquals(deviceList, resultList);
+    }
+
+    @Test
+    public void ReadAll_NoDevices_ExpectEmptyList() {
+        // Arrange
+        List<TrackerEntity> deviceList = new ArrayList<>();
+        Mockito.when(deviceRepository.findAll()).thenReturn(deviceList);
+
+        // Act
+        List<TrackerEntity> resultList = deviceService.ReadAll();
+
+        // Assert
+        Mockito.verify(deviceRepository, Mockito.times(1)).findAll();
+        Assertions.assertEquals(deviceList, resultList);
+    }
+
+    @Test
+    public void ReadById_AddedDevice_ExpectDeviceReturned() {
+        // Arrange
+        Mockito.when(deviceRepository.findById(1L)).thenReturn(Optional.of(repositoryTracker));
+
+        // Act
+        TrackerEntity result = deviceService.ReadById(1L);
+
+        // Assert
+        Mockito.verify(deviceRepository, Mockito.times(2)).findById(1L);
+        Assertions.assertEquals(repositoryTracker, result);
+    }
+
+    @Test
+    public void ReadById_NoDeviceWithId_ExpectNullValue() {
+        // Arrange
+        // Act
+        var result = deviceService.ReadById(1L);
+        // Assert
+        Mockito.verify(deviceRepository, Mockito.times(1)).findById(1L);
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    public void Create_ValidDevice_ExpectDeviceAdded() {
+        // Arrange
+        var tracker = new TrackerEntity(
+                "010d2108",
+                "ff:27:eb:02:ee:ff",
+                "BLE");
+
+        Mockito.when(deviceRepository.save(any())).thenReturn(tracker);
+
+        // Act
+        deviceService.Create(tracker);
+
+        // Assert
+        Mockito.verify(deviceRepository, Mockito.times(1)).save(tracker);
+    }
+
+    @Test
+    public void Create_InvalidDevice_ExpectNull() {
+        //Arrange
+        //Act
+        var result = deviceService.Create(null);
+
+        // Assert
+        Assertions.assertNull(result);
+    }
+
 }
