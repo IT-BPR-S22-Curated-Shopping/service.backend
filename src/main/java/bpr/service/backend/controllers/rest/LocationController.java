@@ -1,7 +1,10 @@
 package bpr.service.backend.controllers.rest;
 
+import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.services.data.ICRUDService;
+import bpr.service.backend.services.data.LocationService;
+import bpr.service.backend.util.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -9,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +38,6 @@ public class LocationController {
     public LocationEntity getLocationById(@PathVariable("id") Long id) {
         return locationService.readById(id);
     }
-
-//    @PostMapping
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public LocationEntity createLocation(@RequestBody LocationEntity location) {
-//        return locationService.Create(location);
-//    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -68,6 +66,12 @@ public class LocationController {
         return locationService.update(id, location);
     }
 
+    @PutMapping(value = "/{id}/devices")
+    @ResponseStatus(HttpStatus.OK)
+    public LocationEntity updateLocationTrackingDevices(@PathVariable("id") Long id, @NotNull @RequestBody List<IdentificationDeviceEntity> deviceList) {
+        return ((LocationService) locationService).updateWithDeviceList(id, deviceList);
+    }
+
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteLocation(@PathVariable("id") Long id) {
@@ -86,6 +90,12 @@ public class LocationController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleNotFoundException(NotFoundException exception) {
+         return exception.getMessage();
     }
 }
 
