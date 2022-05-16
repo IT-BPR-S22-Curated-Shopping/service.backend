@@ -18,6 +18,8 @@ public class ProductEntity {
 
     private String productNo;
 
+    private String name;
+
     @ManyToMany
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<ProductEntity> relatedProducts;
