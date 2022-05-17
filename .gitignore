@@ -35,3 +35,4 @@ build/
 ### SENSITIVE FILES
 application-dev.properties
 hibernate.cfg.xml
+*firebase-account.json
