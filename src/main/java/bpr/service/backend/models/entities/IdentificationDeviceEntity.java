@@ -6,7 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "trackers")
+@Table(name = "id_devices")
 @Data
 public class IdentificationDeviceEntity {
     @Id
