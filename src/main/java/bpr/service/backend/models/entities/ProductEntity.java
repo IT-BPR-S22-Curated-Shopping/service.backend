@@ -20,6 +20,8 @@ public class ProductEntity {
 
     private String name;
 
+    private String image;
+
     @ManyToMany
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<ProductEntity> relatedProducts;
@@ -27,8 +29,6 @@ public class ProductEntity {
     @ManyToMany
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<TagEntity> tags;
-
-    //TODO: Add images and information.
 
     public ProductEntity() {
         relatedProducts = new ArrayList<>();

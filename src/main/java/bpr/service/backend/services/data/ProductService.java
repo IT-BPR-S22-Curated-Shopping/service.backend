@@ -1,7 +1,9 @@
 package bpr.service.backend.services.data;
 
 import bpr.service.backend.models.entities.ProductEntity;
+import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
+import bpr.service.backend.persistence.repository.tagRepository.ITagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,10 @@ public class ProductService implements ICRUDService<ProductEntity> {
 
     public ProductService(@Autowired IProductRepository productRepository) {
         this.productRepository = productRepository;
+    }
+
+    public List<ProductEntity> findAllWithTag(TagEntity tagEntity) {
+        return productRepository.findByTags(tagEntity);
     }
 
     @Override
@@ -39,11 +45,13 @@ public class ProductService implements ICRUDService<ProductEntity> {
 
     @Override
     public ProductEntity update(Long id, ProductEntity entity) {
-        return null;
+        return productRepository.save(entity);
     }
 
     @Override
     public void delete(Long id) {
 
     }
+
+
 }

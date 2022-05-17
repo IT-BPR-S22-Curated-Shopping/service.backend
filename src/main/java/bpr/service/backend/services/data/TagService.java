@@ -18,6 +18,10 @@ public class TagService implements ICRUDService<TagEntity>{
         this.tagRepository = tagRepository;
     }
 
+    public TagEntity findByTag(String tag) {
+        return tagRepository.findTopByTagEquals(tag);
+    }
+
     @Override
     public List<TagEntity> readAll() {
         var tags = new ArrayList<TagEntity>();
@@ -27,7 +31,7 @@ public class TagService implements ICRUDService<TagEntity>{
 
     @Override
     public TagEntity readById(Long id) {
-        return null;
+        return tagRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -42,6 +46,6 @@ public class TagService implements ICRUDService<TagEntity>{
 
     @Override
     public void delete(Long id) {
-
+        tagRepository.findById(id).ifPresent(tagRepository::delete);
     }
 }
