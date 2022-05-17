@@ -31,7 +31,6 @@ public class ProductController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ObjectNode> getAllProducts() {
-
         var products = productService.readAll();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -51,26 +50,44 @@ public class ProductController {
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ProductEntity getProductById(@PathVariable("id") Long id) {
-        ProductEntity productEntity = productService.readById(id);
-        return productEntity;
+        return productService.readById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductEntity createProduct(@RequestBody ProductEntity product) {
-
-        var storedTags = tagService.readAll();
-        for (TagEntity entity :product.getTags()) {
-            for (TagEntity storedTag : storedTags) {
-                if (!entity.getTag().equals(storedTag.getTag())) {
-                    entity = tagService.create(entity);
-                } else {
-                    entity = storedTag;
-                }
+        List<TagEntity> tags = new ArrayList<>();
+        for (TagEntity tagEntity : product.getTags()) {
+            TagEntity tag = ((TagService) tagService).findByTag(tagEntity.getTag());
+            if (tag == null) {
+                tagEntity = tagService.create(tagEntity);
+            } else {
+                tagEntity = tag;
             }
+            tags.add(tagEntity);
         }
-        ProductEntity productEntity = productService.create(product);
-        return productEntity;
+        product.setTags(tags);
+        return productService.create(product);
+    }
 
+    @PutMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ProductEntity updateTags(@PathVariable("id") Long id, @RequestBody List<String> tags) {
+        var entity = productService.readById(id);
+
+        if (entity != null) {
+            List<TagEntity> tagList = new ArrayList<>();
+            for (String tag : tags) {
+                var tagEntity = ((TagService) tagService).findByTag(tag);
+                if (tagEntity == null) {
+                    tagEntity = tagService.create(new TagEntity(tag));
+                }
+                tagList.add(tagEntity);
+            }
+            entity.setTags(tagList);
+        }
+        if (entity != null)
+            return productService.update(entity.getId(), entity);
+        return null;
     }
 }
