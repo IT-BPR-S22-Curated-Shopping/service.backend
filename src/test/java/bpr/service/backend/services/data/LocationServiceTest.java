@@ -129,6 +129,46 @@ class LocationServiceTest {
     }
 
     @Test
+    public void UpdateWithDeviceList_ValidLocationId_NonEmptyList_ExpectDeviceListAdded() {
+
+    }
+
+    @Test
+    public void UpdateWithDeviceList_ValidLocationId_EmptyList_ExpectEmptyDeviceList() {
+
+    }
+
+    @Test
+    public void UpdateWithDeviceList_InvalidLocationId_NonEmptyList_ExpectException() {
+
+    }
+
+    @Test
+    public void UpdateWithDeviceList_InvalidLocationId_EmptyList_ExpectException() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_ValidLocationId_ValidProductId_ValidProduct_ExpectUpdatedLocation() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_InvalidLocationId_ValidProductId_ValidProduct_ExpectException() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_ValidLocationId_InvalidProductId_ValidProduct_ExpectException() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_ValidLocationId_InvalidProductId_InvalidProduct_ExpectException() {
+
+    }
+
+    @Test
     public void Delete_ValidLocationId_ExpectLocationDeleted() {
         // Arrange
         // Act
