@@ -16,10 +16,10 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private String productNo;
+
     @Column(unique = true)
     private String number;
-
-    private String name;
 
     private String name;
 
