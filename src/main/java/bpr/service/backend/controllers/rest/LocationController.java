@@ -2,6 +2,7 @@ package bpr.service.backend.controllers.rest;
 
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
+import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.services.data.ICRUDService;
 import bpr.service.backend.services.data.LocationService;
 import bpr.service.backend.util.exceptions.NotFoundException;
@@ -70,6 +71,12 @@ public class LocationController {
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity updateLocationTrackingDevices(@PathVariable("id") Long id, @NotNull @RequestBody List<IdentificationDeviceEntity> deviceList) {
         return ((LocationService) locationService).updateWithDeviceList(id, deviceList);
+    }
+
+    @PutMapping(value = "/{id}/product")
+    @ResponseStatus(HttpStatus.OK)
+    public LocationEntity updateLocationProduct(@PathVariable("id") Long id, @NotNull @RequestBody ProductEntity productEntity) {
+        return ((LocationService) locationService).updateWithProduct(id, productEntity);
     }
 
     @DeleteMapping(value = "/{id}")

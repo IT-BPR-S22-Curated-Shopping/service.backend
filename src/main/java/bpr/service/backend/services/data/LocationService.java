@@ -2,7 +2,9 @@ package bpr.service.backend.services.data;
 
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
+import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
+import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
 import bpr.service.backend.util.exceptions.NotFoundException;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,11 @@ public class LocationService implements ICRUDService<LocationEntity> {
 
     private final ILocationRepository locationRepository;
 
-    public LocationService(@Autowired ILocationRepository locationRepository) {
+    private final IProductRepository productRepository;
+
+    public LocationService(@Autowired ILocationRepository locationRepository, @Autowired IProductRepository productRepository) {
         this.locationRepository = locationRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -58,6 +63,21 @@ public class LocationService implements ICRUDService<LocationEntity> {
             databaseLocation.setIdentificationDevices(deviceList);
 
             return locationRepository.save(databaseLocation);
+        }
+        throw new NotFoundException(String.format("Location with ID: %s not found", id));
+    }
+
+    @SneakyThrows
+    public LocationEntity updateWithProduct(Long id, ProductEntity product) {
+        if (locationRepository.findById(id).isPresent()) {
+            if (productRepository.existsById(product.getId())) {
+                var databaseLocation = locationRepository.findById(id).get();
+
+                databaseLocation.setProduct(product);
+
+                return locationRepository.save(databaseLocation);
+            }
+            else throw new NotFoundException(String.format("Product with ID: %s not found", product.getId()));
         }
         throw new NotFoundException(String.format("Location with ID: %s not found", id));
     }
