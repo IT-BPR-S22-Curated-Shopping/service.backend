@@ -4,6 +4,8 @@ import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
+import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
+import bpr.service.backend.util.exceptions.NotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ class LocationServiceTest {
 
     @Mock
     private ILocationRepository locationRepository;
+
+    @Mock
+    private IProductRepository productRepository;
 
     @InjectMocks
     LocationService locationService;
@@ -126,6 +131,92 @@ class LocationServiceTest {
         // Assert
         Mockito.verify(locationRepository, Mockito.times(1)).save(updatedLocation);
         Assertions.assertEquals(updatedLocation, result);
+    }
+
+    @Test
+    public void UpdateWithDeviceList_ValidLocationId_NonEmptyList_ExpectDeviceListAdded() {
+        // Arrange
+        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:00:ab:03:ef:ff","BLE");
+        List<IdentificationDeviceEntity> deviceList = new ArrayList<>() {{add(device);}};
+
+        var expectedLocation = locationEntity;
+        expectedLocation.setIdentificationDevices(deviceList);
+
+        Mockito.when(locationRepository.findById(5L)).thenReturn(Optional.of(locationEntity));
+        Mockito.when(locationRepository.save(any())).thenReturn(expectedLocation);
+
+        // Act
+        LocationEntity result = locationService.updateWithDeviceList(5L, deviceList);
+
+        // Assert
+        Mockito.verify(locationRepository, Mockito.times(1)).save(expectedLocation);
+        Assertions.assertEquals(expectedLocation, result);
+    }
+
+    @Test
+    public void UpdateWithDeviceList_ValidLocationId_EmptyList_ExpectEmptyDeviceList() {
+        // Arrange
+        List<IdentificationDeviceEntity> deviceList = new ArrayList<>();
+
+        var expectedLocation = locationEntity;
+        expectedLocation.setIdentificationDevices(deviceList);
+
+        Mockito.when(locationRepository.findById(5L)).thenReturn(Optional.of(locationEntity));
+        Mockito.when(locationRepository.save(any())).thenReturn(expectedLocation);
+
+        // Act
+        LocationEntity result = locationService.updateWithDeviceList(5L, deviceList);
+
+        // Assert
+        Mockito.verify(locationRepository, Mockito.times(1)).save(expectedLocation);
+        Assertions.assertEquals(expectedLocation, result);
+
+    }
+
+    @Test
+    public void UpdateWithDeviceList_InvalidLocationId_NonEmptyList_ExpectException() {
+        // Arrange
+        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:00:ab:03:ef:ff","BLE");
+        List<IdentificationDeviceEntity> deviceList = new ArrayList<>() {{add(device);}};
+
+        var expectedLocation = locationEntity;
+        expectedLocation.setIdentificationDevices(deviceList);
+
+        Mockito.when(locationRepository.findById(5L)).thenThrow(NotFoundException.class);
+
+        // Act
+
+        // Assert
+        Mockito.verify(locationRepository, Mockito.times(1)).findById(5L);
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            locationService.updateWithDeviceList(5L, deviceList);
+        });
+
+    }
+
+    @Test
+    public void UpdateWithDeviceList_InvalidLocationId_EmptyList_ExpectException() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_ValidLocationId_ValidProductId_ValidProduct_ExpectUpdatedLocation() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_InvalidLocationId_ValidProductId_ValidProduct_ExpectException() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_ValidLocationId_InvalidProductId_ValidProduct_ExpectException() {
+
+    }
+
+    @Test
+    public void UpdateWithProduct_ValidLocationId_InvalidProductId_InvalidProduct_ExpectException() {
+
     }
 
     @Test
