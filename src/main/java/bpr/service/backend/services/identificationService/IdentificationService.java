@@ -28,7 +28,7 @@ public class IdentificationService {
         this.customerRepository = customerRepository;
         this.idRepository = idRepository;
         this.eventManager = eventManager;
-        eventManager.addListener(Event.CUSTOMER_DETECTED, this::identifyCustomer);
+        this.eventManager.addListener(Event.CUSTOMER_DETECTED, this::identifyCustomer);
     }
 
     private void identifyCustomer(PropertyChangeEvent propertyChangeEvent) {

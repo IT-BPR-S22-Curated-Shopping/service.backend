@@ -32,12 +32,12 @@ public class MqttMessageService {
         this.eventManager = eventManager;
         this.serializer = serializer;
         this.dateTime = dateTime;
-        eventManager.addListener(Event.MQTT_MESSAGE_RECEIVED, this::handleMessage);
-        eventManager.addListener(Event.INIT_DEVICE_COMM, this::initDeviceCommunication);
-        eventManager.addListener(Event.DEVICE_OFFLINE, this::closeDeviceCommunication);
-        eventManager.addListener(Event.ACTIVATE_DEVICE, this::activateDevice);
-        eventManager.addListener(Event.DEACTIVATE_DEVICE, this::deactivateDevice);
-        eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::handleConnectionError);
+        this.eventManager.addListener(Event.MQTT_MESSAGE_RECEIVED, this::handleMessage);
+        this.eventManager.addListener(Event.INIT_DEVICE_COMM, this::initDeviceCommunication);
+        this.eventManager.addListener(Event.DEVICE_OFFLINE, this::closeDeviceCommunication);
+        this.eventManager.addListener(Event.ACTIVATE_DEVICE, this::activateDevice);
+        this.eventManager.addListener(Event.DEACTIVATE_DEVICE, this::deactivateDevice);
+        this.eventManager.addListener(Event.DEVICE_CONNECTED_ERROR, this::handleConnectionError);
     }
 
     private void handleConnectionError(PropertyChangeEvent propertyChangeEvent) {
@@ -59,6 +59,7 @@ public class MqttMessageService {
     private void closeDeviceCommunication(PropertyChangeEvent propertyChangeEvent) {
         var device = (IdentificationDeviceEntity) propertyChangeEvent.getNewValue();
         var root = String.format("%s/%s", device.getCompanyId(), device.getDeviceId());
+        logger.info(String.format("MQTT message service: unsubscribing from all topics related to %s", root));
         eventManager.invoke(Event.MQTT_UNSUBSCRIBE, String.format("%s/detection", root));
         eventManager.invoke(Event.MQTT_UNSUBSCRIBE, String.format("%s/status", root));
         eventManager.invoke(Event.MQTT_UNSUBSCRIBE, String.format("%s/telemetry", root));
@@ -67,7 +68,9 @@ public class MqttMessageService {
     private void initDeviceCommunication(PropertyChangeEvent propertyChangeEvent) {
         var device = (IdentificationDeviceEntity) propertyChangeEvent.getNewValue();
         logger.info("MQTT Message Service: Subscribing to " + device.getDeviceId());
+        logger.info("MQTT Message Service: Subscribing to " + device.getDeviceId());
         var root = String.format("%s/%s", device.getCompanyId(), device.getDeviceId());
+        logger.info(String.format("MQTT message service: subscribing to all topics related to %s", root));
         eventManager.invoke(Event.MQTT_SUBSCRIBE, String.format("%s/detection", root));
         eventManager.invoke(Event.MQTT_SUBSCRIBE, String.format("%s/status", root));
         eventManager.invoke(Event.MQTT_SUBSCRIBE, String.format("%s/telemetry", root));

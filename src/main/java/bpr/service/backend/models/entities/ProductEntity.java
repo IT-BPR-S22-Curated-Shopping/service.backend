@@ -37,4 +37,11 @@ public class ProductEntity {
         relatedProducts = new ArrayList<>();
         tags = new ArrayList<>();
     }
+
+    public ProductEntity(String productNo, String name) {
+        this.productNo = productNo;
+        this.name = name;
+    }
+
+
 }
