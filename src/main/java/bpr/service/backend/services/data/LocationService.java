@@ -1,7 +1,10 @@
 package bpr.service.backend.services.data;
 
+import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
+import bpr.service.backend.util.exceptions.NotFoundException;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +48,18 @@ public class LocationService implements ICRUDService<LocationEntity> {
         databaseLocation.setPresentationDevices(entity.getPresentationDevices());
         databaseLocation.setIdentificationDevices(entity.getIdentificationDevices());
         return locationRepository.save(databaseLocation);
+    }
+
+    @SneakyThrows
+    public LocationEntity updateWithDeviceList(Long id, List<IdentificationDeviceEntity> deviceList) {
+        if (locationRepository.findById(id).isPresent()) {
+            var databaseLocation = locationRepository.findById(id).get();
+
+            databaseLocation.setIdentificationDevices(deviceList);
+
+            return locationRepository.save(databaseLocation);
+        }
+        throw new NotFoundException(String.format("Location with ID: %s not found", id));
     }
 
     @Override
