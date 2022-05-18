@@ -5,7 +5,6 @@ import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
 import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
-import bpr.service.backend.util.exceptions.NotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.exceptions.base.MockitoException;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -182,41 +182,94 @@ class LocationServiceTest {
         var expectedLocation = locationEntity;
         expectedLocation.setIdentificationDevices(deviceList);
 
-        Mockito.when(locationRepository.findById(5L)).thenThrow(NotFoundException.class);
+        Mockito.when(locationRepository.findById(5L)).thenThrow(new MockitoException("Location not found"));
 
         // Act
-
         // Assert
-        Mockito.verify(locationRepository, Mockito.times(1)).findById(5L);
-        Assertions.assertThrows(NotFoundException.class, () -> {
+        Assertions.assertThrows(MockitoException.class, () -> {
             locationService.updateWithDeviceList(5L, deviceList);
         });
-
     }
 
     @Test
     public void UpdateWithDeviceList_InvalidLocationId_EmptyList_ExpectException() {
+        // Arrange
+        List<IdentificationDeviceEntity> deviceList = new ArrayList<>();
 
+        var expectedLocation = locationEntity;
+        expectedLocation.setIdentificationDevices(deviceList);
+
+        Mockito.when(locationRepository.findById(5L)).thenThrow(new MockitoException("Location not found"));
+
+        // Act
+        // Assert
+        Assertions.assertThrows(MockitoException.class, () -> {
+            locationService.updateWithDeviceList(5L, deviceList);
+        });
     }
 
     @Test
     public void UpdateWithProduct_ValidLocationId_ValidProductId_ValidProduct_ExpectUpdatedLocation() {
+        // Arrange
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(9L);
+        productEntity.setProductNo("testProductNo");
+        productEntity.setName("testProduct");
 
+        var expectedLocation = locationEntity;
+        expectedLocation.setProduct(productEntity);
+
+        Mockito.when(locationRepository.findById(5L)).thenReturn(Optional.of(locationEntity));
+        Mockito.when(productRepository.existsById(9L)).thenReturn(true);
+        Mockito.when(locationRepository.save(any())).thenReturn(expectedLocation);
+
+        // Act
+        LocationEntity result = locationService.updateWithProduct(5L, productEntity);
+
+        // Assert
+        Mockito.verify(locationRepository, Mockito.times(1)).save(expectedLocation);
+        Assertions.assertEquals(expectedLocation, result);
     }
 
     @Test
     public void UpdateWithProduct_InvalidLocationId_ValidProductId_ValidProduct_ExpectException() {
+        // Arrange
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(9L);
+        productEntity.setProductNo("testProductNo");
+        productEntity.setName("testProduct");
 
+        var expectedLocation = locationEntity;
+        expectedLocation.setProduct(productEntity);
+
+        Mockito.when(locationRepository.findById(5L)).thenThrow(new MockitoException("Location not found"));
+
+        // Act
+        // Assert
+        Assertions.assertThrows(MockitoException.class, () -> {
+            locationService.updateWithProduct(5L, productEntity);
+        });
     }
 
     @Test
     public void UpdateWithProduct_ValidLocationId_InvalidProductId_ValidProduct_ExpectException() {
+        // Arrange
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setId(9L);
+        productEntity.setProductNo("testProductNo");
+        productEntity.setName("testProduct");
 
-    }
+        var expectedLocation = locationEntity;
+        expectedLocation.setProduct(productEntity);
 
-    @Test
-    public void UpdateWithProduct_ValidLocationId_InvalidProductId_InvalidProduct_ExpectException() {
+        Mockito.when(locationRepository.findById(5L)).thenReturn(Optional.of(locationEntity));
+        Mockito.when(productRepository.existsById(9L)).thenThrow(new MockitoException("Product not found"));
 
+        // Act
+        // Assert
+        Assertions.assertThrows(MockitoException.class, () -> {
+            locationService.updateWithProduct(5L, productEntity);
+        });
     }
 
     @Test
