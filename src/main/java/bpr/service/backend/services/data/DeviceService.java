@@ -33,8 +33,13 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
         this.deviceRepository = deviceRepository;
         this.eventManager = eventManager;
         this.dateTime = dateTime;
+        setAllDeviceStateOffline();
         eventManager.addListener(Event.DEVICE_CONNECTED, this::handleConnectedDevice);
         eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::handleUpdatedDeviceStatus);
+    }
+
+    private void setAllDeviceStateOffline() {
+
     }
 
     private void invokeConnectionError(ConnectedDeviceDto device, String message) {
@@ -48,32 +53,34 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
 
     private void handleUpdatedDeviceStatus(PropertyChangeEvent propertyChangeEvent) {
         var deviceStatus = (DeviceStatusDto) propertyChangeEvent.getNewValue();
-        var device = deviceRepository.findByDeviceId(deviceStatus.getDeviceId());
-        if (device != null) {
+        var deviceEntity = readByDeviceId(deviceStatus.getDeviceId());
+        if (deviceEntity != null) {
             switch (deviceStatus.getState().toUpperCase()) {
                 case ("OFFLINE"):
-                    logger.info(String.format("Device offline: %s", device.getDeviceId()));
-                    eventManager.invoke(Event.DEVICE_OFFLINE, device);
-                    // TODO: Maybe save event (Key insight?)
+                    logger.info(String.format("Device offline: %s", deviceEntity.getDeviceId()));
+                    deviceEntity.setTimestampOffline(deviceStatus.getTimestamp());
+                    eventManager.invoke(Event.DEVICE_OFFLINE, deviceEntity);
                     break;
                 case ("ONLINE"):
-                    logger.info(String.format("Device online: %s", device.getDeviceId()));
-                    eventManager.invoke(Event.DEVICE_ONLINE, device);
-                    // TODO: Maybe save event (Key insight?)
+                    logger.info(String.format("Device online: %s", deviceEntity.getDeviceId()));
+                    deviceEntity.setTimeStampOnline(deviceStatus.getTimestamp());
+                    eventManager.invoke(Event.DEVICE_ONLINE, deviceEntity);
                     break;
                 case ("READY"):
-                    logger.info(String.format("Device ready: %s", device.getDeviceId()));
-                    eventManager.invoke(Event.DEVICE_READY, device);
+                    logger.info(String.format("Device ready: %s", deviceEntity.getDeviceId()));
+                    deviceEntity.setTimestampReady(deviceStatus.getTimestamp());
+                    eventManager.invoke(Event.DEVICE_READY, deviceEntity);
                     break;
                 case ("ACTIVE"):
-                    logger.info(String.format("Device active: %s", device.getDeviceId()));
-                    eventManager.invoke(Event.DEVICE_ACTIVE, device);
-                    // TODO: Maybe save event (Key insight?)
+                    logger.info(String.format("Device active: %s", deviceEntity.getDeviceId()));
+                    deviceEntity.setTimestampActive(deviceStatus.getTimestamp());
+                    eventManager.invoke(Event.DEVICE_ACTIVE, deviceEntity);
                     break;
                 default:
-                    logger.info(String.format("Device status error: %s unknown state.", device.getDeviceId()));
-                    break;
+                    logger.info(String.format("Device status error: %s unknown state.", deviceEntity.getDeviceId()));
+                    return;
             }
+            update(deviceEntity);
         }
         else {
             logger.warn("Unknown device announced status update. Should not be possible!");
@@ -84,30 +91,33 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
         var connectedDevice = (ConnectedDeviceDto) propertyChangeEvent.getNewValue();
 
         // Check if device is known.
-        var device = deviceRepository.findByDeviceId(connectedDevice.getDeviceId());
+        var deviceEntity = readByDeviceId(connectedDevice.getDeviceId());
 
         // If not known persist the new device.
-        if (device == null) {
+        if (deviceEntity == null) {
             logger.info("New device connected. Creating creating device: " + connectedDevice.getDeviceId());
-            device = create(new IdentificationDeviceEntity(
+
+            deviceEntity = create(new IdentificationDeviceEntity(
                     connectedDevice.getCompanyId(),
                     connectedDevice.getDeviceId(),
-                    connectedDevice.getDeviceType()));
+                    connectedDevice.getDeviceType(),
+                    dateTime.getEpochSeconds()));
         }
 
         // Checks if the connected device exists and belongs to the correct company before init communication.
-        if (device == null) {
+        if (deviceEntity == null) {
             logger.error("Unable to create device: " + connectedDevice.getDeviceId());
             invokeConnectionError(connectedDevice, "Unable to verify connected device.");
             return;
         }
-        else if (!connectedDevice.getCompanyId().equals(device.getCompanyId())) {
+        else if (!connectedDevice.getCompanyId().equals(deviceEntity.getCompanyId())) {
             invokeConnectionError(connectedDevice, "Device id must be unique.");
             return;
         }
-        eventManager.invoke(Event.INIT_DEVICE_COMM, device);
-        eventManager.invoke(Event.DEVICE_ONLINE, device);
-        // TODO: Maybe save event (Key insight?)
+        deviceEntity.setTimeStampOnline(connectedDevice.getTimestamp());
+        update(deviceEntity);
+        eventManager.invoke(Event.INIT_DEVICE_COMM, deviceEntity);
+        eventManager.invoke(Event.DEVICE_ONLINE, deviceEntity);
     }
 
     @Override
@@ -124,6 +134,9 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
         }
         return null;
     }
+    private IdentificationDeviceEntity readByDeviceId(String deviceId) {
+        return  deviceRepository.findByDeviceId(deviceId);
+    }
 
     @Override
     public IdentificationDeviceEntity create(IdentificationDeviceEntity entity) {
@@ -132,6 +145,11 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
 
     @Override
     public IdentificationDeviceEntity update(Long id, IdentificationDeviceEntity entity) {return null;}
+
+    private IdentificationDeviceEntity update(IdentificationDeviceEntity entity) {
+        return deviceRepository.save(entity);
+    }
+
 
     @Override
     public void delete(Long id) {}

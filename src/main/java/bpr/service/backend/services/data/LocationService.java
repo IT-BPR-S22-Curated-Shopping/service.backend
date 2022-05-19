@@ -96,7 +96,7 @@ public class LocationService implements ICRUDService<LocationEntity> {
                 logger.info(String.format(
                         "Location service: customer id %s located near product no. %s in location id %s",
                         identifiedCustomer.getCustomer().getId(),
-                        location.getProduct().getProductNo(),
+                        location.getProduct().getNumber(),
                         location.getId()));
                 eventManager.invoke(
                         Event.CUSTOMER_LOCATED,

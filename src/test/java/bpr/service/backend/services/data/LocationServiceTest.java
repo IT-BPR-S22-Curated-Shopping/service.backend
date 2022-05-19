@@ -48,7 +48,7 @@ class LocationServiceTest {
     public void beforeEach() {
         ProductEntity product = new ProductEntity();
         product.setId(1L);
-        product.setProductNo("testProductNo");
+        product.setNumber("testProductNo");
 
         IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:27:eb:02:ee:ff","BLE");
         List<IdentificationDeviceEntity> deviceList = new ArrayList<>() {{add(device);}};
@@ -222,7 +222,7 @@ class LocationServiceTest {
         // Arrange
         ProductEntity productEntity = new ProductEntity();
         productEntity.setId(9L);
-        productEntity.setProductNo("testProductNo");
+        productEntity.setNumber("testProductNo");
         productEntity.setName("testProduct");
 
         var expectedLocation = locationEntity;
@@ -245,7 +245,7 @@ class LocationServiceTest {
         // Arrange
         ProductEntity productEntity = new ProductEntity();
         productEntity.setId(9L);
-        productEntity.setProductNo("testProductNo");
+        productEntity.setNumber("testProductNo");
         productEntity.setName("testProduct");
 
         var expectedLocation = locationEntity;
@@ -265,7 +265,7 @@ class LocationServiceTest {
         // Arrange
         ProductEntity productEntity = new ProductEntity();
         productEntity.setId(9L);
-        productEntity.setProductNo("testProductNo");
+        productEntity.setNumber("testProductNo");
         productEntity.setName("testProduct");
 
         var expectedLocation = locationEntity;

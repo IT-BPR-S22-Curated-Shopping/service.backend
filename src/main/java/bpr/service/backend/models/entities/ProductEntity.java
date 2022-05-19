@@ -16,8 +16,6 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String productNo;
-
     @Column(unique = true)
     private String number;
 
@@ -39,7 +37,7 @@ public class ProductEntity {
     }
 
     public ProductEntity(String productNo, String name) {
-        this.productNo = productNo;
+        this.number = productNo;
         this.name = name;
     }
 
