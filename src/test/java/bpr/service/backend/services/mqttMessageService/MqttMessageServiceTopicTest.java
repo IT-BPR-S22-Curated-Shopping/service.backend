@@ -90,7 +90,7 @@ class MqttMessageServiceTopicTest {
         Mockito.when(message.getTopic()).thenReturn(MqttTopic.of(String.format("%s/%s/%s/error", companyId, deviceId, channelDetection)));
         Optional<ByteBuffer> byteBuf = Optional.empty();
         Mockito.when(message.getPayload()).thenReturn(byteBuf);
-        eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
+        eventManager.addListener(Event.CUSTOMER_IDENTIFIED, this::setDetectedDto);
         var expected = "Incorrect topic structure. Expected: companyId/deviceId/channel";
 
         // Act.

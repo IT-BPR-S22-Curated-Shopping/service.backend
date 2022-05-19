@@ -2,11 +2,12 @@ package bpr.service.backend.services.data;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
-import bpr.service.backend.models.dto.CustomerLocatedDto;
 import bpr.service.backend.models.dto.IdentifiedCustomerDto;
+import bpr.service.backend.models.entities.DetectionSnapshotEntity;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.ProductEntity;
+import bpr.service.backend.persistence.repository.detectionRepository.IDetectionRepository;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
 import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
@@ -28,18 +29,19 @@ public class LocationService implements ICRUDService<LocationEntity> {
     private final ILocationRepository locationRepository;
     private final IDeviceRepository deviceRepository;
     private final IProductRepository productRepository;
+    private final IDetectionRepository detectionRepository;
     private final IEventManager eventManager;
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
 
     public LocationService(@Autowired ILocationRepository locationRepository,
                            @Autowired IDeviceRepository deviceRepository,
                            @Autowired IProductRepository productRepository,
+                           @Autowired IDetectionRepository detectionRepository,
                            @Autowired @Qualifier("EventManager") IEventManager eventManager) {
         this.locationRepository = locationRepository;
         this.deviceRepository = deviceRepository;
         this.productRepository = productRepository;
+        this.detectionRepository = detectionRepository;
         this.eventManager = eventManager;
         this.eventManager.addListener(Event.CUSTOMER_IDENTIFIED, this::locateCustomer);
         this.eventManager.addListener(Event.DEVICE_READY, this::activateDevice);
@@ -56,8 +58,7 @@ public class LocationService implements ICRUDService<LocationEntity> {
                     "Location service: activating device id %s in location %s",
                     device.getDeviceId(),
                     location.getId()));
-            eventManager.invoke(Event.ACTIVATE_DEVICE, device);
-            //TODO: Save event (key insight).
+            activateIdDeviceInLocation(device);
         }
     }
 
@@ -78,19 +79,18 @@ public class LocationService implements ICRUDService<LocationEntity> {
         var identifiedCustomer = (IdentifiedCustomerDto) propertyChangeEvent.getNewValue();
         var location = findLocationByDeviceId(identifiedCustomer.getIdentificationDeviceId());
         if (location != null) {
+            var snapshot = new DetectionSnapshotEntity(
+                    identifiedCustomer.getTimestamp(),
+                    location.getId(),
+                    location.getName(),
+                    identifiedCustomer.getIdentificationDeviceId(),
+                    identifiedCustomer.getCustomer());
+            // If a location does not have a product a recommendation is not needed but data is still valuable.
             if (location.getProduct() == null) {
                 logger.info(String.format(
                         "Location service: Product not associated with location %s id %s",
                         location.getName(),
                         location.getId()));
-                //TODO: Save event (key insight).
-            }
-            else if (location.getPresentationDevices() == null || location.getPresentationDevices().isEmpty()) {
-                logger.info(String.format(
-                        "Location service: Presenter not associated with location %s id %s",
-                        location.getName(),
-                        location.getId()));
-                //TODO: Save event (key insight).
             }
             else {
                 logger.info(String.format(
@@ -98,13 +98,12 @@ public class LocationService implements ICRUDService<LocationEntity> {
                         identifiedCustomer.getCustomer().getId(),
                         location.getProduct().getNumber(),
                         location.getId()));
+                snapshot.setProduct(location.getProduct());
                 eventManager.invoke(
                         Event.CUSTOMER_LOCATED,
-                        new CustomerLocatedDto(
-                                identifiedCustomer.getTimestamp(),
-                                identifiedCustomer.getCustomer(),
-                                location));
+                        snapshot);
             }
+            detectionRepository.save(snapshot);
         }
     }
 
@@ -125,6 +124,7 @@ public class LocationService implements ICRUDService<LocationEntity> {
 
     @Override
     public LocationEntity create(LocationEntity entity) {
+        System.out.println("************************************************************************service");
         return locationRepository.save(entity);
     }
 
@@ -137,18 +137,60 @@ public class LocationService implements ICRUDService<LocationEntity> {
         return locationRepository.save(databaseLocation);
     }
 
+    private boolean inActiveState(IdentificationDeviceEntity idDevice) {
+        return idDevice.getTimestampActive() >= idDevice.getTimestampReady() &&
+                idDevice.getTimestampActive() >= idDevice.getTimeStampOnline() &&
+                idDevice.getTimestampActive() > idDevice.getTimestampOffline();
+    }
+
+    private boolean inReadyState(IdentificationDeviceEntity idDevice) {
+        return idDevice.getTimestampReady() > idDevice.getTimestampActive() &&
+                idDevice.getTimestampReady() >= idDevice.getTimeStampOnline() &&
+                idDevice.getTimestampReady() > idDevice.getTimestampOffline();
+    }
+
+    private void deactivateRemovedDevices(List<IdentificationDeviceEntity> oldDeviceEntities, List<IdentificationDeviceEntity> newDeviceEntities) {
+        for (var oldEntity : oldDeviceEntities) {
+            var removed = true;
+            for (var newEntity : newDeviceEntities) {
+                if (oldEntity.getDeviceId().equals(newEntity.getDeviceId())) {
+                    removed = false;
+                    break;
+                }
+            }
+            if (removed && inActiveState(oldEntity))
+                deactivateIdDeviceInLocation(oldEntity);
+        }
+    }
+
+    private void activateNewDevicesInLocation(List<IdentificationDeviceEntity> identificationDeviceEntities) {
+        for (var device : identificationDeviceEntities) {
+            if (inReadyState(device))
+                activateIdDeviceInLocation(device);
+        }
+    }
+
     @SneakyThrows
     public LocationEntity updateWithDeviceList(Long id, List<IdentificationDeviceEntity> deviceList) {
         if (locationRepository.findById(id).isPresent()) {
             var databaseLocation = locationRepository.findById(id).get();
+            deactivateRemovedDevices(databaseLocation.getIdentificationDevices(), deviceList);
 
             databaseLocation.setIdentificationDevices(deviceList);
 
-            // TODO: Activate devices added to location. Maybe emit event with list before return and then let device service handle the check on their current connection state.
+            var updatedEntity = locationRepository.save(databaseLocation);
+            activateNewDevicesInLocation(updatedEntity.getIdentificationDevices());
 
-            return locationRepository.save(databaseLocation);
+            return updatedEntity;
         }
         throw new NotFoundException(String.format("Location with ID: %s not found", id));
+    }
+
+    private void activateIdDeviceInLocation(IdentificationDeviceEntity idDevice) {
+        eventManager.invoke(Event.ACTIVATE_DEVICE, idDevice);
+    }
+    private void deactivateIdDeviceInLocation(IdentificationDeviceEntity idDevice) {
+        eventManager.invoke(Event.DEACTIVATE_DEVICE, idDevice);
     }
 
     @SneakyThrows

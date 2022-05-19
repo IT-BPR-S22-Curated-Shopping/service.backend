@@ -10,7 +10,6 @@ import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.models.entities.UuidEntity;
 import bpr.service.backend.persistence.repository.customerRepository.ICustomerRepository;
 import bpr.service.backend.persistence.repository.customerRepository.IUuidRepository;
-import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +21,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class IdentificationServiceTest {

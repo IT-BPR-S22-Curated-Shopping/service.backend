@@ -5,6 +5,7 @@ import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.ProductEntity;
+import bpr.service.backend.persistence.repository.detectionRepository.IDetectionRepository;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
 import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
@@ -32,8 +33,6 @@ class LocationServiceTest {
     private IEventManager eventManager = new EventManager();
 
     @Mock
-    private IDeviceRepository deviceRepository;
-    @Mock
     private ILocationRepository locationRepository;
 
     @Mock
@@ -44,13 +43,15 @@ class LocationServiceTest {
 
     private LocationEntity locationEntity;
 
+    private final long timestamp = 1652463743476L;
+
     @BeforeEach
     public void beforeEach() {
         ProductEntity product = new ProductEntity();
         product.setId(1L);
         product.setNumber("testProductNo");
 
-        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:27:eb:02:ee:ff","BLE");
+        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:27:eb:02:ee:ff","BLE", timestamp);
         List<IdentificationDeviceEntity> deviceList = new ArrayList<>() {{add(device);}};
 
         locationEntity = new LocationEntity();
@@ -145,7 +146,8 @@ class LocationServiceTest {
     @Test
     public void UpdateWithDeviceList_ValidLocationId_NonEmptyList_ExpectDeviceListAdded() {
         // Arrange
-        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:00:ab:03:ef:ff","BLE");
+        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:00:ab:03:ef:ff","BLE", timestamp);
+
         List<IdentificationDeviceEntity> deviceList = new ArrayList<>() {{add(device);}};
 
         var expectedLocation = locationEntity;
@@ -185,7 +187,7 @@ class LocationServiceTest {
     @Test
     public void UpdateWithDeviceList_InvalidLocationId_NonEmptyList_ExpectException() {
         // Arrange
-        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:00:ab:03:ef:ff","BLE");
+        IdentificationDeviceEntity device = new IdentificationDeviceEntity("010d2108","ff:00:ab:03:ef:ff","BLE", timestamp);
         List<IdentificationDeviceEntity> deviceList = new ArrayList<>() {{add(device);}};
 
         var expectedLocation = locationEntity;

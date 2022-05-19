@@ -3,6 +3,7 @@ package bpr.service.backend.services.data;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
+import bpr.service.backend.util.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,19 +28,23 @@ class DeviceServiceCRUDTest {
     @Mock
     private IEventManager eventManager;
 
+    @Mock
+    private DateTime dateTime;
+
     @InjectMocks
     DeviceService deviceService;
 
     private IdentificationDeviceEntity identificationDeviceEntity;
+    private final long timestamp = 1652463743476L;
 
     @BeforeEach
     public void beforeEach() {
         identificationDeviceEntity = new IdentificationDeviceEntity(
                 "010d2108",
                 "bb:27:eb:02:ee:fe",
-                "BLE");
+                "BLE",
+                timestamp);
     }
-
     @Test
     public void ReadAll_AddedDevice_ExpectListWithDevice() {
         // Arrange
@@ -51,7 +56,7 @@ class DeviceServiceCRUDTest {
         List<IdentificationDeviceEntity> resultList = deviceService.readAll();
 
         // Assert
-        Mockito.verify(deviceRepository, Mockito.times(1)).findAll();
+        Mockito.verify(deviceRepository, Mockito.times(2)).findAll();
         Assertions.assertEquals(deviceList, resultList);
     }
 
@@ -65,7 +70,7 @@ class DeviceServiceCRUDTest {
         List<IdentificationDeviceEntity> resultList = deviceService.readAll();
 
         // Assert
-        Mockito.verify(deviceRepository, Mockito.times(1)).findAll();
+        Mockito.verify(deviceRepository, Mockito.times(2)).findAll();
         Assertions.assertEquals(deviceList, resultList);
     }
 
@@ -98,7 +103,8 @@ class DeviceServiceCRUDTest {
         var tracker = new IdentificationDeviceEntity(
                 "010d2108",
                 "ff:27:eb:02:ee:ff",
-                "BLE");
+                "BLE",
+                timestamp);
 
         Mockito.when(deviceRepository.save(any())).thenReturn(tracker);
 

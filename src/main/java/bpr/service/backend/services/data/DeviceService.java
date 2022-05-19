@@ -38,8 +38,13 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
         eventManager.addListener(Event.DEVICE_STATUS_UPDATE, this::handleUpdatedDeviceStatus);
     }
 
+    // Ensures consistent data on initialization.
     private void setAllDeviceStateOffline() {
-
+        var devices = readAll();
+        for (var device : devices) {
+            device.setTimestampOffline(dateTime.getEpochSeconds());
+        }
+        updateAll(devices);
     }
 
     private void invokeConnectionError(ConnectedDeviceDto device, String message) {
@@ -150,6 +155,9 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
         return deviceRepository.save(entity);
     }
 
+    private Iterable<IdentificationDeviceEntity> updateAll(List<IdentificationDeviceEntity> entities) {
+        return deviceRepository.saveAll(entities);
+    }
 
     @Override
     public void delete(Long id) {}

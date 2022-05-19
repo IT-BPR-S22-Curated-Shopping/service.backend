@@ -25,17 +25,21 @@ public class IdentificationDeviceEntity {
 
     private String deviceType;
 
-    private long timestampOffline;
-    private long timeStampOnline;
-    private long timestampReady;
-    private long timestampActive;
+    private Long timestampOffline;
+    private Long timeStampOnline;
+    private Long timestampReady;
+    private Long timestampActive;
 
-    public IdentificationDeviceEntity() { }
+    public IdentificationDeviceEntity() {
+    }
 
-    public IdentificationDeviceEntity(String companyId, String deviceId, String deviceType, long timestampOffline) {
+    public IdentificationDeviceEntity(String companyId, String deviceId, String deviceType, Long timestampOffline) {
         this.companyId = companyId;
         this.deviceId = deviceId;
         this.deviceType = deviceType;
         this.timestampOffline = timestampOffline;
+        this.timeStampOnline = 0L;
+        this.timestampActive = 0L;
+        this.timestampReady = 0L;
     }
 }

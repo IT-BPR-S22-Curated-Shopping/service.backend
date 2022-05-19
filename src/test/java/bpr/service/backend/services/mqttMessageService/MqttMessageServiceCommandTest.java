@@ -46,6 +46,7 @@ class MqttMessageServiceCommandTest {
     private final String deviceId = "b8:27:eb:02:ee:fe";
 
     private MqttPublishDto publishDto = null;
+    private final long timestamp = 1652463743476L;
 
     @BeforeEach
     public void beforeEach() {
@@ -63,7 +64,8 @@ class MqttMessageServiceCommandTest {
         var idEntity = new IdentificationDeviceEntity(
                 companyId,
                 deviceId,
-                "BLE"
+                "BLE",
+                timestamp
         );
 
         // ACT
@@ -89,7 +91,8 @@ class MqttMessageServiceCommandTest {
         var idEntity = new IdentificationDeviceEntity(
                 companyId,
                 deviceId,
-                "BLE"
+                "BLE",
+                timestamp
         );
 
         // ACT

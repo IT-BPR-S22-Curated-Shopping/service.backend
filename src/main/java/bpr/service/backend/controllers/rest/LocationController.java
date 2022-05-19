@@ -57,7 +57,7 @@ public class LocationController {
         if (map.containsKey("presentationId")) {
             // not implemented, needs lookup
         }
-
+        System.out.println("************************************************************************************************comtrolerrt");
         return locationService.create(entity);
     }
 

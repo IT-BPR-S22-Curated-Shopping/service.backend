@@ -13,7 +13,7 @@ public class LayoutEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private boolean horizontal = true;
+    private Boolean horizontal = true;
 
     // TODO: Add layouts
 

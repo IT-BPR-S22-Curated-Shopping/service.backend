@@ -3,7 +3,6 @@ package bpr.service.backend.services.data;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.EventManager;
 import bpr.service.backend.managers.events.IEventManager;
-import bpr.service.backend.models.dto.CustomerLocatedDto;
 import bpr.service.backend.models.dto.IdentifiedCustomerDto;
 import bpr.service.backend.models.entities.*;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
@@ -53,7 +52,8 @@ class LocationServiceLocateActivateDeviceTest {
     private final IdentificationDeviceEntity device = new IdentificationDeviceEntity(
             companyId,
             deviceId,
-            "BLE"
+            "BLE",
+            timestamp
     );
 
     private final LocationEntity location = new LocationEntity(

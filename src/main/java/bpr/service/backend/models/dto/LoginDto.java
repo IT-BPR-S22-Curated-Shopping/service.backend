@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @Data
 public class LoginDto {
 
-    private boolean success;
+    private Boolean success;
     private HttpStatus code;
     private String email;
     private String message;
@@ -15,7 +15,7 @@ public class LoginDto {
     public LoginDto() {
     }
 
-    public LoginDto(boolean success, HttpStatus code, String email, String message) {
+    public LoginDto(Boolean success, HttpStatus code, String email, String message) {
         this.success = success;
         this.code = code;
         this.email = email;
@@ -23,7 +23,7 @@ public class LoginDto {
         jwtToken = "N/A";
     }
 
-    public LoginDto(boolean success, HttpStatus code, String email, String message, String jwtToken) {
+    public LoginDto(Boolean success, HttpStatus code, String email, String message, String jwtToken) {
         this.success = success;
         this.code = code;
         this.email = email;

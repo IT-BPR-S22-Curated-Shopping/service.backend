@@ -44,7 +44,6 @@ class MqttMessageServiceStatusTest {
 
     private final Mqtt5Publish message = Mockito.mock(Mqtt5Publish.class, Mockito.RETURNS_DEEP_STUBS);;
     private final String deviceId = "b8:27:eb:02:ee:fe";
-    private final String companyId = "010d2108";
     private final Long timestamp = 1652463743476L;
     private MqttPublishDto errorDto;
     private DeviceStatusDto statusDto;
@@ -166,6 +165,7 @@ class MqttMessageServiceStatusTest {
         eventManager.invoke(Event.MQTT_MESSAGE_RECEIVED, message);
 
         // Assert.
+        String companyId = "010d2108";
         Mockito.verify(eventManager, Mockito.times(1)).invoke(Event.MQTT_PUBLISH, new MqttPublishDto(
                 String.format("%s/%s/error", companyId, deviceId),
                 expected

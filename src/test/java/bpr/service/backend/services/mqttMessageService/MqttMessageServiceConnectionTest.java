@@ -68,7 +68,8 @@ class MqttMessageServiceConnectionTest {
         var idEntity = new IdentificationDeviceEntity(
                 companyId,
                 deviceId,
-                "BLE"
+                "BLE",
+                timestamp
         );
 
         // ACT
@@ -109,7 +110,8 @@ class MqttMessageServiceConnectionTest {
         var idEntity = new IdentificationDeviceEntity(
                 companyId,
                 deviceId,
-                "BLE"
+                "BLE",
+                timestamp
         );
 
         // ACT

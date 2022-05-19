@@ -30,19 +30,21 @@ class DeviceServiceConnectedDeviceTest {
     @Mock
     private IDeviceRepository deviceRepository;
 
+
     @Mock
     IDateTime dateTime;
 
     @InjectMocks
     DeviceService deviceService;
 
+    private final long timestamp = 1652463743476L;
 
     private final IdentificationDeviceEntity repositoryTracker = new IdentificationDeviceEntity(
             "010d2108",
             "bb:27:eb:02:ee:fe",
-            "BLE");
+            "BLE",
+            timestamp);
 
-    private final long timestamp = 1652463743476L;
     private final ConnectedDeviceDto connectionDto = new ConnectedDeviceDto(
             timestamp,
             repositoryTracker.getCompanyId(),
@@ -130,10 +132,12 @@ class DeviceServiceConnectedDeviceTest {
         var tracker = new IdentificationDeviceEntity(
                 "010d2108",
                 "ff:27:eb:02:ee:ff",
-                "BLE");
+                "BLE",
+                timestamp);
 
         var connectionDto = new ConnectedDeviceDto(timestamp, tracker.getCompanyId(), tracker.getDeviceId(), tracker.getDeviceType());
 
+        setTimeMock();
         setFindByIdMock(tracker);
         Mockito.when(deviceRepository.save(tracker)).thenReturn(tracker);
 
@@ -157,7 +161,8 @@ class DeviceServiceConnectedDeviceTest {
         var tracker = new IdentificationDeviceEntity(
                 "010d2109",
                 "bb:27:eb:02:ee:fe",
-                "BLE");
+                "BLE",
+                timestamp);
 
         var connectionDto = new ConnectedDeviceDto(timestamp, tracker.getCompanyId(), tracker.getDeviceId(), tracker.getDeviceType());
 
@@ -189,7 +194,8 @@ class DeviceServiceConnectedDeviceTest {
         var tracker = new IdentificationDeviceEntity(
                 "010d2108",
                 "ff:27:eb:02:ee:ff",
-                "BLE");
+                "BLE",
+                timestamp);
 
         var connectionDto = new ConnectedDeviceDto(timestamp, tracker.getCompanyId(), tracker.getDeviceId(), tracker.getDeviceType());
 

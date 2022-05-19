@@ -35,11 +35,14 @@ class DeviceServiceStatusUpdateTest {
     @InjectMocks
     DeviceService deviceService;
 
+    private final long timestamp = 1652463743476L;
+
 
     private final IdentificationDeviceEntity repositoryTracker = new IdentificationDeviceEntity(
             "010d2108",
             "bb:27:eb:02:ee:fe",
-            "BLE");
+            "BLE",
+            timestamp);
 
     private IdentificationDeviceEntity identificationDeviceEntity;
 
@@ -231,7 +234,8 @@ class DeviceServiceStatusUpdateTest {
         var unknown = new IdentificationDeviceEntity(
                 "010d2108",
                 "ff:27:eb:02:ee:ff",
-                "BLE");
+                "BLE",
+                timestamp);
 
         setFindByIdMock(unknown);
 

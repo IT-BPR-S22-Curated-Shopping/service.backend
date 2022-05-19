@@ -24,7 +24,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
     public WebSocketHandler(@Autowired @Qualifier("EventManager") IEventManager eventManager) {
-        eventManager.addListener(Event.CUSTOMER_IDENTIFIED, this::onMessageReceived);
+       // TODO: subscribe to recommendations. eventManager.addListener(Event.NEW_RECOMMENDATION, this::onMessageReceived);
     }
 
     @Override

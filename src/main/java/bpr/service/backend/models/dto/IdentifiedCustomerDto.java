@@ -6,14 +6,14 @@ import lombok.Data;
 @Data
 public class IdentifiedCustomerDto {
 
-    private long timestamp;
+    private Long timestamp;
     private CustomerEntity customer;
     private String identificationDeviceId;
 
     public IdentifiedCustomerDto() {
     }
 
-    public IdentifiedCustomerDto(long timestamp, CustomerEntity customer, String identificationDeviceId) {
+    public IdentifiedCustomerDto(Long timestamp, CustomerEntity customer, String identificationDeviceId) {
         this.timestamp = timestamp;
         this.customer = customer;
         this.identificationDeviceId = identificationDeviceId;

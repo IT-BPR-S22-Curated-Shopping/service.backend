@@ -3,9 +3,9 @@ package bpr.service.backend.services.data;
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.EventManager;
 import bpr.service.backend.managers.events.IEventManager;
-import bpr.service.backend.models.dto.CustomerLocatedDto;
 import bpr.service.backend.models.dto.IdentifiedCustomerDto;
 import bpr.service.backend.models.entities.*;
+import bpr.service.backend.persistence.repository.detectionRepository.IDetectionRepository;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
 import org.junit.jupiter.api.Assertions;
@@ -33,6 +33,9 @@ class LocationServiceLocateCustomerTest {
     @Mock
     private ILocationRepository locationRepository;
 
+    @Mock
+    private IDetectionRepository detectionRepository;
+
     @InjectMocks
     LocationService locationService;
 
@@ -53,7 +56,8 @@ class LocationServiceLocateCustomerTest {
     private final IdentificationDeviceEntity device = new IdentificationDeviceEntity(
             companyId,
             deviceId,
-            "BLE"
+            "BLE",
+            timestamp
     );
 
     private final LocationEntity location = new LocationEntity(
@@ -66,7 +70,15 @@ class LocationServiceLocateCustomerTest {
             List.of(new PresenterEntity())
     );
 
-    private CustomerLocatedDto locatedDto;
+    private DetectionSnapshotEntity expectedSnapshot;
+
+    private DetectionSnapshotEntity emittedSnapshot = new DetectionSnapshotEntity(
+            timestamp,
+            location.getId(),
+            location.getName(),
+            deviceId,
+            repositoryCustomer);
+
 
     @BeforeEach
     public void beforeEach() {
@@ -74,7 +86,7 @@ class LocationServiceLocateCustomerTest {
     }
 
     private void customerLocated(PropertyChangeEvent propertyChangeEvent) {
-        locatedDto = (CustomerLocatedDto) propertyChangeEvent.getNewValue();
+        expectedSnapshot = (DetectionSnapshotEntity) propertyChangeEvent.getNewValue();
     }
 
     @Test
@@ -82,7 +94,7 @@ class LocationServiceLocateCustomerTest {
         // Arrange
         Mockito.when(deviceRepository.findByDeviceId(deviceId)).thenReturn(device);
         Mockito.when(locationRepository.findByIdentificationDevicesIn(List.of(device))).thenReturn(location);
-
+        emittedSnapshot.setProduct(location.getProduct());
 
         // ACT
         eventManager.invoke(Event.CUSTOMER_IDENTIFIED, identifiedCustomerDto);
@@ -90,13 +102,10 @@ class LocationServiceLocateCustomerTest {
         // ASSERT
         Mockito.verify(eventManager, Mockito.times(1))
                 .invoke(Event.CUSTOMER_LOCATED,
-                        new CustomerLocatedDto(
-                                timestamp,
-                                identifiedCustomerDto.getCustomer(),
-                                location)
+                        emittedSnapshot
                 );
 
-        Assertions.assertNotNull(locatedDto);
+        Assertions.assertNotNull(expectedSnapshot);
     }
 
     @Test
@@ -110,13 +119,10 @@ class LocationServiceLocateCustomerTest {
         // ASSERT
         Mockito.verify(eventManager, Mockito.times(0))
                 .invoke(Event.CUSTOMER_LOCATED,
-                        new CustomerLocatedDto(
-                                timestamp,
-                                identifiedCustomerDto.getCustomer(),
-                                location)
+                        emittedSnapshot
                 );
 
-        Assertions.assertNull(locatedDto);
+        Assertions.assertNull(expectedSnapshot);
     }
 
     @Test
@@ -131,13 +137,10 @@ class LocationServiceLocateCustomerTest {
         // ASSERT
         Mockito.verify(eventManager, Mockito.times(0))
                 .invoke(Event.CUSTOMER_LOCATED,
-                        new CustomerLocatedDto(
-                                timestamp,
-                                identifiedCustomerDto.getCustomer(),
-                                location)
+                        emittedSnapshot
                 );
 
-        Assertions.assertNull(locatedDto);
+        Assertions.assertNull(expectedSnapshot);
     }
 
 
@@ -161,73 +164,10 @@ class LocationServiceLocateCustomerTest {
         // ASSERT
         Mockito.verify(eventManager, Mockito.times(0))
                 .invoke(Event.CUSTOMER_LOCATED,
-                        new CustomerLocatedDto(
-                                timestamp,
-                                identifiedCustomerDto.getCustomer(),
-                                loc)
+                        emittedSnapshot
                 );
 
-        Assertions.assertNull(locatedDto);
+        Assertions.assertNull(expectedSnapshot);
     }
-
-    @Test
-    public void locationWithoutPresenter() {
-        // Arrange
-        var loc = new LocationEntity(
-                "Prime Beef",
-                new ProductEntity(),
-                List.of(device),
-                null
-        );
-
-
-        Mockito.when(deviceRepository.findByDeviceId(deviceId)).thenReturn(device);
-        Mockito.when(locationRepository.findByIdentificationDevicesIn(List.of(device))).thenReturn(loc);
-
-        // ACT
-        eventManager.invoke(Event.CUSTOMER_IDENTIFIED, identifiedCustomerDto);
-
-        // ASSERT
-        Mockito.verify(eventManager, Mockito.times(0))
-                .invoke(Event.CUSTOMER_LOCATED,
-                        new CustomerLocatedDto(
-                                timestamp,
-                                identifiedCustomerDto.getCustomer(),
-                                loc)
-                );
-
-        Assertions.assertNull(locatedDto);
-    }
-
-    @Test
-    public void locationWithEmptyPresenterList() {
-        // Arrange
-        var loc = new LocationEntity(
-                "Prime Beef",
-                new ProductEntity(),
-                List.of(device),
-                List.of()
-        );
-
-
-        Mockito.when(deviceRepository.findByDeviceId(deviceId)).thenReturn(device);
-        Mockito.when(locationRepository.findByIdentificationDevicesIn(List.of(device))).thenReturn(loc);
-
-        // ACT
-        eventManager.invoke(Event.CUSTOMER_IDENTIFIED, identifiedCustomerDto);
-
-        // ASSERT
-        Mockito.verify(eventManager, Mockito.times(0))
-                .invoke(Event.CUSTOMER_LOCATED,
-                        new CustomerLocatedDto(
-                                timestamp,
-                                identifiedCustomerDto.getCustomer(),
-                                loc)
-                );
-
-        Assertions.assertNull(locatedDto);
-    }
-
-
 
 }

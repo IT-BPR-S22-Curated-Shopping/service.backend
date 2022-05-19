@@ -21,13 +21,11 @@ public class LocationEntity {
     private ProductEntity product;
 
     @OneToMany
-    @Column(unique=true)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<IdentificationDeviceEntity> identificationDevices;
 
     @OneToMany
-    @Column(unique=true)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @Cascade(org.hibernate.annotations.CascadeType.ALL )
     private List<PresenterEntity> presentationDevices;
 
     public LocationEntity() {
