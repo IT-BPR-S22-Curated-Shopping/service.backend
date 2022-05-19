@@ -6,8 +6,10 @@ import bpr.service.backend.models.dto.CustomerLocatedDto;
 import bpr.service.backend.models.dto.IdentifiedCustomerDto;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
+import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
+import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
 import bpr.service.backend.util.exceptions.NotFoundException;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -15,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class LocationService implements ICRUDService<LocationEntity> {
 
     private final ILocationRepository locationRepository;
     private final IDeviceRepository deviceRepository;
+    private final IProductRepository productRepository;
     private final IEventManager eventManager;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -33,9 +35,11 @@ public class LocationService implements ICRUDService<LocationEntity> {
 
     public LocationService(@Autowired ILocationRepository locationRepository,
                            @Autowired IDeviceRepository deviceRepository,
+                           @Autowired IProductRepository productRepository,
                            @Autowired @Qualifier("EventManager") IEventManager eventManager) {
         this.locationRepository = locationRepository;
         this.deviceRepository = deviceRepository;
+        this.productRepository = productRepository;
         this.eventManager = eventManager;
         this.eventManager.addListener(Event.CUSTOMER_IDENTIFIED, this::locateCustomer);
         this.eventManager.addListener(Event.DEVICE_READY, this::activateDevice);
@@ -143,6 +147,21 @@ public class LocationService implements ICRUDService<LocationEntity> {
             // TODO: Activate devices added to location. Maybe emit event with list before return and then let device service handle the check on their current connection state.
 
             return locationRepository.save(databaseLocation);
+        }
+        throw new NotFoundException(String.format("Location with ID: %s not found", id));
+    }
+
+    @SneakyThrows
+    public LocationEntity updateWithProduct(Long id, ProductEntity product) {
+        if (locationRepository.findById(id).isPresent()) {
+            if (productRepository.existsById(product.getId())) {
+                var databaseLocation = locationRepository.findById(id).get();
+
+                databaseLocation.setProduct(product);
+
+                return locationRepository.save(databaseLocation);
+            }
+            else throw new NotFoundException(String.format("Product with ID: %s not found", product.getId()));
         }
         throw new NotFoundException(String.format("Location with ID: %s not found", id));
     }

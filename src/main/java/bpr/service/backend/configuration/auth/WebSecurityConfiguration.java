@@ -6,13 +6,22 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        corsConfiguration.setAllowedOrigins(List.of("*"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT","OPTIONS","PATCH", "DELETE"));
+        corsConfiguration.setExposedHeaders(List.of("Authorization"));
+        corsConfiguration.applyPermitDefaultValues();
+
+        http.cors().configurationSource(request -> corsConfiguration);
 
         http.authorizeRequests()
                 .anyRequest()
@@ -21,4 +30,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.oauth2ResourceServer()
                 .jwt();
     }
+
+
 }
