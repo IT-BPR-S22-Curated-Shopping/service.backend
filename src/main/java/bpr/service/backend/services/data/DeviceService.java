@@ -54,10 +54,12 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
                 case ("OFFLINE"):
                     logger.info(String.format("Device offline: %s", device.getDeviceId()));
                     eventManager.invoke(Event.DEVICE_OFFLINE, device);
+                    // TODO: Maybe save event (Key insight?)
                     break;
                 case ("ONLINE"):
                     logger.info(String.format("Device online: %s", device.getDeviceId()));
                     eventManager.invoke(Event.DEVICE_ONLINE, device);
+                    // TODO: Maybe save event (Key insight?)
                     break;
                 case ("READY"):
                     logger.info(String.format("Device ready: %s", device.getDeviceId()));
@@ -66,6 +68,7 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
                 case ("ACTIVE"):
                     logger.info(String.format("Device active: %s", device.getDeviceId()));
                     eventManager.invoke(Event.DEVICE_ACTIVE, device);
+                    // TODO: Maybe save event (Key insight?)
                     break;
                 default:
                     logger.info(String.format("Device status error: %s unknown state.", device.getDeviceId()));
@@ -104,6 +107,7 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
         }
         eventManager.invoke(Event.INIT_DEVICE_COMM, device);
         eventManager.invoke(Event.DEVICE_ONLINE, device);
+        // TODO: Maybe save event (Key insight?)
     }
 
     @Override

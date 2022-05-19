@@ -2,7 +2,6 @@ package bpr.service.backend.models.entities;
 
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,5 +33,12 @@ public class LocationEntity {
     public LocationEntity() {
         identificationDevices = new ArrayList<>();
         presentationDevices = new ArrayList<>();
+    }
+
+    public LocationEntity(String name, ProductEntity product, List<IdentificationDeviceEntity> identificationDevices, List<PresenterEntity> presentationDevices) {
+        this.name = name;
+        this.product = product;
+        this.identificationDevices = identificationDevices;
+        this.presentationDevices = presentationDevices;
     }
 }

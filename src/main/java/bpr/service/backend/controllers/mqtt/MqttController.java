@@ -53,11 +53,13 @@ public class MqttController {
 
     private void invokeUnsubscribe(PropertyChangeEvent propertyChangeEvent) {
         var topic = (String) propertyChangeEvent.getNewValue();
+        logger.info("MQTT unsubscribing from topic " + topic);
         unsubscribe(topic);
     }
 
     private void invokeSubscribe(PropertyChangeEvent propertyChangeEvent) {
         var topic = (String) propertyChangeEvent.getNewValue();
+        logger.info("MQTT subscribing to topic " + topic);
         subscribe(topic);
     }
 
