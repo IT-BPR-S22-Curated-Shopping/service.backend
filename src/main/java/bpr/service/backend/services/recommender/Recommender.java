@@ -47,9 +47,9 @@ public class Recommender implements IRecommender {
 //        System.out.println(customerEntity1.toString());
 
 
-        ProductEntity productEntity1 = new ProductEntity("Lamp1", "lamp name1", "", List.of(allTags.get(0), allTags.get(1), allTags.get(2)), null);
-        ProductEntity productEntity2 = new ProductEntity("Lamp2", "lamp name2", "", List.of(allTags.get(0), allTags.get(3)), null);
-        ProductEntity productEntity3 = new ProductEntity("Lamp2", "lamp name2", "", List.of(allTags.get(1), allTags.get(2)), null);
+        ProductEntity productEntity1 = new ProductEntity("Lamp1", "lamp name1", "", List.of(allTags.get(0), allTags.get(1), allTags.get(2)));
+        ProductEntity productEntity2 = new ProductEntity("Lamp2", "lamp name2", "", List.of(allTags.get(0), allTags.get(3)));
+        ProductEntity productEntity3 = new ProductEntity("Lamp2", "lamp name2", "", List.of(allTags.get(1), allTags.get(2)));
         List<ProductEntity> smallProduct = new ArrayList<>();
         smallProduct.add(productEntity1);
         smallProduct.add(productEntity2);

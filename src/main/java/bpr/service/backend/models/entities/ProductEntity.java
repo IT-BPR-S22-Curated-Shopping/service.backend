@@ -41,5 +41,12 @@ public class ProductEntity {
         this.name = name;
     }
 
+    public ProductEntity(String productNo, String name, String image, List<TagEntity> tags) {
+        this.number = productNo;
+        this.name = name;
+        this.image = image;
+        this.tags = tags;
+    }
+
 
 }
