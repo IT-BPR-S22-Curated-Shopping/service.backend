@@ -68,7 +68,7 @@ class DeviceServiceConnectedDeviceTest {
     }
 
     private void setTimeMock() {
-        Mockito.when(dateTime.getEpochSeconds()).thenReturn(timestamp);
+        Mockito.when(dateTime.getEpochMs()).thenReturn(timestamp);
     }
 
     private void setTrackerEntity(PropertyChangeEvent event) {

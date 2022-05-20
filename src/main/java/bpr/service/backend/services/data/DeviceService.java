@@ -42,14 +42,14 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
     private void setAllDeviceStateOffline() {
         var devices = readAll();
         for (var device : devices) {
-            device.setTimestampOffline(dateTime.getEpochSeconds());
+            device.setTimestampOffline(dateTime.getEpochMs());
         }
         updateAll(devices);
     }
 
     private void invokeConnectionError(ConnectedDeviceDto device, String message) {
         var errorDto = new ConnectedDeviceErrorDto(
-                dateTime.getEpochSeconds(),
+                dateTime.getEpochMs(),
                 device,
                 message
         );
@@ -106,7 +106,7 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
                     connectedDevice.getCompanyId(),
                     connectedDevice.getDeviceId(),
                     connectedDevice.getDeviceType(),
-                    dateTime.getEpochSeconds()));
+                    dateTime.getEpochMs()));
         }
 
         // Checks if the connected device exists and belongs to the correct company before init communication.

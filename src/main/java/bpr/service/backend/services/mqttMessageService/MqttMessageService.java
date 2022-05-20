@@ -152,7 +152,7 @@ public class MqttMessageService {
         }
 
         var client = new ConnectedDeviceDto(
-                dateTime.getEpochSeconds(),
+                dateTime.getEpochMs(),
                 companyId.asText(),
                 deviceId.asText(),
                 deviceType.asText()
@@ -186,7 +186,7 @@ public class MqttMessageService {
         }
 
         var telemetry = new TelemetryDto(
-                dateTime.getEpochSeconds(),
+                dateTime.getEpochMs(),
                 deviceId,
                 level.asText(),
                 message.asText()
@@ -209,7 +209,7 @@ public class MqttMessageService {
         }
 
         var status = new DeviceStatusDto(
-                dateTime.getEpochSeconds(),
+                dateTime.getEpochMs(),
                 deviceId,
                 state.asText()
         );
