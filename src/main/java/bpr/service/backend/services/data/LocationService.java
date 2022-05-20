@@ -124,7 +124,6 @@ public class LocationService implements ICRUDService<LocationEntity> {
 
     @Override
     public LocationEntity create(LocationEntity entity) {
-        System.out.println("************************************************************************service");
         return locationRepository.save(entity);
     }
 
