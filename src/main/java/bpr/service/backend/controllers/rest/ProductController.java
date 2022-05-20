@@ -22,10 +22,12 @@ public class ProductController {
     private final ICRUDService<TagEntity> tagService;
 
 
+
     public ProductController(@Autowired @Qualifier("ProductService") ICRUDService<ProductEntity> productService,
                              @Autowired @Qualifier("TagService") ICRUDService<TagEntity> tagService) {
         this.productService = productService;
         this.tagService = tagService;
+
     }
 
     @GetMapping
