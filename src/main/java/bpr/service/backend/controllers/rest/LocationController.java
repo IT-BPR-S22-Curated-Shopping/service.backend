@@ -6,6 +6,8 @@ import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.services.data.ICRUDService;
 import bpr.service.backend.services.data.LocationService;
 import bpr.service.backend.util.exceptions.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,8 @@ public class LocationController {
     private static final String MAP_DEVICE_PRODUCT_ID = "productId";
     private static final String MAP_DEVICE_IDS = "deviceIds";
     private static final String MAP_DEVICE_PRESENTATION_ID = "presentationId";
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ICRUDService<LocationEntity> locationService;
     private final ICRUDService<IdentificationDeviceEntity> deviceService;
@@ -58,19 +62,22 @@ public class LocationController {
             if (!map.get("name").isBlank()) {
                 entity.setName(map.get("name"));
             } else {
+                logger.info("Tried to create new location without name. (" + map.toString() + ")");
                 return null;
             }
         }
 
         if (map.containsKey(MAP_DEVICE_PRODUCT_ID)) {
             var product = productService.readById(Long.valueOf(map.get("productId")));
-            if (product != null)
+            if (product != null){
                 entity.setProduct(product);
+            }
         }
 
         if (map.containsKey(MAP_DEVICE_IDS)) {
 
             var listOfIds = map.get(MAP_DEVICE_IDS).split(", ");
+            System.out.println(Arrays.toString(listOfIds));
             List<IdentificationDeviceEntity> devices = new ArrayList<>();
             for (String listOfId : listOfIds) {
                 var device = deviceService.readById(Long.valueOf(listOfId));
@@ -84,30 +91,41 @@ public class LocationController {
             // not implemented, needs lookup
         }
 
-        return locationService.create(entity);
+
+        LocationEntity locationEntity = locationService.create(entity);
+        logger.info("Created location with: " + locationEntity.toString());
+        return locationEntity;
     }
 
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity updateLocation(@PathVariable("id") Long id, @RequestBody LocationEntity location) {
-        return locationService.update(id, location);
+        LocationEntity update = locationService.update(id, location);
+        logger.info("Updated location with: " + update.toString());
+        return update;
     }
 
     @PutMapping(value = "/{id}/devices")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity updateLocationTrackingDevices(@PathVariable("id") Long id, @NotNull @RequestBody List<IdentificationDeviceEntity> deviceList) {
-        return ((LocationService) locationService).updateWithDeviceList(id, deviceList);
+        LocationEntity locationEntity = ((LocationService) locationService).updateWithDeviceList(id, deviceList);
+        logger.info("Updated location as: " + locationEntity.toString());
+        return locationEntity;
     }
 
     @PutMapping(value = "/{id}/product")
     @ResponseStatus(HttpStatus.OK)
     public LocationEntity updateLocationProduct(@PathVariable("id") Long id, @NotNull @RequestBody ProductEntity productEntity) {
-        return ((LocationService) locationService).updateWithProduct(id, productEntity);
+
+        LocationEntity locationEntity = ((LocationService) locationService).updateWithProduct(id, productEntity);
+        logger.info("Updated location with product: " + locationEntity.toString());
+        return locationEntity;
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteLocation(@PathVariable("id") Long id) {
+        logger.info("Deleted location with id: " + id);
         locationService.delete(id);
     }
 
