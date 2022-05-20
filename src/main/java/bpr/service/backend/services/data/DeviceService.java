@@ -1,19 +1,20 @@
 package bpr.service.backend.services.data;
 
+import bpr.service.backend.managers.events.Event;
+import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.dto.ConnectedDeviceDto;
 import bpr.service.backend.models.dto.ConnectedDeviceErrorDto;
 import bpr.service.backend.models.dto.DeviceStatusDto;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
-import bpr.service.backend.managers.events.Event;
-import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.util.IDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import java.beans.PropertyChangeEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +130,11 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
     public List<IdentificationDeviceEntity> readAll() {
         var devices = new ArrayList<IdentificationDeviceEntity>();
         deviceRepository.findAll().forEach(devices::add);
+        return devices;
+    }
+
+    public List<IdentificationDeviceEntity> readAllAvailable() {
+        var devices = new ArrayList<IdentificationDeviceEntity>(deviceRepository.findAllAvailable());
         return devices;
     }
 
