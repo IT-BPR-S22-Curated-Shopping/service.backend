@@ -25,6 +25,7 @@ public class DetectionSnapshotEntity {
 
     private String idDeviceId;
 
+
     public DetectionSnapshotEntity() {
     }
 
