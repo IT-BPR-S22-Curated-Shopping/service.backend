@@ -1,8 +1,15 @@
 package bpr.service.backend.services.detectionAnalysisService;
 
+import bpr.service.backend.models.dto.LocationAnalysisDto;
 import bpr.service.backend.models.dto.ProductAnalysisDto;
+import bpr.service.backend.util.exceptions.BadRequestException;
+import bpr.service.backend.util.exceptions.NotFoundException;
 
 public interface IDetectionAnalysisService {
 
-    ProductAnalysisDto productAnalysis(Long productId, Long from, Long to);
+    ProductAnalysisDto productAnalysis(Long productId, Long from, Long to) throws NotFoundException, BadRequestException;
+    LocationAnalysisDto locationAnalysis(Long locationId, Long from, Long to) throws NotFoundException, BadRequestException;
+    LocationAnalysisDto locationAnalysis(String locationName, Long from, Long to) throws NotFoundException, BadRequestException;
+
+
 }

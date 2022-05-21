@@ -17,14 +17,14 @@ class DateTimeTest {
 
     @Test
     public void getEpocSeconds() {
-        var time = dateTime.getEpochMs();
+        var time = dateTime.getEpochMillis();
 
         Assertions.assertTrue(time > 1000);
     }
 
     @Test
     public void canConvert() {
-        var time = dateTime.getEpochMs();
+        var time = dateTime.getEpochMillis();
         var expected = Instant.ofEpochMilli(time);
 
         var converted = dateTime.convertToDate(time);

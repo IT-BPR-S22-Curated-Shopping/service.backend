@@ -1,11 +1,11 @@
 package bpr.service.backend.services.detectionAnalysisService;
 
+import bpr.service.backend.models.dto.CustomerDetectionAnalysisDto;
+import bpr.service.backend.models.dto.LocationAnalysisDto;
 import bpr.service.backend.models.dto.ProductAnalysisDto;
 import bpr.service.backend.models.entities.DetectionSnapshotEntity;
-import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.persistence.repository.detectionRepository.IDetectionRepository;
-import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
-import lombok.Data;
+import bpr.service.backend.util.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +15,9 @@ import java.util.*;
 public class DetectionAnalysisService implements IDetectionAnalysisService {
 
     private final IDetectionRepository detectionRepository;
-    private final IProductRepository productRepository;
 
-    public DetectionAnalysisService(@Autowired IDetectionRepository detectionRepository,
-                                    @Autowired IProductRepository productRepository) {
+    public DetectionAnalysisService(@Autowired IDetectionRepository detectionRepository) {
         this.detectionRepository = detectionRepository;
-        this.productRepository = productRepository;
-    }
-
-    private Optional<ProductEntity> findProduct(Long productId) {
-        return productRepository.findById(productId);
     }
 
     private List<Long> getCustomersIds(List<DetectionSnapshotEntity> snapshots) {
@@ -47,13 +40,13 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         return timestamps;
     }
 
-    private Map<String, Long> calculateAverageVisit(List<CustomerAnalysis> customerAnalysis) {
+    private Map<String, Long> calculateAverageVisit(List<CustomerDetectionAnalysisDto> customerAnalysis) {
         var totalMillis = 0L;
         var visitCount = 0L;
         for (var analysis : customerAnalysis) {
-            for (var visit : analysis.visits) {
+            for (var visit : analysis.getVisits()) {
                 visitCount ++;
-                totalMillis += visit.duration;
+                totalMillis += visit.getDurationMillis();
             }
         }
         var averageVisit = new HashMap<String, Long>();
@@ -62,11 +55,11 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         return averageVisit;
     }
 
-    private List<CustomerAnalysis> createAnalysisForAllCustomers(List<DetectionSnapshotEntity> snapshots) {
+    private List<CustomerDetectionAnalysisDto> createAnalysisForAllCustomers(List<DetectionSnapshotEntity> snapshots) {
         var customerIds = getCustomersIds(snapshots);
-        var customerAnalysis = new ArrayList<CustomerAnalysis>();
+        var customerAnalysis = new ArrayList<CustomerDetectionAnalysisDto>();
         for (var id : customerIds) {
-            customerAnalysis.add(new CustomerAnalysis(
+            customerAnalysis.add(new CustomerDetectionAnalysisDto(
                     id,
                     getTimestampsForCustomer(snapshots, id)
             ));
@@ -74,81 +67,67 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         return customerAnalysis;
     }
 
-    @Override
-    public ProductAnalysisDto productAnalysis(Long productId, Long from, Long to) {
-        var product = findProduct(productId);
-        if (product.isEmpty()) {
-            return null;
-        }
-        var snapshots = detectionRepository.findDetectionSnapshotEntitiesByProductAndTimestampBetween(product.get(), from, to);
-
-        if (snapshots == null || snapshots.isEmpty()) {
-            return null;
-        }
-
+    private ProductAnalysisDto preformProductAnalysis(Long from, Long to, List<DetectionSnapshotEntity> snapshots) {
         var analysis = createAnalysisForAllCustomers(snapshots);
         var avgVisit = calculateAverageVisit(analysis);
 
         return new ProductAnalysisDto(
-                product.get(),
                 from,
                 to,
+                snapshots.get(0).getProduct().getId(),
+                snapshots.get(0).getProduct().getNumber(),
+                snapshots.get(0).getProduct().getName(),
                 analysis.size(),
                 avgVisit.get("visitCount").intValue(),
-                avgVisit.get("avgMillis")
+                avgVisit.get("avgMillis"),
+                analysis
         );
     }
 
-    @Data
-    private static class CustomerAnalysis {
-        private Long customerId;
-        private List<Long> customerSnapshots;
-        private List<Visit> visits;
+    private LocationAnalysisDto preformLocationAnalysis(Long from, Long to, List<DetectionSnapshotEntity> snapshots) {
+        var analysis = createAnalysisForAllCustomers(snapshots);
+        var avgVisit = calculateAverageVisit(analysis);
 
-        public CustomerAnalysis(Long customerId, List<Long> customerSnapshots) {
-            this.customerId = customerId;
-            this.customerSnapshots = customerSnapshots;
-            visits = new ArrayList<>();
-            seperateTimestampsIntoVisits(customerSnapshots);
-        }
-
-        private void seperateTimestampsIntoVisits(List<Long> timestamps) {
-            int maxSecondsDifference = 10000; // 10 Seconds;
-            var detectionSequence = new ArrayList<Long>();
-            for (var timestamp : timestamps) {
-                if (detectionSequence.size() == 0) {
-                    detectionSequence.add(timestamp);
-                }
-                else {
-                    if (timestamp < (detectionSequence.get(detectionSequence.size() - 1) + maxSecondsDifference)) {
-                        detectionSequence.add(timestamp);
-                    }
-                    else {
-                        visits.add(new Visit(detectionSequence));
-                        detectionSequence.clear();
-                        detectionSequence.add(timestamp);
-                    }
-                }
-            }
-            visits.add(new Visit(detectionSequence));
-        }
+        return new LocationAnalysisDto(
+                from,
+                to,
+                snapshots.get(0).getLocationId(),
+                snapshots.get(0).getLocationName(),
+                analysis.size(),
+                avgVisit.get("visitCount").intValue(),
+                avgVisit.get("avgMillis"),
+                analysis
+        );
     }
 
-    @Data
-    private static class Visit {
-        private List<Long> timestamps;
-        private Long firstTimestamp;
-        private Long lastTimestamp;
-        private Long duration;
+    @Override
+    public ProductAnalysisDto productAnalysis(Long productId, Long from, Long to) throws NotFoundException {
+        var snapshots = detectionRepository.findDetectionSnapshotEntitiesByProductIdAndTimestampBetween(productId, from, to);
+        if (snapshots == null || snapshots.isEmpty()) {
+            throw new NotFoundException(String.format("No detections for product id %s in the given timeframe.", productId));
+        }
+        return preformProductAnalysis(from, to, snapshots);
+    }
 
-        public Visit() {
+    @Override
+    public LocationAnalysisDto locationAnalysis(Long locationId, Long from, Long to) throws NotFoundException {
+        var snapshots = detectionRepository.findDetectionSnapshotEntitiesByLocationIdAndTimestampBetween(locationId, from, to);
+
+        if (snapshots == null || snapshots.isEmpty()) {
+            throw new NotFoundException(String.format("No detections for location id %s in the given timeframe.", locationId));
         }
 
-        public Visit(List<Long> timestamps) {
-            this.timestamps = new ArrayList<>(timestamps);
-            firstTimestamp = timestamps.get(0);
-            lastTimestamp = timestamps.get(timestamps.size() - 1);
-            duration = lastTimestamp - firstTimestamp;
+        return preformLocationAnalysis(from, to, snapshots);
+    }
+
+    @Override
+    public LocationAnalysisDto locationAnalysis(String locationName, Long from, Long to) throws NotFoundException {
+        var snapshots = detectionRepository.findDetectionSnapshotEntitiesByLocationNameAndTimestampBetween(locationName, from, to);
+
+        if (snapshots == null || snapshots.isEmpty()) {
+            throw new NotFoundException(String.format("No detections for location with name %s in the given timeframe.", locationName));
         }
+
+        return preformLocationAnalysis(from, to, snapshots);
     }
 }

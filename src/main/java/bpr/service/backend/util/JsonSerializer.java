@@ -3,6 +3,7 @@ package bpr.service.backend.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class JsonSerializer implements ISerializer {
 
     @Override
     public String toJson(Object toString) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);;
         try{
             return mapper.writeValueAsString(mapper.valueToTree(toString));
         }catch (JsonProcessingException e) {
@@ -22,7 +23,6 @@ public class JsonSerializer implements ISerializer {
             throw new RuntimeException(e);
         }
     }
-
 
     @Override
     public JsonNode getJsonNode(String json) {

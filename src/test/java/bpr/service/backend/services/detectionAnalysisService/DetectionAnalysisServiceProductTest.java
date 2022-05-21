@@ -1,11 +1,12 @@
 package bpr.service.backend.services.detectionAnalysisService;
 
+import bpr.service.backend.models.dto.ProductAnalysisDto;
 import bpr.service.backend.models.entities.CustomerEntity;
 import bpr.service.backend.models.entities.DetectionSnapshotEntity;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.models.entities.UuidEntity;
 import bpr.service.backend.persistence.repository.detectionRepository.IDetectionRepository;
-import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
+import bpr.service.backend.util.exceptions.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,18 +18,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class DetectionAnalysisServiceTest {
+class DetectionAnalysisServiceProductTest {
 
     @Mock
     private IDetectionRepository detectionRepository;
-
-    @Mock
-    private IProductRepository productRepository;
 
     @InjectMocks
     private DetectionAnalysisService detectionAnalysisService;
@@ -41,17 +38,9 @@ class DetectionAnalysisServiceTest {
     private final UuidEntity repositoryUUIDc1 = new UuidEntity("010D2108-0462-4F97-BAB8-000000000001");;
     private final UuidEntity repositoryUUIDc2 = new UuidEntity("010D2108-0462-4F97-BAB8-000000000002");;
 
-    private CustomerEntity customer1 = new CustomerEntity(List.of(repositoryUUIDc1), List.of());
-    private CustomerEntity customer2 = new CustomerEntity(List.of(repositoryUUIDc2), List.of());
-
-    private final String deviceId = "bb:27:eb:02:ee:fe";
-    private final Long productId = 29L;
-    private final Long locationId = 24L;
-    private final String locationName = "Prime Beef";
-
+    private final CustomerEntity customer1 = new CustomerEntity(List.of(repositoryUUIDc1), List.of());
+    private final CustomerEntity customer2 = new CustomerEntity(List.of(repositoryUUIDc2), List.of());
     private final Long initialTimestamp = 1652991171000L;
-
-
     private final ProductEntity repositoryProduct = new ProductEntity(
             "P02-3627K",
             "Wagyu"
@@ -63,6 +52,7 @@ class DetectionAnalysisServiceTest {
     @BeforeEach
     public void beforeEach() {
         repositorySnapshots = new ArrayList<>();
+        Long productId = 29L;
         repositoryProduct.setId(productId);
         customer1.setId(1L);
         customer2.setId(2L);
@@ -71,21 +61,11 @@ class DetectionAnalysisServiceTest {
         to = instantTo.toEpochMilli();
     }
 
-    private void setSnapShotMocks() {
-        Mockito.when(
-                productRepository
-                        .findById(repositoryProduct.getId())).thenReturn(Optional.of(repositoryProduct));
-        Mockito.when(detectionRepository
-                .findDetectionSnapshotEntitiesByProductAndTimestampBetween(
-                        repositoryProduct,
-                        from,
-                        to
-                )).thenReturn(repositorySnapshots);
-
-    }
-
-    private void setSnapShots(int amount, CustomerEntity customer, Long firstTimestamp) {
+    private void setSnapshotsWithProducts(int amount, CustomerEntity customer, Long firstTimestamp) {
         for(int i = 0; i < amount; i++) {
+            String deviceId = "bb:27:eb:02:ee:fe";
+            Long locationId = 24L;
+            String locationName = "Prime Beef";
             var snapshot = new DetectionSnapshotEntity(
                     firstTimestamp + (i * 1000L),
                     locationId,
@@ -94,8 +74,18 @@ class DetectionAnalysisServiceTest {
                     customer
             );
             snapshot.setId((long) i);
+            snapshot.setProduct(repositoryProduct);
             repositorySnapshots.add(snapshot);
         }
+    }
+
+    private void setProductMock() {
+        Mockito.when(detectionRepository
+                .findDetectionSnapshotEntitiesByProductIdAndTimestampBetween(
+                        repositoryProduct.getId(),
+                        from,
+                        to
+                )).thenReturn(repositorySnapshots);
     }
 
     @Test
@@ -111,46 +101,58 @@ class DetectionAnalysisServiceTest {
         return (long) (totalMillis / snapshotsInSets.size());
     }
 
-    @Test void emptySnapShotsProductAnalysisNull() {
+    @Test void emptySnapshotProductAnalysis() {
         // Arrange
-        setSnapShotMocks();
+        setProductMock();
 
+        ProductAnalysisDto analysis = null;
         // Act
-        var analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
-
-        // Assert
+        try {
+            analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+        } catch (NotFoundException e) {
+            assertNotNull(e);
+            assertEquals(String.format("No detections for product id %s in the given timeframe.", repositoryProduct.getId()), e.getMessage());
+        }
         assertNull(analysis);
     }
 
     @Test void productAnalysisOneCustomers() {
         // Arrange
 
-        setSnapShots(6, customer1, initialTimestamp);
-        setSnapShotMocks();
+
+        setSnapshotsWithProducts(6, customer1, initialTimestamp);
+        setProductMock();
 
         // Act
-        var analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+
+        ProductAnalysisDto analysis = null;
+        try {
+            analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+        } catch (NotFoundException e) {
+            assertNull(e);
+        }
 
         // Assert
-        assertNotNull(analysis);
         assertEquals(1, analysis.getTotalCustomerNo());
         assertEquals(1, analysis.getTotalNoOfVisits());
         assertEquals(getExpectedAvgMills(List.of(6)), analysis.getAvgMillisConsumed());
     }
 
-
     @Test void productAnalysisTwoCustomers() {
         // Arrange
 
-        setSnapShots(6, customer1, initialTimestamp);
-        setSnapShots(11, customer2, initialTimestamp);
-        setSnapShotMocks();
+        setSnapshotsWithProducts(6, customer1, initialTimestamp);
+        setSnapshotsWithProducts(11, customer2, initialTimestamp);
+        setProductMock();
 
         // Act
-        var analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
-
+        ProductAnalysisDto analysis = null;
+        try {
+            analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+        } catch (NotFoundException e) {
+            assertNull(e);
+        }
         // Assert
-        assertNotNull(analysis);
         assertEquals(2, analysis.getTotalCustomerNo());
         assertEquals(2, analysis.getTotalNoOfVisits());
         assertEquals(getExpectedAvgMills(List.of(6, 11)), analysis.getAvgMillisConsumed());
@@ -159,15 +161,19 @@ class DetectionAnalysisServiceTest {
     @Test void productAnalysisReturningCustomer() {
         // Arrange
 
-        setSnapShots(6, customer1, initialTimestamp);
-        setSnapShots(11, customer1, initialTimestamp + 10000 + 20000);
-        setSnapShotMocks();
+        setSnapshotsWithProducts(6, customer1, initialTimestamp);
+        setSnapshotsWithProducts(11, customer1, initialTimestamp + 10000 + 20000);
+        setProductMock();
 
         // Act
-        var analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+        ProductAnalysisDto analysis = null;
+        try {
+            analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+        } catch (NotFoundException e) {
+            assertNull(e);
+        }
 
         // Assert
-        assertNotNull(analysis);
         assertEquals(1, analysis.getTotalCustomerNo());
         assertEquals(2, analysis.getTotalNoOfVisits());
         assertEquals(getExpectedAvgMills(List.of(6, 11)), analysis.getAvgMillisConsumed());
@@ -176,20 +182,22 @@ class DetectionAnalysisServiceTest {
     @Test void productAnalysisTwoCustomersOneReturningTwice() {
         // Arrange
 
-        setSnapShots(6, customer1, initialTimestamp);
-        setSnapShots(11, customer1, initialTimestamp + 10000 + 20000);
-        setSnapShots(11, customer2, initialTimestamp);
-        setSnapShotMocks();
+        setSnapshotsWithProducts(6, customer1, initialTimestamp);
+        setSnapshotsWithProducts(11, customer1, initialTimestamp + 10000 + 20000);
+        setSnapshotsWithProducts(11, customer2, initialTimestamp);
+        setProductMock();
 
         // Act
-        var analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+        ProductAnalysisDto analysis = null;
+        try {
+            analysis = detectionAnalysisService.productAnalysis(repositoryProduct.getId(), from, to);
+        } catch (NotFoundException e) {
+            assertNull(e);
+        }
 
         // Assert
-        assertNotNull(analysis);
         assertEquals(2, analysis.getTotalCustomerNo());
         assertEquals(3, analysis.getTotalNoOfVisits());
         assertEquals(getExpectedAvgMills(List.of(6, 11, 11)), analysis.getAvgMillisConsumed());
     }
-
-
 }

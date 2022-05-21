@@ -12,12 +12,19 @@ import java.time.Instant;
 public class DateTime implements IDateTime{
 
     @Override
-    public long getEpochMs() {
+    public long getEpochMillis() {
         return Instant.now().toEpochMilli();
+    }
+
+    @Override
+    public long convertStringToEpochMillis(String date) {
+        return Instant.parse(date).toEpochMilli();
     }
 
     @Override
     public Instant convertToDate(long epochMs) {
         return Instant.ofEpochMilli(epochMs);
     }
+
+
 }
