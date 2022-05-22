@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component("FirebaseAdminConfig")
-public class FirebaseAdminConfig {
+class FirebaseAdminConfig {
 
     @Getter
     @JsonProperty("type")
@@ -58,6 +58,6 @@ public class FirebaseAdminConfig {
     @Value("${firebase.admin.client.x509.cert.url}")
     private String clientCertUrl;
 
-    public FirebaseAdminConfig() {
+    FirebaseAdminConfig() {
     }
 }

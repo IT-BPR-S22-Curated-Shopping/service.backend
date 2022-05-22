@@ -20,7 +20,7 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         this.detectionRepository = detectionRepository;
     }
 
-    private List<Long> getCustomersIds(List<DetectionSnapshotEntity> snapshots) {
+    private List<Long> getCustomersIdsIn(List<DetectionSnapshotEntity> snapshots) {
         var customers = new ArrayList<Long>();
         for (var snapshot : snapshots) {
             if (!customers.contains(snapshot.getCustomer().getId())) {
@@ -30,7 +30,7 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         return customers;
     }
 
-    private List<Long> getTimestampsForCustomer(List<DetectionSnapshotEntity> snapshots, Long customerId) {
+    private List<Long> getTimestampsForCustomerIn(List<DetectionSnapshotEntity> snapshots, Long customerId) {
         var timestamps = new ArrayList<Long>();
         for (var snapshot : snapshots) {
             if (Objects.equals(snapshot.getCustomer().getId(), customerId)) {
@@ -40,7 +40,7 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         return timestamps;
     }
 
-    private Map<String, Long> calculateAverageVisit(List<CustomerDetectionAnalysisDto> customerAnalysis) {
+    private Map<String, Long> calculateAverageVisitIn(List<CustomerDetectionAnalysisDto> customerAnalysis) {
         var totalMillis = 0L;
         var visitCount = 0L;
         for (var analysis : customerAnalysis) {
@@ -55,21 +55,21 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         return averageVisit;
     }
 
-    private List<CustomerDetectionAnalysisDto> createAnalysisForAllCustomers(List<DetectionSnapshotEntity> snapshots) {
-        var customerIds = getCustomersIds(snapshots);
+    private List<CustomerDetectionAnalysisDto> createAnalysisForAllCustomersIn(List<DetectionSnapshotEntity> snapshots) {
+        var customerIds = getCustomersIdsIn(snapshots);
         var customerAnalysis = new ArrayList<CustomerDetectionAnalysisDto>();
         for (var id : customerIds) {
             customerAnalysis.add(new CustomerDetectionAnalysisDto(
                     id,
-                    getTimestampsForCustomer(snapshots, id)
+                    getTimestampsForCustomerIn(snapshots, id)
             ));
         }
         return customerAnalysis;
     }
 
     private ProductAnalysisDto preformProductAnalysis(Long from, Long to, List<DetectionSnapshotEntity> snapshots) {
-        var analysis = createAnalysisForAllCustomers(snapshots);
-        var avgVisit = calculateAverageVisit(analysis);
+        var analysis = createAnalysisForAllCustomersIn(snapshots);
+        var avgVisit = calculateAverageVisitIn(analysis);
 
         return new ProductAnalysisDto(
                 from,
@@ -85,8 +85,8 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
     }
 
     private LocationAnalysisDto preformLocationAnalysis(Long from, Long to, List<DetectionSnapshotEntity> snapshots) {
-        var analysis = createAnalysisForAllCustomers(snapshots);
-        var avgVisit = calculateAverageVisit(analysis);
+        var analysis = createAnalysisForAllCustomersIn(snapshots);
+        var avgVisit = calculateAverageVisitIn(analysis);
 
         return new LocationAnalysisDto(
                 from,

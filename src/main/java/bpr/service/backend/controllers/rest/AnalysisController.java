@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/analysis")
 public class AnalysisController {
 
-    private ISerializer serializer;
-    private IDateTime dateTime;
-    private IDetectionAnalysisService analysisService;
+    private final ISerializer serializer;
+    private final IDateTime dateTime;
+    private final IDetectionAnalysisService analysisService;
 
     public AnalysisController(
             @Autowired @Qualifier("JsonSerializer") ISerializer serializer,

@@ -8,9 +8,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,7 +30,7 @@ public class FirebaseAuthConfig {
     }
 
     @Bean
-    FirebaseAuth firebaseAuth() throws IOException {
+    protected FirebaseAuth firebaseAuth() throws IOException {
         var options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(new ByteArrayInputStream(serializer.toJson(adminConfig).getBytes(StandardCharsets.UTF_8))))
                 .build();

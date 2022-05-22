@@ -7,5 +7,5 @@ public interface IDateTime {
     long getEpochMillis();
 
     long convertStringToEpochMillis(String date);
-    Instant convertToDate(long epochSeconds);
+    Instant convertToDate(long epochMillis);
 }
