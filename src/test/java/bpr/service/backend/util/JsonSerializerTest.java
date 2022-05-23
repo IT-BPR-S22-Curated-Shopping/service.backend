@@ -5,6 +5,7 @@ import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.models.entities.UuidEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +39,7 @@ class JsonSerializerTest {
     public void canCreateJson() throws JsonProcessingException {
         // arrange
         TestClass t = new TestClass(1L, "testField");
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         String expected = mapper.writeValueAsString(t);
 
         // act

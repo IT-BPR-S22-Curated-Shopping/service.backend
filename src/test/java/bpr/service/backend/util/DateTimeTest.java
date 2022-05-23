@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class DateTimeTest {
 
     DateTime dateTime;
@@ -19,15 +17,15 @@ class DateTimeTest {
 
     @Test
     public void getEpocSeconds() {
-        var time = dateTime.getEpochSeconds();
+        var time = dateTime.getEpochMillis();
 
         Assertions.assertTrue(time > 1000);
     }
 
     @Test
     public void canConvert() {
-        var time = dateTime.getEpochSeconds();
-        var expected = Instant.ofEpochSecond(time);
+        var time = dateTime.getEpochMillis();
+        var expected = Instant.ofEpochMilli(time);
 
         var converted = dateTime.convertToDate(time);
 

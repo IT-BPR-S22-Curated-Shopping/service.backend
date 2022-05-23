@@ -73,7 +73,7 @@ class MqttMessageServiceHelloTest {
     }
 
     private void setTimeMock() {
-        Mockito.when(dateTime.getEpochSeconds()).thenReturn(timestamp);
+        Mockito.when(dateTime.getEpochMillis()).thenReturn(timestamp);
     }
 
 

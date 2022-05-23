@@ -4,6 +4,8 @@ import java.time.Instant;
 
 public interface IDateTime {
 
-    long getEpochSeconds();
-    Instant convertToDate(long epochSeconds);
+    long getEpochMillis();
+
+    long convertStringToEpochMillis(String date);
+    Instant convertToDate(long epochMillis);
 }

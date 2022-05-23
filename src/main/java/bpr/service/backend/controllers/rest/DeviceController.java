@@ -1,6 +1,7 @@
 package bpr.service.backend.controllers.rest;
 
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
+import bpr.service.backend.services.data.DeviceService;
 import bpr.service.backend.services.data.ICRUDService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +24,12 @@ public class DeviceController {
     @ResponseStatus(HttpStatus.OK)
     public List<IdentificationDeviceEntity> getAllDevices() {
         return deviceService.readAll();
+    }
+
+    @GetMapping("/available")
+    @ResponseStatus(HttpStatus.OK)
+    public List<IdentificationDeviceEntity> getAllAvailableDevices() {
+        return ((DeviceService) deviceService).readAllAvailable();
     }
 
     @GetMapping("/{id}")
