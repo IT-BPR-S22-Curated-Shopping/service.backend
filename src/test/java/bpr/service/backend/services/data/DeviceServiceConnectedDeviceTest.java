@@ -7,6 +7,7 @@ import bpr.service.backend.models.dto.ConnectedDeviceDto;
 import bpr.service.backend.models.dto.ConnectedDeviceErrorDto;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
+import bpr.service.backend.services.deviceService.DeviceService;
 import bpr.service.backend.util.IDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

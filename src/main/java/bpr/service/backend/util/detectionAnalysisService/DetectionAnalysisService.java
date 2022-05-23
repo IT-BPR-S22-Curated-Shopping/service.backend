@@ -1,4 +1,4 @@
-package bpr.service.backend.services.detectionAnalysisService;
+package bpr.service.backend.util.detectionAnalysisService;
 
 import bpr.service.backend.models.dto.CustomerDetectionAnalysisDto;
 import bpr.service.backend.models.dto.LocationAnalysisDto;

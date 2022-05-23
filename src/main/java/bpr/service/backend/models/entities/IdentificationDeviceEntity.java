@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.Date;
 
 @Entity
 @Table(name = "id_devices")
@@ -16,7 +17,7 @@ public class IdentificationDeviceEntity {
     private Long id;
 
     @CreationTimestamp
-    private Instant created;
+    private Date created;
 
     private String companyId;
 

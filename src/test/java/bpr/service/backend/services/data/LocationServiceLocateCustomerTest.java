@@ -8,6 +8,7 @@ import bpr.service.backend.models.entities.*;
 import bpr.service.backend.persistence.repository.detectionRepository.IDetectionRepository;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
+import bpr.service.backend.services.locationService.LocationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

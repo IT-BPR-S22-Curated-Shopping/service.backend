@@ -1,4 +1,4 @@
-package bpr.service.backend.services.data;
+package bpr.service.backend.services.deviceService;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service("DeviceService")
-public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
+public class DeviceService implements IDeviceService {
 
     private final IDeviceRepository deviceRepository;
     private final IEventManager eventManager;
@@ -126,36 +126,13 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
         eventManager.invoke(Event.DEVICE_ONLINE, deviceEntity);
     }
 
-    @Override
-    public List<IdentificationDeviceEntity> readAll() {
-        var devices = new ArrayList<IdentificationDeviceEntity>();
-        deviceRepository.findAll().forEach(devices::add);
-        return devices;
-    }
-
-    public List<IdentificationDeviceEntity> readAllAvailable() {
-        var devices = new ArrayList<IdentificationDeviceEntity>(deviceRepository.findAllAvailable());
-        return devices;
-    }
-
-    @Override
-    public IdentificationDeviceEntity readById(Long id) {
-        if (deviceRepository.findById(id).isPresent()) {
-            return deviceRepository.findById(id).get();
-        }
-        return null;
-    }
     private IdentificationDeviceEntity readByDeviceId(String deviceId) {
         return  deviceRepository.findByDeviceId(deviceId);
     }
 
-    @Override
-    public IdentificationDeviceEntity create(IdentificationDeviceEntity entity) {
+    private IdentificationDeviceEntity create(IdentificationDeviceEntity entity) {
         return deviceRepository.save(entity);
     }
-
-    @Override
-    public IdentificationDeviceEntity update(Long id, IdentificationDeviceEntity entity) {return null;}
 
     private IdentificationDeviceEntity update(IdentificationDeviceEntity entity) {
         return deviceRepository.save(entity);
@@ -166,5 +143,23 @@ public class DeviceService implements ICRUDService<IdentificationDeviceEntity> {
     }
 
     @Override
-    public void delete(Long id) {}
+    public List<IdentificationDeviceEntity> readAllAvailable() {
+        var devices = new ArrayList<IdentificationDeviceEntity>(deviceRepository.findAllAvailable());
+        return devices;
+    }
+
+    @Override
+    public List<IdentificationDeviceEntity> readAll() {
+        var devices = new ArrayList<IdentificationDeviceEntity>();
+        deviceRepository.findAll().forEach(devices::add);
+        return devices;
+    }
+
+    @Override
+    public IdentificationDeviceEntity readById(Long id) {
+        if (deviceRepository.findById(id).isPresent()) {
+            return deviceRepository.findById(id).get();
+        }
+        return null;
+    }
 }

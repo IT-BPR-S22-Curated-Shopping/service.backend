@@ -1,6 +1,6 @@
 package bpr.service.backend.controllers.rest;
 
-import bpr.service.backend.services.detectionAnalysisService.IDetectionAnalysisService;
+import bpr.service.backend.util.detectionAnalysisService.IDetectionAnalysisService;
 import bpr.service.backend.util.IDateTime;
 import bpr.service.backend.util.ISerializer;
 import bpr.service.backend.util.exceptions.NotFoundException;
