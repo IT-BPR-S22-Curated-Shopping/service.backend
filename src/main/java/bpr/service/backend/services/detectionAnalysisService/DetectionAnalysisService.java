@@ -1,6 +1,7 @@
-package bpr.service.backend.util.detectionAnalysisService;
+package bpr.service.backend.services.detectionAnalysisService;
 
 import bpr.service.backend.models.dto.CustomerDetectionAnalysisDto;
+import bpr.service.backend.models.dto.DeviceAnalysisDto;
 import bpr.service.backend.models.dto.LocationAnalysisDto;
 import bpr.service.backend.models.dto.ProductAnalysisDto;
 import bpr.service.backend.models.entities.DetectionSnapshotEntity;
@@ -100,6 +101,21 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         );
     }
 
+    private DeviceAnalysisDto preformDeviceAnalysis(Long from, Long to, List<DetectionSnapshotEntity> snapshots) {
+        var analysis = createAnalysisForAllCustomersIn(snapshots);
+        var avgVisit = calculateAverageVisitIn(analysis);
+
+        return new DeviceAnalysisDto(
+                from,
+                to,
+                snapshots.get(0).getIdDeviceId(),
+                analysis.size(),
+                avgVisit.get("visitCount").intValue(),
+                avgVisit.get("avgMillis"),
+                analysis
+        );
+    }
+
     @Override
     public ProductAnalysisDto productAnalysis(Long productId, Long from, Long to) throws NotFoundException {
         var snapshots = detectionRepository.findDetectionSnapshotEntitiesByProductIdAndTimestampBetween(productId, from, to);
@@ -129,5 +145,16 @@ public class DetectionAnalysisService implements IDetectionAnalysisService {
         }
 
         return preformLocationAnalysis(from, to, snapshots);
+    }
+
+    @Override
+    public DeviceAnalysisDto deviceAnalysis(String deviceId, Long from, Long to) throws NotFoundException {
+        var snapshots = detectionRepository.findDetectionSnapshotEntitiesByIdDeviceIdAndTimestampBetween(deviceId, from, to);
+
+        if (snapshots == null || snapshots.isEmpty()) {
+            throw new NotFoundException(String.format("No detections for device id %s in the given timeframe.", deviceId));
+        }
+
+        return preformDeviceAnalysis(from, to, snapshots);
     }
 }

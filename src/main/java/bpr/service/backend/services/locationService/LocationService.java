@@ -112,13 +112,13 @@ public class LocationService implements ILocationService {
 
     private boolean inActiveState(IdentificationDeviceEntity idDevice) {
         return idDevice.getTimestampActive() >= idDevice.getTimestampReady() &&
-                idDevice.getTimestampActive() >= idDevice.getTimeStampOnline() &&
+                idDevice.getTimestampActive() >= idDevice.getTimestampOnline() &&
                 idDevice.getTimestampActive() > idDevice.getTimestampOffline();
     }
 
     private boolean inReadyState(IdentificationDeviceEntity idDevice) {
         return idDevice.getTimestampReady() > idDevice.getTimestampActive() &&
-                idDevice.getTimestampReady() >= idDevice.getTimeStampOnline() &&
+                idDevice.getTimestampReady() >= idDevice.getTimestampOnline() &&
                 idDevice.getTimestampReady() > idDevice.getTimestampOffline();
     }
 

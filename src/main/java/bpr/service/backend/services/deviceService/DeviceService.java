@@ -64,22 +64,22 @@ public class DeviceService implements IDeviceService {
             switch (deviceStatus.getState().toUpperCase()) {
                 case ("OFFLINE"):
                     logger.info(String.format("Device offline: %s", deviceEntity.getDeviceId()));
-                    deviceEntity.setTimestampOffline(deviceStatus.getTimestamp());
+                    deviceEntity.setTimestampOffline(dateTime.getEpochMillis());
                     eventManager.invoke(Event.DEVICE_OFFLINE, deviceEntity);
                     break;
                 case ("ONLINE"):
                     logger.info(String.format("Device online: %s", deviceEntity.getDeviceId()));
-                    deviceEntity.setTimeStampOnline(deviceStatus.getTimestamp());
+                    deviceEntity.setTimestampOnline(dateTime.getEpochMillis());
                     eventManager.invoke(Event.DEVICE_ONLINE, deviceEntity);
                     break;
                 case ("READY"):
                     logger.info(String.format("Device ready: %s", deviceEntity.getDeviceId()));
-                    deviceEntity.setTimestampReady(deviceStatus.getTimestamp());
+                    deviceEntity.setTimestampReady(dateTime.getEpochMillis());
                     eventManager.invoke(Event.DEVICE_READY, deviceEntity);
                     break;
                 case ("ACTIVE"):
                     logger.info(String.format("Device active: %s", deviceEntity.getDeviceId()));
-                    deviceEntity.setTimestampActive(deviceStatus.getTimestamp());
+                    deviceEntity.setTimestampActive(dateTime.getEpochMillis());
                     eventManager.invoke(Event.DEVICE_ACTIVE, deviceEntity);
                     break;
                 default:
@@ -120,7 +120,7 @@ public class DeviceService implements IDeviceService {
             invokeConnectionError(connectedDevice, "Device id must be unique.");
             return;
         }
-        deviceEntity.setTimeStampOnline(connectedDevice.getTimestamp());
+        deviceEntity.setTimestampOnline(dateTime.getEpochMillis());
         update(deviceEntity);
         eventManager.invoke(Event.INIT_DEVICE_COMM, deviceEntity);
         eventManager.invoke(Event.DEVICE_ONLINE, deviceEntity);

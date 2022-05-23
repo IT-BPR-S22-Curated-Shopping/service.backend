@@ -27,7 +27,7 @@ public class IdentificationDeviceEntity {
     private String deviceType;
 
     private Long timestampOffline;
-    private Long timeStampOnline;
+    private Long timestampOnline;
     private Long timestampReady;
     private Long timestampActive;
 
@@ -39,7 +39,7 @@ public class IdentificationDeviceEntity {
         this.deviceId = deviceId;
         this.deviceType = deviceType;
         this.timestampOffline = timestampOffline;
-        this.timeStampOnline = 0L;
+        this.timestampOnline = 0L;
         this.timestampActive = 0L;
         this.timestampReady = 0L;
     }

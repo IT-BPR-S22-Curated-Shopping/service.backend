@@ -6,7 +6,6 @@ import bpr.service.backend.models.entities.DetectionSnapshotEntity;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.models.entities.UuidEntity;
 import bpr.service.backend.persistence.repository.detectionRepository.IDetectionRepository;
-import bpr.service.backend.util.detectionAnalysisService.DetectionAnalysisService;
 import bpr.service.backend.util.exceptions.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

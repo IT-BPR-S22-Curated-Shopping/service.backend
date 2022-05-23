@@ -13,4 +13,6 @@ public interface IDetectionRepository extends CrudRepository<DetectionSnapshotEn
     List<DetectionSnapshotEntity> findDetectionSnapshotEntitiesByProductIdAndTimestampBetween(Long productId, Long from, Long to);
     List<DetectionSnapshotEntity> findDetectionSnapshotEntitiesByLocationIdAndTimestampBetween(Long id, Long from, Long to);
     List<DetectionSnapshotEntity> findDetectionSnapshotEntitiesByLocationNameAndTimestampBetween(String locationName, Long from, Long to);
+    List<DetectionSnapshotEntity> findDetectionSnapshotEntitiesByIdDeviceIdAndTimestampBetween(String deviceId, Long from, Long to);
+
 }
