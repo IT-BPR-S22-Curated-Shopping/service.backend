@@ -9,4 +9,6 @@ import java.util.List;
 public interface IRecommender {
 
     List<ProductRecommendation> recommend(CustomerEntity customer, ProductEntity product);
+
+    List<ProductEntity> getProfileProducts(CustomerEntity customer, int size);
 }

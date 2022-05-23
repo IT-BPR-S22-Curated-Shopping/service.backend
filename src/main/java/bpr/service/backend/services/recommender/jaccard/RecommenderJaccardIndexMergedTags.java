@@ -13,28 +13,30 @@ import bpr.service.backend.services.data.ICRUDService;
 import bpr.service.backend.services.recommender.IRecommender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.beans.PropertyChangeEvent;
 import java.util.*;
 
+@Service("RecommenderJaccardIndexMergedTags")
 public class RecommenderJaccardIndexMergedTags implements IRecommender {
 
     private final IEventManager eventManager;
     private final ICRUDService<ProductEntity> productService;
-    private final List<ProductEntity> products;
+    private List<ProductEntity> products;
 
-    public RecommenderJaccardIndexMergedTags(IEventManager eventManager, ICRUDService<ProductEntity> productService, List<ProductEntity> products) {
-        this.eventManager = eventManager;
-        this.productService = productService;
-        this.products = products;
-    }
 
     public RecommenderJaccardIndexMergedTags(@Autowired IEventManager eventManager,
                                              @Autowired @Qualifier("ProductService") ICRUDService<ProductEntity> productService) {
         this.eventManager = eventManager;
         this.productService = productService;
         products = productService.readAll();
+
 //        eventManager.addListener(Event.CUSTOMER_LOCATED, this::customerLocated);
+    }
+
+    public void setProducts(List<ProductEntity> products) {
+        this.products = products;
     }
 
     private void customerLocated(PropertyChangeEvent propertyChangeEvent) {
@@ -60,11 +62,33 @@ public class RecommenderJaccardIndexMergedTags implements IRecommender {
         recommendations.sort(Comparator.comparingDouble(ProductRecommendation::getScore).reversed());
 
         // remove input product from list
-        recommendations.removeIf(x->x.getProduct().getName().equals(product.getName()));
-
+        recommendations.removeIf(x -> x.getProduct().getName().equals(product.getName()));
         return recommendations;
     }
 
+    @Override
+    public List<ProductEntity> getProfileProducts(CustomerEntity customer, int size) {
+        products = productService.readAll();
+
+
+        List<ProductRecommendation> recommendations = new ArrayList<>();
+
+        for (ProductEntity p : products) {
+            var similarity = JaccardSimilarityIndex.findJaccardSimilarityIndex(customer.getTags(), p.getTags());
+            recommendations.add(new ProductRecommendation(p, 1 - similarity));
+        }
+
+        recommendations.sort(Comparator.comparingDouble(ProductRecommendation::getScore).reversed());
+
+        List<ProductEntity> profileProducts = new ArrayList<>();
+
+        for (int i = 0; i < Math.min(products.size(), size); i++) {
+            profileProducts.add(recommendations.get(i).getProduct());
+        }
+
+
+        return profileProducts;
+    }
 
 
 }
