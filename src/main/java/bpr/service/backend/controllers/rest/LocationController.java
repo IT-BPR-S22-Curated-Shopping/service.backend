@@ -69,7 +69,6 @@ public class LocationController {
         String name = map.get(MAP_DEVICE_NAME);
         Long productId = Long.valueOf(map.get(MAP_DEVICE_PRODUCT_ID));
         List<String> ids = new ArrayList<>(Arrays.asList(map.get(MAP_DEVICE_IDS).split(", ")));
-
         if (!name.isEmpty()) {
             response = new ResponseEntity<>(serializer.toJson(locationService.createLocation(name, productId, ids)), HttpStatus.CREATED);
         } else {
@@ -117,6 +116,7 @@ public class LocationController {
     public ResponseEntity<String> updateLocationProduct(@PathVariable("id") Long id, @NotNull @RequestBody ProductEntity productEntity) {
         ResponseEntity<String> response;
         if (id != 0) {
+            System.out.println("LocationController.updateLocationProduct: " + productEntity);
             LocationEntity locationEntity = ((LocationService) locationService).updateWithProduct(id, productEntity);
             logger.info("Updated location with product: " + locationEntity.toString());
             response = new ResponseEntity<>(serializer.toJson(locationEntity), HttpStatus.OK);

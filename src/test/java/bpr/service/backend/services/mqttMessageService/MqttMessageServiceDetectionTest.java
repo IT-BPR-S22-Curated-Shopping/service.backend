@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.beans.PropertyChangeEvent;
 import java.nio.ByteBuffer;
+import java.time.Instant;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +59,9 @@ class MqttMessageServiceDetectionTest {
         detectedDto = (DetectedCustomerDto) event.getNewValue();
     }
 
+    private void setTimeMock() {
+        Mockito.when(dateTime.getEpochMillis()).thenReturn(timestamp);
+    }
 
     @BeforeEach
     public void beforeEach() {
@@ -78,6 +82,7 @@ class MqttMessageServiceDetectionTest {
     public void invokeEventCustomerDetected() {
         // Arrange.
         setTopicMock(json);
+        setTimeMock();
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
 
         // Act.
@@ -102,6 +107,7 @@ class MqttMessageServiceDetectionTest {
     public void customerDetectedCorrectTimestamp() {
         // Arrange.
         setTopicMock(json);
+        setTimeMock();
         eventManager.addListener(Event.CUSTOMER_DETECTED, this::setDetectedDto);
 
         // Act.

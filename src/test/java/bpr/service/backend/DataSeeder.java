@@ -78,6 +78,9 @@ class SomeService {
         upplyst.setName("Upplyst");
         upplyst.setNumber("60440341");
         upplyst.setImage("https://www.ikea.com/dk/da/images/products/upplyst-led-vaeglampe-sommerfugl-lysebla__0716795_pe731046_s5.jpg");
+        upplyst.setPrice(149);
+        upplyst.setCaption("LED-væglampe, sommerfugl lyseblå");
+        upplyst.setDescription("Børn elsker det muntre design og det hyggelige lys, lampen giver, når den er tændt. Vores belysning til børn gennemgår nogle af verdens strengeste sikkerhedstest, så du kan være sikker på, at dit barn ikke kommer til skade.");
 
 //        productRepository.save(upplyst);
 
@@ -94,6 +97,9 @@ class SomeService {
         arstid.setName("aarstid");
         arstid.setNumber("30321373");
         arstid.setImage("https://www.ikea.com/dk/da/images/products/arstid-bordlampe-messing-hvid__0880725_pe617347_s5.jpg");
+        arstid.setPrice(199);
+        arstid.setCaption("Bordlampe, messing/hvid");
+        arstid.setDescription("Det er en af vores mest populære lampeserier, og det kan vi godt forstå – lamperne har et tidløst design, der er nemt at indrette med. Kombiner flere lamper fra serien, og skab blød og behagelig belysning og et sammenhængende udtryk.");
 
 //        productRepository.save(arstid);
 //
@@ -111,6 +117,9 @@ class SomeService {
         tarnaby.setName("Tärnaby");
         tarnaby.setNumber("60323894");
         tarnaby.setImage("https://www.ikea.com/dk/da/images/products/taernaby-bordlampe-antracit__0811972_pe771891_s5.jpg");
+        tarnaby.setPrice(189);
+        tarnaby.setCaption("Bordlampe, antracit");
+        tarnaby.setDescription("Inspireret af traditionelle petroleumslamper og blød og varm stemningsbelysning. Den synlige pære ligner en levende flamme, og du kan indstille lysstyrken med den indbyggede lysdæmper.");
 
 //        productRepository.save(tarnaby);
 //
@@ -123,6 +132,9 @@ class SomeService {
         askmuller.setName("aaskmuller");
         askmuller.setNumber("00492489");
         askmuller.setImage("https://www.ikea.com/dk/da/images/products/askmuller-bordlampe-gragron__1043950_pe841841_s5.jpg");
+        askmuller.setPrice(149);
+        askmuller.setCaption("Bordlampe, grågrøn, 24 cm");
+        askmuller.setDescription("En moderne version af en traditionel petroleumslampe. Den synlige pære ligner en rigtig flamme på et stearinlys og spreder hyggelig og varm stemningsbelysning, som du kan tilpasse efter behov med den indbyggede dæmper.");
 
 //        productRepository.save(askmuller);
 
@@ -139,6 +151,9 @@ class SomeService {
         nymane.setName("NYMaaNE");
         nymane.setNumber("80477734");
         nymane.setImage("https://www.ikea.com/dk/da/images/products/nymane-gulvlampe-med-3-spot-antracit__0810829_pe771429_s5.jpg");
+        nymane.setPrice(449);
+        nymane.setCaption("Gulvlampe med 3 spot, antracit");
+        nymane.setDescription("Strålende, tidløst design NYMÅNE lamper har både et markant design og matcher de fleste former for indretning. Hvorfor ikke kombinere mange forskellige lamper og få en sammenhængende stil derhjemme?");
 
 //        productRepository.save(nymane);
 
@@ -154,6 +169,9 @@ class SomeService {
         ringsta.setName("RINGSTA");
         ringsta.setNumber("59385958");
         ringsta.setImage("https://www.ikea.com/dk/da/images/products/ringsta-skaftet-gulvlampe-hvid-messing__0785991_pe762840_s5.jpg");
+        ringsta.setPrice(389);
+        ringsta.setCaption("Gulvlampe, hvid/messing");
+        ringsta.setDescription("Stilren messingfarvet lampefod med en skærm i hvid tekstil, der spreder et ensartet og dekorativt lys i rummet, når lampen er tændt. Er du vild med stilen? Du kan indrette med flere lamper fra samme serie.");
 
 //        productRepository.save(ringsta);
 
@@ -171,6 +189,9 @@ class SomeService {
         skurup.setName("SKURUP");
         skurup.setNumber("20471117");
         skurup.setImage("https://www.ikea.com/dk/da/images/products/skurup-gulv-laeselampe-sort__0879772_pe700376_s5.jpg");
+        skurup.setPrice(429);
+        skurup.setCaption("Gulv-/læselampe, sort");
+        skurup.setDescription("Metal, en gedigen konstruktion og et tidløst design – du kan glæde dig over SKURUP lampeserie i mange år. Lamperne fås i forskellige versioner og er nemme at indstille. Det gør serien praktisk og fleksibel at bruge i hele hjemmet.");
 
 //        productRepository.save(skurup);
 
@@ -188,6 +209,9 @@ class SomeService {
         tagarp.setName("TaaGARP");
         tagarp.setNumber("20404095");
         tagarp.setImage("https://www.ikea.com/dk/da/images/products/tagarp-gulvuplight-sort-hvid__0810839_pe771437_s5.jpg");
+        tagarp.setPrice(69);
+        tagarp.setCaption("Gulvuplight, sort/hvid");
+        tagarp.setDescription("TÅGARP gulvuplight lyser opad og giver et spredt og behageligt lys i rummet. Dele af lampen er fremstillet af genanvendt plast – det er godt for miljøet, og prisen er fantastisk.");
 
 //        productRepository.save(tagarp);
 
@@ -204,6 +228,9 @@ class SomeService {
         vaexjoe.setName("VÄXJÖ");
         vaexjoe.setNumber("40394284");
         vaexjoe.setImage("https://www.ikea.com/dk/da/images/products/vaexjoe-loftlampe-beige__0881054_pe659755_s5.jpg");
+        vaexjoe.setPrice(359);
+        vaexjoe.setCaption("Loftlampe, beige");
+        vaexjoe.setDescription("VÄXJÖ loftlampe er fremstillet af glat aluminium og klassiske linjer. Den giver et blødt lys, der ikke blænder, og lampen fylder kun lidt under transport – det er godt for både klimaet og din pengepung.");
 
 //        productRepository.save(vaexjoe);
 
@@ -219,6 +246,9 @@ class SomeService {
         vindkast.setName("VÄXJÖ");
         vindkast.setNumber("20450520");
         vindkast.setImage("https://www.ikea.com/dk/da/images/products/vaexjoe-loftlampe-beige__0881054_pe659755_s5.jpg");
+        vindkast.setPrice(269);
+        vindkast.setCaption("Loftlampe, hvid");
+        vindkast.setDescription("Denne loftlampe ligner en let og svævende sky af genanvendt polyester, og lampens bløde skær skaber en hyggelig stemning. Perfekt at hænge i soveværelset eller over sofabordet.");
 
 //        productRepository.save(vindkast);
 
@@ -236,6 +266,9 @@ class SomeService {
         hektar.setName("HEKTAR");
         hektar.setNumber("80390359");
         hektar.setImage("https://www.ikea.com/dk/da/images/products/hektar-loftlampe-morkegra__0880519_pe613970_s5.jpg");
+        hektar.setPrice(179);
+        hektar.setCaption("Loftlampe, mørkegrå");
+        hektar.setDescription("Formen er enkel, i overstørrelse og af metal og er inspireret af gamle lamper fra f.eks. fabrikker og teatre. Flere HEKTAR lamper, der bruges sammen, understøtter forskellige aktiviteter og giver rummet et sammenhængende og rustikt udtryk.");
 
 //        productRepository.save(hektar);
 
@@ -253,6 +286,9 @@ class SomeService {
         solklint.setName("SOLKLINT");
         solklint.setNumber("40472031");
         solklint.setImage("https://www.ikea.com/dk/da/images/products/solklint-plafond-messing-grat-klart-glas__0842294_pe778941_s5.jpg");
+        solklint.setPrice(179);
+        solklint.setCaption("Plafond, messing/gråt klart glas");
+        solklint.setDescription("Lamperne i SOLKLINT serien ligner små juveler med skinnende messing og gråt glas og spreder blød stemningsbelysning, der skaber spændende skygger på vægge og lofter – uanset hvor du placerer lamperne.");
 
 //        productRepository.save(solklint);
 
@@ -269,6 +305,9 @@ class SomeService {
         aarstid.setName("aaRSTID");
         aarstid.setNumber("90176047");
         aarstid.setImage("https://www.ikea.com/dk/da/images/products/arstid-plafond-hvid__0879976_pe618549_s5.jpg");
+        aarstid.setPrice(239);
+        aarstid.setCaption("Plafond, hvid");
+        aarstid.setDescription("Det er en af vores mest populære lampeserier, og det kan vi godt forstå – lamperne har et tidløst design, der er nemt at indrette med. Kombiner flere lamper fra serien, og skab blød og behagelig belysning og et sammenhængende udtryk.");
 
 //        productRepository.save(aarstid);
 
@@ -285,6 +324,9 @@ class SomeService {
         hyby.setName("HYBY");
         hyby.setNumber("90347389");
         hyby.setImage("https://www.ikea.com/dk/da/images/products/hyby-plafond-hvid__1052855_pe846466_s5.jpg");
+        hyby.setPrice(99);
+        hyby.setCaption("Plafond, hvid");
+        hyby.setDescription("Denne dekorative loftlampe med en bølget skærm af hvidt frostet glas spreder lyset over et stort område og passer både i entreen, køkkenet og soveværelset.");
 
 //        productRepository.save(hyby);
 
@@ -301,6 +343,9 @@ class SomeService {
         dejsa.setName("DEJSA");
         dejsa.setNumber("00430769");
         dejsa.setImage("https://www.ikea.com/dk/da/images/products/dejsa-loftlampe-med-3-lamper-forkromet-opalhvid-glas__0967525_pe810177_s5.jpg");
+        dejsa.setPrice(649);
+        dejsa.setCaption("Loftlampe med 3 lamper, forkromet/opalhvid glas");
+        dejsa.setDescription("Alle lamperne i DEJSA serien har detaljer af krom og skærme med bløde former fremstillet af mundblæst opalglas. Uanset hvilken skærm du vælger, får du et blødt og dæmpet lys, der skaber en hyggelig stemning i rummet.");
 
 //        productRepository.save(dejsa);
 
@@ -318,6 +363,9 @@ class SomeService {
         skurupspot.setName("SKURUP");
         skurupspot.setNumber("10395925");
         skurupspot.setImage("https://www.ikea.com/dk/da/images/products/skurup-loftskinne-3-spot-sort__0751052_pe746893_s5.jpg");
+        skurupspot.setPrice(179);
+        skurupspot.setCaption("Loftskinne, 3 spot, sort");
+        skurupspot.setDescription("Metal, en gedigen konstruktion og et tidløst design – du kan glæde dig over SKURUP lampeserie i mange år. Lamperne fås i forskellige versioner og er nemme at indstille. Det gør serien praktisk og fleksibel at bruge i hele hjemmet.");
 
 //        productRepository.save(skurupspot);
 
@@ -334,6 +382,9 @@ class SomeService {
         nymaane.setName("NYMaaNE");
         nymaane.setNumber("80415086");
         nymaane.setImage("https://www.ikea.com/dk/da/images/products/nymane-loftspot-med-4-spots-antracit__0879867_pe707508_s5.jpg");
+        nymaane.setPrice(349);
+        nymaane.setCaption("Loftspot med 4 spots, antracit");
+        nymaane.setDescription("Strålende, tidløst design NYMÅNE lamper har både et markant design og matcher de fleste former for indretning. Hvorfor ikke kombinere mange forskellige lamper og få en sammenhængende stil derhjemme?");
 
 //        productRepository.save(nymaane);
 
@@ -350,6 +401,9 @@ class SomeService {
         barometer.setName("BAROMETER");
         barometer.setNumber("60364634");
         barometer.setImage("https://www.ikea.com/dk/da/images/products/barometer-loftskinne-5-spot-messingfarvet__0880024_pe659744_s5.jpg");
+        barometer.setPrice(449);
+        barometer.setCaption("Loftskinne, 5 spot, messingfarvet");
+        barometer.setDescription("Denne messingfarvede loftskinne har 5 spot, der er nemme at pege i præcis den retning, du ønsker lyset. Den passer godt i både entreen, køkkenet og stuen.");
 
 //        productRepository.save(barometer);
 
@@ -366,6 +420,9 @@ class SomeService {
         hektarspot.setName("HEKTAR");
         hektarspot.setNumber("50297485");
         hektarspot.setImage("https://www.ikea.com/dk/da/images/products/hektar-loftskinne-3-spot-morkegra__0880187_pe671281_s5.jpg");
+        hektarspot.setPrice(179);
+        hektarspot.setCaption("Loftskinne, 3 spot, mørkegrå");
+        hektarspot.setDescription("Formen er enkel, i overstørrelse og af metal og er inspireret af gamle lamper fra f.eks. fabrikker og teatre. Flere HEKTAR lamper, der bruges sammen, understøtter forskellige aktiviteter og giver rummet et sammenhængende og rustikt udtryk.");
 
 //        productRepository.save(hektarspot);
 
@@ -382,6 +439,9 @@ class SomeService {
         ranarp.setName("RANARP");
         ranarp.setNumber("70396390");
         ranarp.setImage("https://www.ikea.com/dk/da/images/products/ranarp-loftskinne-3-spot-sort__0879805_pe711246_s5.jpg");
+        ranarp.setPrice(269);
+        ranarp.setCaption("Loftskinne, 3 spot, sort");
+        ranarp.setDescription("Med sine håndværksmæssige detaljer af stål minder RANARP loftskinne om gamle dage og lyser op, præcis hvor du ønsker det, fordi de 3 sorte spot kan indstilles hver for sig.");
 
 //        productRepository.save(ranarp);
 
@@ -398,6 +458,9 @@ class SomeService {
         naevlinge.setName("NÄVLINGE");
         naevlinge.setNumber("70449888");
         naevlinge.setImage("https://www.ikea.com/dk/da/images/products/naevlinge-led-klemspot-hvid__0726711_pe735399_s5.jpg");
+        naevlinge.setPrice(119);
+        naevlinge.setCaption("LED-klemspot, hvid");
+        naevlinge.setDescription("NÄVLINGE serien indeholder lamper, der opfylder de fleste behov. Det er smarte lamper i et design, der matcher den øvrige indretning, og som er nemme at bruge overalt i hjemmet – og som giver et godt lys, der ikke blænder.");
 
 //        productRepository.save(naevlinge);
 
@@ -415,6 +478,9 @@ class SomeService {
         ranarpdesk.setName("NÄVLINGE");
         ranarpdesk.setNumber("50331385");
         ranarpdesk.setImage("https://www.ikea.com/dk/da/images/products/naevlinge-led-klemspot-hvid__0726711_pe735399_s5.jpg");
+        ranarpdesk.setPrice(279);
+        ranarpdesk.setCaption("Skrivebordslampe, sort");
+        ranarpdesk.setDescription("RANARP lamper minder om fortiden og er designet med detaljer som stålsamlingerne og den stribede ledning af tekstil. Gulv- og skrivebordslamperne er tunge og meget stabile, men kan stadigvæk tilpasses.");
 
 //        productRepository.save(ranarpdesk);
 
@@ -431,6 +497,9 @@ class SomeService {
         tertial.setName("TERTIAL");
         tertial.setNumber("20504288");
         tertial.setImage("https://www.ikea.com/dk/da/images/products/tertial-skrivebordslampe-lysebla__0957570_pe822320_s5.jpg");
+        tertial.setPrice(89);
+        tertial.setCaption("Skrivebordslampe, lyseblå");
+        tertial.setDescription("TERTIAL arbejdslampe blev lanceret i sortimentet i 1998. Det klassiske design med stål og indstillelig arm og lampehoved gør lampen til det perfekte valg, hvis du ønsker dig et fleksibelt og effektivt læselys.");
 
 //        productRepository.save(tertial);
 
@@ -447,6 +516,9 @@ class SomeService {
         trollbo.setName("TROLLBO");
         trollbo.setNumber("80346875");
         trollbo.setImage("https://www.ikea.com/dk/da/images/products/trollbo-loftlampe-lysegron__0883543_pe712943_s5.jpg");
+        trollbo.setPrice(199);
+        trollbo.setCaption("Loftlampe, lysegrøn");
+        trollbo.setDescription("Tænk, hvis du havde et strålende cirkustelt derhjemme! Loftlampen er fremstillet af genanvendt plast, og emballagen kan genbruges som farvebog. Testet i henhold til nogle af verdens strengeste sikkerhedsstandarder.");
 
 //        productRepository.save(trollbo);
 
@@ -463,6 +535,9 @@ class SomeService {
         aengarna.setName("ÄNGARNA");
         aengarna.setNumber("50440855");
         aengarna.setImage("https://www.ikea.com/dk/da/images/products/aengarna-led-bordlampe-hundemonster__0754605_pe747977_s5.jpg");
+        aengarna.setPrice(159);
+        aengarna.setCaption("LED-bordlampe, hundemønster");
+        aengarna.setDescription("Denne vågne og kvikke hund holder gerne vagt ved vinduet, på en hylde eller ved sengen. En tryg ven at have ved din side. Testet i henhold til nogle af verdens strengeste sikkerhedskrav.");
 
 //        productRepository.save(aengarna);
         productRepository.saveAll(List.of(aengarna, trollbo, tertial, ranarpdesk, naevlinge, ranarp, hektarspot, barometer, nymaane, skurupspot, dejsa, hyby, aarstid, solklint, hektar, vindkast, vaexjoe, tagarp, skurup, ringsta, nymane, upplyst, arstid, tarnaby, askmuller));
