@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 public class IdentificationDeviceEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @CreationTimestamp
