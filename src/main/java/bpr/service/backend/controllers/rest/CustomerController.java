@@ -1,7 +1,9 @@
 package bpr.service.backend.controllers.rest;
 
-import bpr.service.backend.models.entities.*;
-import bpr.service.backend.models.recommender.ProductRecommendation;
+import bpr.service.backend.models.entities.CustomerEntity;
+import bpr.service.backend.models.entities.ProductEntity;
+import bpr.service.backend.models.entities.TagEntity;
+import bpr.service.backend.models.entities.UuidEntity;
 import bpr.service.backend.persistence.repository.customerRepository.IUuidRepository;
 import bpr.service.backend.services.data.CustomerService;
 import bpr.service.backend.services.data.ICRUDService;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -45,20 +48,34 @@ public class CustomerController {
             }
             customer = customerService.create(new CustomerEntity(List.of(uuidEntity), null));
         }
+        return customer;
+    }
 
+    @PutMapping(value="/{customerId}/uuid/{uuid}")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerEntity addUuidToCustomer(@PathVariable("customerId") Long id, @PathVariable("uuid") String uuid) {
+        var customer = customerService.readById(id);
+        if (customer != null) {
+            List<UuidEntity> uuids = customer.getUuids();
+            uuids.add(new UuidEntity(uuid));
+            customer.setUuids(uuids);
+            customer = customerService.update(id, customer);
+        }
         return customer;
     }
 
     @PutMapping(value = "/{customerId}")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerEntity addTagsToCustomer(@PathVariable("customerId") Long customerId, @RequestBody List<TagEntity> tags) {
+    public CustomerEntity addTagsToCustomer(@PathVariable("customerId") Long customerId, @RequestBody(required = false) List<TagEntity> tags) {
+        System.out.println("iam called: " + Arrays.toString(tags.toArray()));
         var customer = customerService.readById(customerId);
-        if (customer != null) {
+        if (customer != null && tags != null && tags.size() > 0) {
             var tagEntities = customer.getTags();
             tagEntities.addAll(tags);
             customer.setTags(tagEntities);
+            return customerService.update(customer.getId(), customer);
         }
-        return customer;
+        return null;
     }
 
     @GetMapping(value = "/profileproducts/{customerId}")
@@ -66,12 +83,7 @@ public class CustomerController {
     public List<ProductEntity> getProfileProducts(@PathVariable("customerId") Long customerId, @RequestParam(defaultValue = "10") int size) {
         var customer = customerService.readById(customerId);
         if (customer != null) {
-            var profileProducts = recommender.getProfileProducts(customer, size);
-            if (profileProducts != null) {
-                return profileProducts;
-            } else {
-                return null;
-            }
+            return recommender.getProfileProducts(customer, size);
         }
         return null;
     }

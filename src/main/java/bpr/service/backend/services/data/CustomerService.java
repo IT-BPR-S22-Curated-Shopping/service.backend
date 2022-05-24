@@ -47,7 +47,7 @@ public class CustomerService implements ICRUDService<CustomerEntity>{
 
     @Override
     public CustomerEntity update(Long id, CustomerEntity entity) {
-        return null;
+        return customerRepository.save(entity);
     }
 
     @Override
