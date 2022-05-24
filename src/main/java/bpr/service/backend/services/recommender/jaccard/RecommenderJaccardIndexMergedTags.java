@@ -9,7 +9,7 @@ import bpr.service.backend.models.entities.DetectionSnapshotEntity;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.models.recommender.ProductRecommendation;
-import bpr.service.backend.services.data.ICRUDService;
+import bpr.service.backend.services.productService.IProductService;
 import bpr.service.backend.services.recommender.IRecommender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,12 +22,11 @@ import java.util.*;
 public class RecommenderJaccardIndexMergedTags implements IRecommender {
 
     private final IEventManager eventManager;
-    private final ICRUDService<ProductEntity> productService;
+    private final IProductService productService;
     private List<ProductEntity> products;
-
-
+    
     public RecommenderJaccardIndexMergedTags(@Autowired IEventManager eventManager,
-                                             @Autowired @Qualifier("ProductService") ICRUDService<ProductEntity> productService) {
+                                             @Autowired @Qualifier("ProductService") IProductService productService) {
         this.eventManager = eventManager;
         this.productService = productService;
         products = productService.readAll();

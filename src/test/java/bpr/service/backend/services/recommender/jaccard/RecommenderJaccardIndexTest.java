@@ -5,7 +5,7 @@ import bpr.service.backend.models.entities.CustomerEntity;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.models.entities.UuidEntity;
-import bpr.service.backend.services.data.ICRUDService;
+import bpr.service.backend.services.productService.ProductService;
 import bpr.service.backend.services.recommender.IRecommender;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class RecommenderJaccardIndexTest {
@@ -54,7 +54,7 @@ class RecommenderJaccardIndexTest {
     public void CheckCorrectJaccardIndex() {
 
         // arrange
-        recommender = new RecommenderJaccardIndexMergedTags(new EventManager(), Mockito.mock(ICRUDService.class));
+        recommender = new RecommenderJaccardIndexMergedTags(new EventManager(), Mockito.mock(ProductService.class));
         ((RecommenderJaccardIndexMergedTags)recommender).setProducts(products);
         var expectedBestProductScore = 1.0D;
         var expectedBestProduct1 = products.get(6);
