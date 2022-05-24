@@ -1,4 +1,4 @@
-package bpr.service.backend.services.data;
+package bpr.service.backend.services.locationService;
 
 import bpr.service.backend.managers.events.Event;
 import bpr.service.backend.managers.events.IEventManager;
@@ -11,6 +11,7 @@ import bpr.service.backend.persistence.repository.detectionRepository.IDetection
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
 import bpr.service.backend.persistence.repository.locationRepository.ILocationRepository;
 import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
+import bpr.service.backend.services.locationService.ILocationService;
 import bpr.service.backend.util.exceptions.NotFoundException;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ import java.util.List;
 
 
 @Service("LocationService")
-public class LocationService implements ICRUDService<LocationEntity> {
+public class LocationService implements ILocationService {
 
     private final ILocationRepository locationRepository;
     private final IDeviceRepository deviceRepository;
@@ -107,6 +108,86 @@ public class LocationService implements ICRUDService<LocationEntity> {
         }
     }
 
+
+
+    private boolean inActiveState(IdentificationDeviceEntity idDevice) {
+        return idDevice.getTimestampActive() >= idDevice.getTimestampReady() &&
+                idDevice.getTimestampActive() >= idDevice.getTimestampOnline() &&
+                idDevice.getTimestampActive() > idDevice.getTimestampOffline();
+    }
+
+    private boolean inReadyState(IdentificationDeviceEntity idDevice) {
+        return idDevice.getTimestampReady() > idDevice.getTimestampActive() &&
+                idDevice.getTimestampReady() >= idDevice.getTimestampOnline() &&
+                idDevice.getTimestampReady() > idDevice.getTimestampOffline();
+    }
+
+    private void deactivateRemovedDevices(List<IdentificationDeviceEntity> oldDeviceEntities, List<IdentificationDeviceEntity> newDeviceEntities) {
+        for (var oldEntity : oldDeviceEntities) {
+            var removed = true;
+            for (var newEntity : newDeviceEntities) {
+                if (oldEntity.getDeviceId().equals(newEntity.getDeviceId())) {
+                    removed = false;
+                    break;
+                }
+            }
+            if (removed && inActiveState(oldEntity))
+                deactivateIdDeviceInLocation(oldEntity);
+        }
+    }
+
+    private void activateNewDevicesInLocation(List<IdentificationDeviceEntity> identificationDeviceEntities) {
+        for (var device : identificationDeviceEntities) {
+            if (inReadyState(device))
+                activateIdDeviceInLocation(device);
+        }
+    }
+
+
+    private void activateIdDeviceInLocation(IdentificationDeviceEntity idDevice) {
+        eventManager.invoke(Event.ACTIVATE_DEVICE, idDevice);
+    }
+    private void deactivateIdDeviceInLocation(IdentificationDeviceEntity idDevice) {
+        eventManager.invoke(Event.DEACTIVATE_DEVICE, idDevice);
+    }
+
+    @SneakyThrows
+    public LocationEntity updateWithProduct(Long id, ProductEntity product) {
+        if (locationRepository.findById(id).isPresent()) {
+            if (productRepository.existsById(product.getId())) {
+                var databaseLocation = locationRepository.findById(id).get();
+
+                databaseLocation.setProduct(product);
+
+                return locationRepository.save(databaseLocation);
+            }
+            else throw new NotFoundException(String.format("Product with ID: %s not found", product.getId()));
+        }
+        throw new NotFoundException(String.format("Location with ID: %s not found", id));
+    }
+
+    @Override
+    @SneakyThrows
+    public LocationEntity updateWithDeviceList(Long id, List<IdentificationDeviceEntity> deviceList) {
+        if (locationRepository.findById(id).isPresent()) {
+            var databaseLocation = locationRepository.findById(id).get();
+            deactivateRemovedDevices(databaseLocation.getIdentificationDevices(), deviceList);
+
+            databaseLocation.setIdentificationDevices(deviceList);
+
+            var updatedEntity = locationRepository.save(databaseLocation);
+            activateNewDevicesInLocation(updatedEntity.getIdentificationDevices());
+
+            return updatedEntity;
+        }
+        throw new NotFoundException(String.format("Location with ID: %s not found", id));
+    }
+
+    @Override
+    public void delete(Long id) {
+        locationRepository.deleteById(id);
+    }
+
     @Override
     public List<LocationEntity> readAll() {
         var locations = new ArrayList<LocationEntity>();
@@ -134,81 +215,5 @@ public class LocationService implements ICRUDService<LocationEntity> {
         databaseLocation.setPresentationDevices(entity.getPresentationDevices());
         databaseLocation.setIdentificationDevices(entity.getIdentificationDevices());
         return locationRepository.save(databaseLocation);
-    }
-
-    private boolean inActiveState(IdentificationDeviceEntity idDevice) {
-        return idDevice.getTimestampActive() >= idDevice.getTimestampReady() &&
-                idDevice.getTimestampActive() >= idDevice.getTimeStampOnline() &&
-                idDevice.getTimestampActive() > idDevice.getTimestampOffline();
-    }
-
-    private boolean inReadyState(IdentificationDeviceEntity idDevice) {
-        return idDevice.getTimestampReady() > idDevice.getTimestampActive() &&
-                idDevice.getTimestampReady() >= idDevice.getTimeStampOnline() &&
-                idDevice.getTimestampReady() > idDevice.getTimestampOffline();
-    }
-
-    private void deactivateRemovedDevices(List<IdentificationDeviceEntity> oldDeviceEntities, List<IdentificationDeviceEntity> newDeviceEntities) {
-        for (var oldEntity : oldDeviceEntities) {
-            var removed = true;
-            for (var newEntity : newDeviceEntities) {
-                if (oldEntity.getDeviceId().equals(newEntity.getDeviceId())) {
-                    removed = false;
-                    break;
-                }
-            }
-            if (removed && inActiveState(oldEntity))
-                deactivateIdDeviceInLocation(oldEntity);
-        }
-    }
-
-    private void activateNewDevicesInLocation(List<IdentificationDeviceEntity> identificationDeviceEntities) {
-        for (var device : identificationDeviceEntities) {
-            if (inReadyState(device))
-                activateIdDeviceInLocation(device);
-        }
-    }
-
-    @SneakyThrows
-    public LocationEntity updateWithDeviceList(Long id, List<IdentificationDeviceEntity> deviceList) {
-        if (locationRepository.findById(id).isPresent()) {
-            var databaseLocation = locationRepository.findById(id).get();
-            deactivateRemovedDevices(databaseLocation.getIdentificationDevices(), deviceList);
-
-            databaseLocation.setIdentificationDevices(deviceList);
-
-            var updatedEntity = locationRepository.save(databaseLocation);
-            activateNewDevicesInLocation(updatedEntity.getIdentificationDevices());
-
-            return updatedEntity;
-        }
-        throw new NotFoundException(String.format("Location with ID: %s not found", id));
-    }
-
-    private void activateIdDeviceInLocation(IdentificationDeviceEntity idDevice) {
-        eventManager.invoke(Event.ACTIVATE_DEVICE, idDevice);
-    }
-    private void deactivateIdDeviceInLocation(IdentificationDeviceEntity idDevice) {
-        eventManager.invoke(Event.DEACTIVATE_DEVICE, idDevice);
-    }
-
-    @SneakyThrows
-    public LocationEntity updateWithProduct(Long id, ProductEntity product) {
-        if (locationRepository.findById(id).isPresent()) {
-            if (productRepository.existsById(product.getId())) {
-                var databaseLocation = locationRepository.findById(id).get();
-
-                databaseLocation.setProduct(product);
-
-                return locationRepository.save(databaseLocation);
-            }
-            else throw new NotFoundException(String.format("Product with ID: %s not found", product.getId()));
-        }
-        throw new NotFoundException(String.format("Location with ID: %s not found", id));
-    }
-
-    @Override
-    public void delete(Long id) {
-        locationRepository.deleteById(id);
     }
 }

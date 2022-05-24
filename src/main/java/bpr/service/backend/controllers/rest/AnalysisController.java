@@ -46,10 +46,29 @@ public class AnalysisController {
         }
     }
 
+    @GetMapping("/device")
+    public ResponseEntity<String> getProductAnalysisById(@RequestParam String deviceId, @RequestParam Long from, @RequestParam Long to) {
+        if (deviceId == null || deviceId.isEmpty()) {
+            return new ResponseEntity<>("Invalid id: Device id cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+        var validationResponse = preformDateValidation(from, to);
+        if (validationResponse != null) {
+            return validationResponse;
+        }
+
+        try {
+            return new ResponseEntity<>(serializer.toJson(analysisService.deviceAnalysis(deviceId, from, to)), HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Unable to process the request at the moment. Please try again later", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/location/{id}")
     public ResponseEntity<String> getLocationAnalysisById(@PathVariable("id") Long id, @RequestParam Long from, @RequestParam Long to) {
         if (id <= 0) {
-            return new ResponseEntity<>("Invalid id: Product id cannot be 0", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid id: Location id cannot be 0", HttpStatus.BAD_REQUEST);
         }
        var validationResponse = preformDateValidation(from, to);
        if (validationResponse != null) {

@@ -1,4 +1,4 @@
-package bpr.service.backend.services.data;
+package bpr.service.backend.services.productService;
 
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.models.entities.TagEntity;
@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service("ProductService")
-public class ProductService implements ICRUDService<ProductEntity> {
-
+public class ProductService implements IProductService {
 
     private final IProductRepository productRepository;
 
@@ -20,6 +19,7 @@ public class ProductService implements ICRUDService<ProductEntity> {
         this.productRepository = productRepository;
     }
 
+    @Override
     public List<ProductEntity> findAllWithTag(TagEntity tagEntity) {
         return productRepository.findByTags(tagEntity);
     }
@@ -45,11 +45,6 @@ public class ProductService implements ICRUDService<ProductEntity> {
     @Override
     public ProductEntity update(Long id, ProductEntity entity) {
         return productRepository.save(entity);
-    }
-
-    @Override
-    public void delete(Long id) {
-
     }
 
 

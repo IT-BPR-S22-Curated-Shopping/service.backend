@@ -1,7 +1,6 @@
 package bpr.service.backend.services.detectionAnalysisService;
 
 import bpr.service.backend.models.dto.LocationAnalysisDto;
-import bpr.service.backend.models.dto.ProductAnalysisDto;
 import bpr.service.backend.models.entities.CustomerEntity;
 import bpr.service.backend.models.entities.DetectionSnapshotEntity;
 import bpr.service.backend.models.entities.ProductEntity;

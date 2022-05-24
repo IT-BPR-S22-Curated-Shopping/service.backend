@@ -1,6 +1,5 @@
-package bpr.service.backend.services.data;
+package bpr.service.backend.services.tagService;
 
-import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.persistence.repository.tagRepository.ITagRepository;
 import org.springframework.stereotype.Service;
@@ -9,8 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service("TagService")
-public class TagService implements ICRUDService<TagEntity>{
-
+public class TagService implements ITagService{
 
     private final ITagRepository tagRepository;
 
@@ -18,6 +16,7 @@ public class TagService implements ICRUDService<TagEntity>{
         this.tagRepository = tagRepository;
     }
 
+    @Override
     public TagEntity findByTag(String tag) {
         return tagRepository.findTopByTagEquals(tag);
     }
@@ -37,11 +36,6 @@ public class TagService implements ICRUDService<TagEntity>{
     @Override
     public TagEntity create(TagEntity entity) {
         return tagRepository.save(entity);
-    }
-
-    @Override
-    public TagEntity update(Long id, TagEntity entity) {
-        return null;
     }
 
     @Override

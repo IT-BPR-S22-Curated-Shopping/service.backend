@@ -3,6 +3,7 @@ package bpr.service.backend.services.data;
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
+import bpr.service.backend.services.deviceService.DeviceService;
 import bpr.service.backend.util.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,23 +97,4 @@ class DeviceServiceCRUDTest {
         Mockito.verify(deviceRepository, Mockito.times(1)).findById(1L);
         Assertions.assertNull(result);
     }
-
-    @Test
-    public void Create_ValidDevice_ExpectDeviceAdded() {
-        // Arrange
-        var tracker = new IdentificationDeviceEntity(
-                "010d2108",
-                "ff:27:eb:02:ee:ff",
-                "BLE",
-                timestamp);
-
-        Mockito.when(deviceRepository.save(any())).thenReturn(tracker);
-
-        // Act
-        deviceService.create(tracker);
-
-        // Assert
-        Mockito.verify(deviceRepository, Mockito.times(1)).save(tracker);
-    }
-
 }

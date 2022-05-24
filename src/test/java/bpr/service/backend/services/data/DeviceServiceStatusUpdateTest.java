@@ -6,6 +6,7 @@ import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.dto.DeviceStatusDto;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.persistence.repository.deviceRepository.IDeviceRepository;
+import bpr.service.backend.services.deviceService.DeviceService;
 import bpr.service.backend.util.IDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
