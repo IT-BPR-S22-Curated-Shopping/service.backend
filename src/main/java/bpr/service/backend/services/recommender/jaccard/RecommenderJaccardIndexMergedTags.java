@@ -31,7 +31,7 @@ public class RecommenderJaccardIndexMergedTags implements IRecommender {
         this.productService = productService;
         products = productService.readAll();
 
-//        eventManager.addListener(Event.CUSTOMER_LOCATED, this::customerLocated);
+        eventManager.addListener(Event.CUSTOMER_LOCATED, this::customerLocated);
     }
 
     public void setProducts(List<ProductEntity> products) {
@@ -47,22 +47,24 @@ public class RecommenderJaccardIndexMergedTags implements IRecommender {
 
     @Override
     public List<ProductRecommendation> recommend(CustomerEntity customer, ProductEntity product) {
+        if (customer != null && customer.getTags() != null && product != null && product.getTags() != null) {
+            List<ProductRecommendation> recommendations = new ArrayList<>();
+            Set<TagEntity> set = new LinkedHashSet<>(customer.getTags());
+            set.addAll(product.getTags());
+            customer.setTags(new ArrayList<>(set));
 
-        List<ProductRecommendation> recommendations = new ArrayList<>();
-        Set<TagEntity> set = new LinkedHashSet<>(customer.getTags());
-        set.addAll(product.getTags());
-        customer.setTags(new ArrayList<>(set));
+            for (ProductEntity p : products) {
+                var similarity = JaccardSimilarityIndex.findJaccardSimilarityIndex(customer.getTags(), p.getTags());
+                recommendations.add(new ProductRecommendation(p, similarity));
+            }
 
-        for (ProductEntity p : products) {
-            var similarity = JaccardSimilarityIndex.findJaccardSimilarityIndex(customer.getTags(), p.getTags());
-            recommendations.add(new ProductRecommendation(p, similarity));
+            recommendations.sort(Comparator.comparingDouble(ProductRecommendation::getScore).reversed());
+
+            // remove input product from list
+            recommendations.removeIf(x -> x.getProduct().getName().equals(product.getName()));
+            return recommendations;
         }
-
-        recommendations.sort(Comparator.comparingDouble(ProductRecommendation::getScore).reversed());
-
-        // remove input product from list
-        recommendations.removeIf(x -> x.getProduct().getName().equals(product.getName()));
-        return recommendations;
+        return null;
     }
 
     @Override

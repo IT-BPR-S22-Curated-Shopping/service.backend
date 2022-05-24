@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service("CustomerService")
 public class CustomerService implements ICustomerService {
@@ -60,9 +63,9 @@ public class CustomerService implements ICustomerService {
     public CustomerEntity addTagsToCustomer(Long customerId, List<TagEntity> tags) {
         var customer = customerRepository.findById(customerId).orElse(null);
         if (customer != null && tags != null && tags.size() > 0) {
-            var tagEntities = customer.getTags();
+            Set<TagEntity> tagEntities = new LinkedHashSet<>(customer.getTags());
             tagEntities.addAll(tags);
-            customer.setTags(tagEntities);
+            customer.setTags(new ArrayList<>(tagEntities));
             customer = customerRepository.save(customer);
         }
         return customer;

@@ -18,10 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service("LocationService")
@@ -197,15 +201,43 @@ public class LocationService implements ILocationService {
 
     @Override
     public LocationEntity readById(Long id) {
-        if (locationRepository.findById(id).isPresent()) {
-            return locationRepository.findById(id).get();
-        }
-        return null;
+        return locationRepository.findById(id).orElse(null);
     }
 
     @Override
     public LocationEntity create(LocationEntity entity) {
         return locationRepository.save(entity);
+    }
+
+    @Override
+    public LocationEntity createLocation(String name, Long productId, List<String> deviceIds) {
+        LocationEntity entity = null;
+
+        if (!name.isEmpty()){
+            entity = new LocationEntity();
+            entity.setName(name);
+
+            if (productId > 0) {
+                var product = productRepository.findById(productId).orElse(null);
+                if (product != null) {
+                    entity.setProduct(product);
+                }
+            }
+
+            if (deviceIds.size() > 0) {
+                List<IdentificationDeviceEntity> devices = new ArrayList<>();
+                for (String deviceId : deviceIds) {
+                    var device = deviceRepository.findById(Long.valueOf(deviceId)).orElse(null);
+                    if (device != null) {
+                        devices.add(device);
+                    }
+                }
+                entity.setIdentificationDevices(devices);
+            }
+            entity = locationRepository.save(entity);
+            logger.info("Created location with: " + entity.toString());
+        }
+        return entity;
     }
 
     @Override

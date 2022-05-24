@@ -1,9 +1,8 @@
 package bpr.service.backend.controllers.rest;
 
 import bpr.service.backend.models.entities.ProductEntity;
-import bpr.service.backend.models.entities.TagEntity;
-import bpr.service.backend.services.tagService.ITagService;
 import bpr.service.backend.services.productService.IProductService;
+import bpr.service.backend.services.tagService.ITagService;
 import bpr.service.backend.util.ISerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -33,124 +32,83 @@ public class ProductController {
         this.serializer = serializer;
     }
 
-//    @GetMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<ObjectNode> getAllProducts() {
-//        var products = productService.readAll();
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        List<ObjectNode> nodes = new ArrayList<>();
-//
-//        for (ProductEntity entity : products) {
-//            ObjectNode node = mapper.createObjectNode();
-//            node.put("id", entity.getId());
-//            node.put("productNo", entity.getNumber());
-//            node.put("name", entity.getName());
-//            nodes.add(node);
-//        }
-//
-//        return nodes;
-//    }
-
     @GetMapping
     public ResponseEntity<String> getAllProducts() {
+        ResponseEntity<String> response;
         var products = productService.readAll();
 
-        ObjectMapper mapper = new ObjectMapper();
-        List<ObjectNode> nodes = new ArrayList<>();
+        if (products != null && products.size() > 0) {
+            ObjectMapper mapper = new ObjectMapper();
+            List<ObjectNode> nodes = new ArrayList<>();
 
-        for (ProductEntity entity : products) {
-            ObjectNode node = mapper.createObjectNode();
-            node.put("id", entity.getId());
-            node.put("number", entity.getNumber());
-            node.put("name", entity.getName());
-            nodes.add(node);
+            for (ProductEntity entity : products) {
+                ObjectNode node = mapper.createObjectNode();
+                node.put("id", entity.getId());
+                node.put("number", entity.getNumber());
+                node.put("name", entity.getName());
+                nodes.add(node);
+            }
+            response = new ResponseEntity<>(serializer.toJson(nodes), HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("No products found.", HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(serializer.toJson(nodes), HttpStatus.OK);
+        return response;
     }
-//    @GetMapping(value = "/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public ProductEntity getProductById(@PathVariable("id") Long id) {
-//        return productService.readById(id);
-//    }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<String> getProductById(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(serializer.toJson(productService.readById(id)), HttpStatus.OK);
+        ResponseEntity<String> response;
+        if (id != 0) {
+            ProductEntity product = productService.readById(id);
+            if (product != null) {
+                response = new ResponseEntity<>(serializer.toJson(product), HttpStatus.OK);
+            } else {
+                response = new ResponseEntity<>("Could not find a product with matching id", HttpStatus.NOT_FOUND);
+            }
+        } else {
+            response = new ResponseEntity<>("Invalid id. ", HttpStatus.BAD_REQUEST);
+        }
+        return response;
     }
-
-//    @PostMapping
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public ProductEntity createProduct(@RequestBody ProductEntity product) {
-//        List<TagEntity> tags = new ArrayList<>();
-//        for (TagEntity tagEntity : product.getTags()) {
-//            TagEntity tag = ((TagService) tagService).findByTag(tagEntity.getTag());
-//            if (tag == null) {
-//                tagEntity = tagService.create(tagEntity);
-//            } else {
-//                tagEntity = tag;
-//            }
-//            tags.add(tagEntity);
-//        }
-//        product.setTags(tags);
-//        return productService.create(product);
-//    }
 
     @PostMapping
     public ResponseEntity<String> createProduct(@RequestBody ProductEntity product) {
-        List<TagEntity> tags = new ArrayList<>();
-        for (TagEntity tagEntity : product.getTags()) {
-            TagEntity tag = tagService.findByTag(tagEntity.getTag());
-            if (tag == null) {
-                tagEntity = tagService.create(tagEntity);
+        ResponseEntity<String> response;
+        if (product != null) {
+            if (product.getName().isEmpty() || product.getNumber().isEmpty()) {
+                response = new ResponseEntity<>("Cannot create a product without name or number", HttpStatus.BAD_REQUEST);
             } else {
-                tagEntity = tag;
+                var productEntity = productService.create(product);
+                if (productEntity != null) {
+                    response = new ResponseEntity<>(serializer.toJson(productEntity), HttpStatus.CREATED);
+                } else{
+                    response = new ResponseEntity<>("Could not create product.", HttpStatus.NO_CONTENT);
+                }
             }
-            tags.add(tagEntity);
+        } else {
+            response = new ResponseEntity<>("No product provided", HttpStatus.BAD_REQUEST);
         }
-        product.setTags(tags);
-        return new ResponseEntity<>(serializer.toJson(productService.create(product)), HttpStatus.CREATED);
-    }
 
-//    @PutMapping(value = "/{id}")
-//    @ResponseStatus(HttpStatus.ACCEPTED)
-//    public ProductEntity updateTags(@PathVariable("id") Long id, @RequestBody List<String> tags) {
-//        var entity = productService.readById(id);
-//
-//        if (entity != null) {
-//            List<TagEntity> tagList = new ArrayList<>();
-//            for (String tag : tags) {
-//                var tagEntity = ((TagService) tagService).findByTag(tag);
-//                if (tagEntity == null) {
-//                    tagEntity = tagService.create(new TagEntity(tag));
-//                }
-//                tagList.add(tagEntity);
-//            }
-//            entity.setTags(tagList);
-//        }
-//        if (entity != null)
-//            return productService.update(entity.getId(), entity);
-//        return null;
-//    }
+        return response;
+    }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<String> updateTags(@PathVariable("id") Long id, @RequestBody List<String> tags) {
-        var entity = productService.readById(id);
-
-        if (entity != null) {
-            List<TagEntity> tagList = new ArrayList<>();
-            for (String tag : tags) {
-                var tagEntity = tagService.findByTag(tag);
-                if (tagEntity == null) {
-                    tagEntity = tagService.create(new TagEntity(tag));
+        ResponseEntity<String> response;
+        if (id != 0) {
+            if (tags != null && tags.size() > 0) {
+                var product = productService.updateTags(id, tags);
+                if (product != null) {
+                    response = new ResponseEntity<>(serializer.toJson(product), HttpStatus.ACCEPTED);
+                } else {
+                    response = new ResponseEntity<>("Cannot update tag on the product.", HttpStatus.BAD_GATEWAY);
                 }
-                tagList.add(tagEntity);
+            } else {
+                response = new ResponseEntity<>("Tags must be included to be able to update product with tags.", HttpStatus.BAD_REQUEST);
             }
-            entity.setTags(tagList);
+        } else {
+            response = new ResponseEntity<>("Invalid ID", HttpStatus.BAD_REQUEST);
         }
-        if (entity != null)
-            return new ResponseEntity<>(serializer.toJson(productService.update(entity.getId(), entity)), HttpStatus.ACCEPTED);
-        return null;
+        return response;
     }
 }

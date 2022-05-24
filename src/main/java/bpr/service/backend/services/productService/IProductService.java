@@ -9,6 +9,5 @@ public interface IProductService {
     ProductEntity readById(Long id);
     List<ProductEntity> readAll();
     ProductEntity create(ProductEntity entity);
-    ProductEntity update(Long id, ProductEntity entity);
-    List<ProductEntity> findAllWithTag(TagEntity tagEntity);
+    ProductEntity updateTags(Long id, List<String> tags);
 }

@@ -29,82 +29,41 @@ public class TagController {
         this.serializer = serializer;
     }
 
-//    @GetMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<TagEntity> getAllTags() {
-//        return tagService.readAll();
-//    }
-
     @GetMapping
     public ResponseEntity<String> getAllTags() {
         return new ResponseEntity<>(serializer.toJson(tagService.readAll()), HttpStatus.OK);
     }
 
-//    @PostMapping
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public List<TagEntity> createTags(List<String> tags) {
-//        List<TagEntity> tagEntities = new ArrayList<>();
-//
-//        for (String tag : tags) {
-//            var tagEntity = tagService.readAll().stream().filter(x -> x.getTag().equals(tag)).findFirst().orElse(null);
-//            tagEntities.add(tagEntity != null ? tagEntity : tagService.create(new TagEntity(tag)));
-//        }
-//
-//        return tagEntities;
-//    }
-
     @PostMapping
     public ResponseEntity<String> createTags(List<String> tags) {
-        List<TagEntity> tagEntities = new ArrayList<>();
+        ResponseEntity<String> response;
 
-        for (String tag : tags) {
-            var tagEntity = tagService.readAll().stream().filter(x -> x.getTag().equals(tag)).findFirst().orElse(null);
-            tagEntities.add(tagEntity != null ? tagEntity : tagService.create(new TagEntity(tag)));
+        if (tags != null && tags.size() > 0) {
+            var tagEntities = tagService.createTags(tags);
+            if (tagEntities != null) {
+                response = new ResponseEntity<>(serializer.toJson(tagEntities), HttpStatus.CREATED);
+            } else {
+                response = new ResponseEntity<>("Was unable to create the provided tags. Unknown error.", HttpStatus.CONFLICT);
+            }
+        } else {
+            response = new ResponseEntity<>("Tags must be included to be able to create tags.", HttpStatus.BAD_REQUEST);
         }
+        return response;
 
-        return new ResponseEntity<>(serializer.toJson(tagEntities), HttpStatus.CREATED);
     }
-
-//    @DeleteMapping(value = "/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public void deleteTag(@PathVariable("id") Long id) {
-//        var tagEntity = tagService.readById(id);
-//        var productEntities = ((ProductService)productService).findAllWithTag(tagEntity);
-//
-//        // remove tags from products
-//        for(ProductEntity productEntity : productEntities) {
-//            // create new array without the tags
-//            List<TagEntity> newTags = new ArrayList<>();
-//            for(TagEntity tag : productEntity.getTags()) {
-//                if (!tagEntity.getId().equals(tag.getId())) {
-//                    newTags.add(tag);
-//                }
-//            }
-//            productEntity.setTags(newTags);
-//            productService.update(productEntity.getId(), productEntity);
-//        }
-//        tagService.delete(id);
-//    }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteTag(@PathVariable("id") Long id) {
-        var tagEntity = tagService.readById(id);
-        var productEntities = productService.findAllWithTag(tagEntity);
+        ResponseEntity<String> response;
 
-        // remove tags from products
-        for(ProductEntity productEntity : productEntities) {
-            // create new array without the tags
-            List<TagEntity> newTags = new ArrayList<>();
-            for(TagEntity tag : productEntity.getTags()) {
-                if (!tagEntity.getId().equals(tag.getId())) {
-                    newTags.add(tag);
-                }
-            }
-            productEntity.setTags(newTags);
-            productService.update(productEntity.getId(), productEntity);
+        if (id != 0) {
+            tagService.delete(id);
+            response = new ResponseEntity<>(String.format("Tag id %s successfully deleted", id), HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("Invalid tag id", HttpStatus.BAD_REQUEST);
         }
-        tagService.delete(id);
-        return new ResponseEntity<>(String.format("Tag id %s successfully deleted", id), HttpStatus.OK);
+
+        return response;
     }
 
 }
