@@ -1,4 +1,4 @@
-package bpr.service.backend.services.data;
+package bpr.service.backend.services.customerService;
 
 import bpr.service.backend.managers.events.IEventManager;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
