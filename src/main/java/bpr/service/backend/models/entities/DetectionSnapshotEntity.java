@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class DetectionSnapshotEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long timestamp;
