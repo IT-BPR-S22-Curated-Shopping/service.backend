@@ -21,36 +21,25 @@ public class DeviceController {
         this.serializer = serializer;
     }
 
-//    @GetMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<IdentificationDeviceEntity> getAllDevices() {
-//        return deviceService.readAll();
-//    }
-
     @GetMapping
     public ResponseEntity<String> getAllDevices() {
         return new ResponseEntity<>(serializer.toJson(deviceService.readAll()), HttpStatus.OK);
     }
 
-//    @GetMapping("/available")
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<IdentificationDeviceEntity> getAllAvailableDevices() {
-//        return ((DeviceService) deviceService).readAllAvailable();
-//    }
-
     @GetMapping("/available")
     public ResponseEntity<String> getAllAvailableDevices() {
         return new ResponseEntity<>(serializer.toJson(deviceService.readAllAvailable()), HttpStatus.OK);
     }
-//    @GetMapping("/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public IdentificationDeviceEntity getDeviceById(@PathVariable("id") Long id) {
-//        return deviceService.readById(id);
-//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<String> getDeviceById(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(serializer.toJson(deviceService.readById(id)), HttpStatus.OK);
+        ResponseEntity<String> response;
+        if (id != 0) {
+            response = new ResponseEntity<>(serializer.toJson(deviceService.readById(id)), HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("Invalid id", HttpStatus.BAD_REQUEST);
+        }
+        return response;
     }
 
 }

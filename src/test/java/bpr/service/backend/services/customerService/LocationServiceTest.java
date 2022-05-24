@@ -98,7 +98,7 @@ class LocationServiceTest {
         LocationEntity result = locationService.readById(3L);
 
         // Assert
-        Mockito.verify(locationRepository, Mockito.times(2)).findById(3L);
+        Mockito.verify(locationRepository, Mockito.times(1)).findById(3L);
         Assertions.assertEquals(locationEntity, result);
     }
 

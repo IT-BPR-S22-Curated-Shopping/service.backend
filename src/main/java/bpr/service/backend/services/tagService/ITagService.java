@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ITagService {
     TagEntity create(TagEntity entity);
+    List<TagEntity> createTags(List<String> tags);
     TagEntity findByTag(String tag);
     List<TagEntity> readAll();
     TagEntity readById(Long id);

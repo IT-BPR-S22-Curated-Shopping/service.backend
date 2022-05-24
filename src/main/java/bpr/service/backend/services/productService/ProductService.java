@@ -3,25 +3,22 @@ package bpr.service.backend.services.productService;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
+import bpr.service.backend.persistence.repository.tagRepository.ITagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service("ProductService")
 public class ProductService implements IProductService {
 
     private final IProductRepository productRepository;
+    private final ITagRepository tagRepository;
 
-    public ProductService(@Autowired IProductRepository productRepository) {
+    public ProductService(@Autowired IProductRepository productRepository, @Autowired ITagRepository tagRepository) {
         this.productRepository = productRepository;
-    }
-
-    @Override
-    public List<ProductEntity> findAllWithTag(TagEntity tagEntity) {
-        return productRepository.findByTags(tagEntity);
+        this.tagRepository = tagRepository;
     }
 
     @Override
@@ -33,19 +30,46 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductEntity readById(Long id) {
-        Optional<ProductEntity> entity = productRepository.findById(id);
-        return entity.orElse(null);
+        return productRepository.findById(id).orElse(null);
     }
 
     @Override
-    public ProductEntity create(ProductEntity entity) {
-        return productRepository.save(entity);
+    public ProductEntity create(ProductEntity product) {
+
+        List<TagEntity> tags = new ArrayList<>();
+        for (TagEntity tagEntity : product.getTags()) {
+            TagEntity tag = tagRepository.findTagEntityByTag(tagEntity.getTag());
+            if (tag == null) {
+                tagEntity = tagRepository.save(tagEntity);
+            } else {
+                tagEntity = tag;
+            }
+            tags.add(tagEntity);
+        }
+        product.setTags(tags);
+
+
+        return productRepository.save(product);
     }
 
     @Override
-    public ProductEntity update(Long id, ProductEntity entity) {
-        return productRepository.save(entity);
-    }
+    public ProductEntity updateTags(Long id, List<String> tags) {
+        ProductEntity productEntity = null;
+        productEntity = productRepository.findById(id).orElse(null);
+        if (productEntity != null) {
+            List<TagEntity> tagList = new ArrayList<>();
+            for (String tag : tags) {
+                var tagEntity = tagRepository.findTagEntityByTag(tag);
+                if (tagEntity == null) {
+                    tagEntity = tagRepository.save(new TagEntity(tag));
+                }
+                tagList.add(tagEntity);
+            }
+            productEntity.setTags(tagList);
+            productEntity = productRepository.save(productEntity);
+        }
 
+        return productEntity;
+    }
 
 }

@@ -3,10 +3,8 @@ package bpr.service.backend.controllers.rest;
 import bpr.service.backend.models.entities.IdentificationDeviceEntity;
 import bpr.service.backend.models.entities.LocationEntity;
 import bpr.service.backend.models.entities.ProductEntity;
-import bpr.service.backend.services.deviceService.IDeviceService;
 import bpr.service.backend.services.locationService.ILocationService;
 import bpr.service.backend.services.locationService.LocationService;
-import bpr.service.backend.services.productService.IProductService;
 import bpr.service.backend.util.ISerializer;
 import bpr.service.backend.util.exceptions.NotFoundException;
 import org.slf4j.Logger;
@@ -34,183 +32,112 @@ public class LocationController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ILocationService locationService;
-    private final IDeviceService deviceService;
-    private final IProductService productService;
+
     private final ISerializer serializer;
 
     public LocationController(@Autowired @Qualifier("LocationService") ILocationService locationService,
-                              @Autowired @Qualifier("ProductService") IProductService productService,
-                              @Autowired @Qualifier("DeviceService") IDeviceService deviceService,
                               @Autowired @Qualifier("JsonSerializer") ISerializer serializer) {
         this.locationService = locationService;
-        this.productService = productService;
-        this.deviceService = deviceService;
         this.serializer = serializer;
     }
-
-//    @GetMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<LocationEntity> getAllLocations() {
-//        return locationService.readAll();
-//    }
 
     @GetMapping
     public ResponseEntity<String> getAllLocations() {
         return new ResponseEntity<>(serializer.toJson(locationService.readAll()), HttpStatus.OK);
     }
 
-//    @GetMapping(value = "/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public LocationEntity getLocationById(@PathVariable("id") Long id) {
-//        return locationService.readById(id);
-//    }
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<String> getLocationById(@PathVariable("id") Long id) {
-        return new ResponseEntity<>(serializer.toJson(locationService.readById(id)), HttpStatus.OK);
-    }
+        ResponseEntity<String> response;
+        if (id != 0) {
+            LocationEntity location = locationService.readById(id);
+            if (location != null) {
+                response = new ResponseEntity<>(serializer.toJson(location), HttpStatus.OK);
+            } else {
+                response = new ResponseEntity<>("Could not find a product with given ID: " + id, HttpStatus.NOT_FOUND);
+            }
+        } else {
+            response = new ResponseEntity<>("Invalid ID: location id cannot be 0.", HttpStatus.BAD_REQUEST);
+        }
 
-//    @PostMapping
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public LocationEntity createLocation(@RequestBody Map<String, String> map) {
-//        LocationEntity entity = new LocationEntity();
-//
-//        if (map.containsKey(MAP_DEVICE_NAME)) {
-//            if (!map.get("name").isBlank()) {
-//                entity.setName(map.get("name"));
-//            } else {
-//                logger.info("Tried to create new location without name. (" + map.toString() + ")");
-//                return null;
-//            }
-//        }
-//
-//        if (map.containsKey(MAP_DEVICE_PRODUCT_ID)) {
-//            var product = productService.readById(Long.valueOf(map.get("productId")));
-//            if (product != null){
-//                entity.setProduct(product);
-//            }
-//        }
-//
-//        if (map.containsKey(MAP_DEVICE_IDS)) {
-//
-//            var listOfIds = map.get(MAP_DEVICE_IDS).split(", ");
-//            System.out.println(Arrays.toString(listOfIds));
-//            List<IdentificationDeviceEntity> devices = new ArrayList<>();
-//            for (String listOfId : listOfIds) {
-//                var device = deviceService.readById(Long.valueOf(listOfId));
-//                if (device != null) {
-//                    devices.add(device);
-//                }
-//            }
-//            entity.setIdentificationDevices(devices);
-//        }
-//        if (map.containsKey(MAP_DEVICE_PRESENTATION_ID)) {
-//            // not implemented, needs lookup
-//        }
-//
-//
-//        LocationEntity locationEntity = locationService.create(entity);
-//        logger.info("Created location with: " + locationEntity.toString());
-//        return locationEntity;
-//    }
+        return response;
+    }
 
     @PostMapping
     public ResponseEntity<String> createLocation(@RequestBody Map<String, String> map) {
-        LocationEntity entity = new LocationEntity();
+        ResponseEntity<String> response;
+        String name = map.get(MAP_DEVICE_NAME);
+        Long productId = Long.valueOf(map.get(MAP_DEVICE_PRODUCT_ID));
+        List<String> ids = new ArrayList<>(Arrays.asList(map.get(MAP_DEVICE_IDS).split(", ")));
 
-        if (map.containsKey(MAP_DEVICE_NAME)) {
-            if (!map.get("name").isBlank()) {
-                entity.setName(map.get("name"));
-            } else {
-                logger.info("Tried to create new location without name. (" + map.toString() + ")");
-                return new ResponseEntity<>("Tried to create new location without name. (" + map.toString() + ")", HttpStatus.BAD_REQUEST);
-            }
+        if (!name.isEmpty()) {
+            response = new ResponseEntity<>(serializer.toJson(locationService.createLocation(name, productId, ids)), HttpStatus.CREATED);
+        } else {
+            response = new ResponseEntity<>("Name cannot be empty.", HttpStatus.BAD_REQUEST);
         }
 
-        if (map.containsKey(MAP_DEVICE_PRODUCT_ID)) {
-            var product = productService.readById(Long.valueOf(map.get("productId")));
-            if (product != null){
-                entity.setProduct(product);
-            }
-        }
-
-        if (map.containsKey(MAP_DEVICE_IDS)) {
-
-            var listOfIds = map.get(MAP_DEVICE_IDS).split(", ");
-            System.out.println(Arrays.toString(listOfIds));
-            List<IdentificationDeviceEntity> devices = new ArrayList<>();
-            for (String listOfId : listOfIds) {
-                var device = deviceService.readById(Long.valueOf(listOfId));
-                if (device != null) {
-                    devices.add(device);
-                }
-            }
-            entity.setIdentificationDevices(devices);
-        }
-        if (map.containsKey(MAP_DEVICE_PRESENTATION_ID)) {
-            // not implemented, needs lookup
-        }
-
-
-        LocationEntity locationEntity = locationService.create(entity);
-        logger.info("Created location with: " + locationEntity.toString());
-        return new ResponseEntity<>(serializer.toJson(locationEntity), HttpStatus.CREATED);
+        return response;
     }
-
-//    @PutMapping(value = "/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public LocationEntity updateLocation(@PathVariable("id") Long id, @RequestBody LocationEntity location) {
-//        LocationEntity update = locationService.update(id, location);
-//        logger.info("Updated location with: " + update.toString());
-//        return update;
-//    }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<String> updateLocation(@PathVariable("id") Long id, @RequestBody LocationEntity location) {
-        LocationEntity update = locationService.update(id, location);
-        logger.info("Updated location with: " + update.toString());
-        return new ResponseEntity<>(serializer.toJson(update), HttpStatus.OK);
+        ResponseEntity<String> response;
+
+        if (id != 0) {
+            if (location != null) {
+                response = new ResponseEntity<>(serializer.toJson(locationService.update(id, location)), HttpStatus.OK);
+                logger.info("Updated location with id " + id);
+            } else {
+                response = new ResponseEntity<>("Cannot update location. Must contain location", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            response = new ResponseEntity<>("Cannot update location. Invalid ID: " + id, HttpStatus.BAD_REQUEST);
+        }
+
+        return response;
     }
 
-
-//    @PutMapping(value = "/{id}/devices")
-//    @ResponseStatus(HttpStatus.OK)
-//    public LocationEntity updateLocationTrackingDevices(@PathVariable("id") Long id, @NotNull @RequestBody List<IdentificationDeviceEntity> deviceList) {
-//        LocationEntity locationEntity = ((LocationService) locationService).updateWithDeviceList(id, deviceList);
-//        logger.info("Updated location as: " + locationEntity.toString());
-//        return locationEntity;
-//    }
 
     @PutMapping(value = "/{id}/devices")
     public ResponseEntity<String> updateLocationTrackingDevices(@PathVariable("id") Long id, @NotNull @RequestBody List<IdentificationDeviceEntity> deviceList) {
-        LocationEntity locationEntity = ((LocationService) locationService).updateWithDeviceList(id, deviceList);
-        logger.info("Updated location as: " + locationEntity.toString());
-        return new ResponseEntity<>(serializer.toJson(locationEntity), HttpStatus.OK);
-    }
+        ResponseEntity<String> response;
 
-//    @PutMapping(value = "/{id}/product")
-//    @ResponseStatus(HttpStatus.OK)
-//    public LocationEntity updateLocationProduct(@PathVariable("id") Long id, @NotNull @RequestBody ProductEntity productEntity) {
-//
-//        LocationEntity locationEntity = ((LocationService) locationService).updateWithProduct(id, productEntity);
-//        logger.info("Updated location with product: " + locationEntity.toString());
-//        return locationEntity;
-//    }
+        if (id != 0) {
+            LocationEntity locationEntity = locationService.updateWithDeviceList(id, deviceList);
+            logger.info("Updated location as: " + locationEntity.toString());
+            response = new ResponseEntity<>(serializer.toJson(locationEntity), HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("Cannot update. Invalid ID: " + id, HttpStatus.BAD_REQUEST);
+        }
+
+        return response;
+    }
 
     @PutMapping(value = "/{id}/product")
     public ResponseEntity<String> updateLocationProduct(@PathVariable("id") Long id, @NotNull @RequestBody ProductEntity productEntity) {
-
-        LocationEntity locationEntity = ((LocationService) locationService).updateWithProduct(id, productEntity);
-        logger.info("Updated location with product: " + locationEntity.toString());
-        return new ResponseEntity<>(serializer.toJson(locationEntity), HttpStatus.OK);
+        ResponseEntity<String> response;
+        if (id != 0) {
+            LocationEntity locationEntity = ((LocationService) locationService).updateWithProduct(id, productEntity);
+            logger.info("Updated location with product: " + locationEntity.toString());
+            response = new ResponseEntity<>(serializer.toJson(locationEntity), HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("Cannot update. Invalid ID: " + id, HttpStatus.BAD_REQUEST);
+        }
+        return response;
     }
-
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<String> deleteLocation(@PathVariable("id") Long id) {
-        logger.info("Deleted location with id: " + id);
-        locationService.delete(id);
-        return new ResponseEntity<>(String.format("Location id %s successfully deleted.", id), HttpStatus.OK);
+        ResponseEntity<String> response;
+        if (id != 0) {
+            logger.info("Deleted location with id: " + id);
+            locationService.delete(id);
+            response = new ResponseEntity<>(String.format("Location id %s successfully deleted.", id), HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("Cannot delete. Invalid ID: " + id, HttpStatus.BAD_REQUEST);
+        }
+
+        return response;
     }
 
     // Source: https://www.baeldung.com/spring-boot-bean-validation
