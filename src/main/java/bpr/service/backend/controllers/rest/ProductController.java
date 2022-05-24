@@ -38,17 +38,17 @@ public class ProductController {
         var products = productService.readAll();
 
         if (products != null && products.size() > 0) {
-            ObjectMapper mapper = new ObjectMapper();
-            List<ObjectNode> nodes = new ArrayList<>();
-
-            for (ProductEntity entity : products) {
-                ObjectNode node = mapper.createObjectNode();
-                node.put("id", entity.getId());
-                node.put("number", entity.getNumber());
-                node.put("name", entity.getName());
-                nodes.add(node);
-            }
-            response = new ResponseEntity<>(serializer.toJson(nodes), HttpStatus.OK);
+//            ObjectMapper mapper = new ObjectMapper();
+//            List<ObjectNode> nodes = new ArrayList<>();
+//
+//            for (ProductEntity entity : products) {
+//                ObjectNode node = mapper.createObjectNode();
+//                node.put("id", entity.getId());
+//                node.put("number", entity.getNumber());
+//                node.put("name", entity.getName());
+//                nodes.add(node);
+//            }
+            response = new ResponseEntity<>(serializer.toJson(products), HttpStatus.OK);
         } else {
             response = new ResponseEntity<>("No products found.", HttpStatus.NOT_FOUND);
         }
