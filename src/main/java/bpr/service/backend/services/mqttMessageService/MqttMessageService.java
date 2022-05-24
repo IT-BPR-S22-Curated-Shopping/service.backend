@@ -242,7 +242,7 @@ public class MqttMessageService {
         }
 
         var detection = new DetectedCustomerDto(
-                dateTime.getEpochMillis(), 
+                dateTime.getEpochMillis(),
                 deviceId,
                 uuid.asText()
         );
