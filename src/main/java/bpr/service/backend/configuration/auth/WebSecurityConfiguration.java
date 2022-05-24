@@ -23,14 +23,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.cors().configurationSource(request -> corsConfiguration);
         http.csrf().disable();
-//        http.authorizeRequests()
-//                .mvcMatchers("/presentation*").permitAll()
-//                .mvcMatchers( "/api/customer*").permitAll()
-////                .mvcMatchers( "/api/customer*/*/*").permitAll()
-//                .anyRequest()
-//                .authenticated();
-//
-//        http.oauth2ResourceServer()
-//                .jwt();
+
+        http.authorizeRequests()
+                .mvcMatchers("/presentation*").permitAll()
+                .mvcMatchers( "/api/customer*/*/*").permitAll()
+                .anyRequest()
+                .authenticated();
+
+        http.oauth2ResourceServer()
+                .jwt();
     }
 }

@@ -62,7 +62,7 @@ public class ProductController {
         for (ProductEntity entity : products) {
             ObjectNode node = mapper.createObjectNode();
             node.put("id", entity.getId());
-            node.put("productNo", entity.getNumber());
+            node.put("number", entity.getNumber());
             node.put("name", entity.getName());
             nodes.add(node);
         }
