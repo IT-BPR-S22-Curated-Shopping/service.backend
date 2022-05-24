@@ -24,7 +24,7 @@ public class RecommenderJaccardIndexMergedTags implements IRecommender {
     private final IEventManager eventManager;
     private final IProductService productService;
     private List<ProductEntity> products;
-
+    
     public RecommenderJaccardIndexMergedTags(@Autowired IEventManager eventManager,
                                              @Autowired @Qualifier("ProductService") IProductService productService) {
         this.eventManager = eventManager;
