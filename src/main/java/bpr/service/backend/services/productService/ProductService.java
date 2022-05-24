@@ -3,7 +3,6 @@ package bpr.service.backend.services.productService;
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.persistence.repository.productRepository.IProductRepository;
-import bpr.service.backend.persistence.repository.tagRepository.ITagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
