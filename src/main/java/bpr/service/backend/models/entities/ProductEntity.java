@@ -23,6 +23,12 @@ public class ProductEntity {
 
     private String image;
 
+    private String caption;
+
+    private String description;
+
+    private double price;
+
     @ManyToMany
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<ProductEntity> relatedProducts;

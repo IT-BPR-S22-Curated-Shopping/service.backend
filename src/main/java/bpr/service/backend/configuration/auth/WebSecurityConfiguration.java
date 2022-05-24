@@ -24,6 +24,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.cors().configurationSource(request -> corsConfiguration);
 
         http.authorizeRequests()
+                .mvcMatchers("/presentation*").permitAll()
                 .anyRequest()
                 .authenticated();
 
