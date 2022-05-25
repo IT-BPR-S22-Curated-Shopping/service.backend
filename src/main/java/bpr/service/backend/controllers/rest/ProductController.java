@@ -111,4 +111,20 @@ public class ProductController {
         }
         return response;
     }
+
+    @PutMapping()
+    public ResponseEntity<String> updateProduct(@RequestBody ProductEntity product) {
+        if (product == null) {
+            return new ResponseEntity<>("Body cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+        else {
+            var updated = productService.update(product);
+            if (updated == null) {
+                return new ResponseEntity<>("Unable to update the product", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            return new ResponseEntity<>(serializer.toJson(updated), HttpStatus.OK);
+        }
+
+    }
 }

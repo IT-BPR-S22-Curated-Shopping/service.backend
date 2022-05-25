@@ -10,4 +10,7 @@ public interface IProductService {
     List<ProductEntity> readAll();
     ProductEntity create(ProductEntity entity);
     ProductEntity updateTags(Long id, List<String> tags);
+    ProductEntity update(ProductEntity entity);
+
+
 }

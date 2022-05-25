@@ -72,4 +72,9 @@ public class ProductService implements IProductService {
         return productEntity;
     }
 
+    @Override
+    public ProductEntity update(ProductEntity entity) {
+        return productRepository.save(entity);
+    }
+
 }
