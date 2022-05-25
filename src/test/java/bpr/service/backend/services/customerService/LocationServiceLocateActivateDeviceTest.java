@@ -63,8 +63,7 @@ class LocationServiceLocateActivateDeviceTest {
                     "P02-3627K",
                     "Wagyu"
             ),
-            List.of(device),
-            List.of(new PresenterEntity())
+            List.of(device)
     );
 
     private IdentificationDeviceEntity activatedDevice;

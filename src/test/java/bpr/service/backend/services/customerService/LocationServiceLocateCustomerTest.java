@@ -67,8 +67,7 @@ class LocationServiceLocateCustomerTest {
                     "P02-3627K",
                     "Wagyu"
             ),
-            List.of(device),
-            List.of(new PresenterEntity())
+            List.of(device)
     );
 
     private DetectionSnapshotEntity expectedSnapshot;
@@ -151,8 +150,7 @@ class LocationServiceLocateCustomerTest {
         var loc = new LocationEntity(
                 "Prime Beef",
                 null,
-                List.of(device),
-                List.of(new PresenterEntity())
+                List.of(device)
         );
 
 
