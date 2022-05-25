@@ -3,7 +3,6 @@ package bpr.service.backend.models.dto;
 
 import bpr.service.backend.models.entities.CustomerEntity;
 import bpr.service.backend.models.entities.ProductEntity;
-import bpr.service.backend.models.entities.TagEntity;
 import bpr.service.backend.models.recommender.ProductRecommendation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +17,7 @@ public class RecommendationDto {
 
     private CustomerEntity customer;
     private ProductEntity product;
-    private String deviceId;
+    private Long locationId;
 
     private List<ProductRecommendation> recommendations;
 }
