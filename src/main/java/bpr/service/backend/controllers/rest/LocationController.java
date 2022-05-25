@@ -27,7 +27,6 @@ public class LocationController {
     private static final String MAP_DEVICE_NAME = "name";
     private static final String MAP_DEVICE_PRODUCT_ID = "productId";
     private static final String MAP_DEVICE_IDS = "deviceIds";
-    private static final String MAP_DEVICE_PRESENTATION_ID = "presentationId";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -65,17 +64,39 @@ public class LocationController {
 
     @PostMapping
     public ResponseEntity<String> createLocation(@RequestBody Map<String, String> map) {
-        ResponseEntity<String> response;
-        String name = map.get(MAP_DEVICE_NAME);
-        Long productId = Long.valueOf(map.get(MAP_DEVICE_PRODUCT_ID));
-        List<String> ids = new ArrayList<>(Arrays.asList(map.get(MAP_DEVICE_IDS).split(", ")));
-        if (!name.isEmpty()) {
-            response = new ResponseEntity<>(serializer.toJson(locationService.createLocation(name, productId, ids)), HttpStatus.CREATED);
-        } else {
-            response = new ResponseEntity<>("Name cannot be empty.", HttpStatus.BAD_REQUEST);
+        if (!map.containsKey(MAP_DEVICE_NAME)) {
+            return new ResponseEntity<>("Request must contain property 'name'", HttpStatus.BAD_REQUEST);
+        }
+        else if (!map.containsKey(MAP_DEVICE_PRODUCT_ID)) {
+            return new ResponseEntity<>("Request must contain property 'productId'", HttpStatus.BAD_REQUEST);
+        }
+        else if (!map.containsKey(MAP_DEVICE_IDS)) {
+            return new ResponseEntity<>("Request must contain property 'deviceIds'", HttpStatus.BAD_REQUEST);
         }
 
-        return response;
+        if (map.get(MAP_DEVICE_NAME).isEmpty()) {
+            return new ResponseEntity<>("Name cannot be empty.", HttpStatus.BAD_REQUEST);
+        }
+        String name = map.get(MAP_DEVICE_NAME);
+
+        var productId = 0L;
+        if (!map.get(MAP_DEVICE_PRODUCT_ID).isEmpty()) {
+            productId = Long.parseLong(map.get(MAP_DEVICE_PRODUCT_ID));
+        }
+
+        var ids = new ArrayList<String>();
+        if(!map.get(MAP_DEVICE_IDS).isEmpty()) {
+            ids.addAll(List.of(map.get(MAP_DEVICE_IDS).split(", ")));
+        }
+//        List<String> ids = new ArrayList<>(Arrays.asList(map.get(MAP_DEVICE_IDS).split(", ")));
+
+        var created = locationService.createLocation(name, productId, ids);
+
+        if (created == null) {
+            return new ResponseEntity<>("Error creating location: Unknown error", HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            return new ResponseEntity<>(serializer.toJson(created), HttpStatus.CREATED);
+        }
     }
 
     @PutMapping(value = "/{id}")

@@ -244,7 +244,6 @@ public class LocationService implements ILocationService {
     public LocationEntity update(Long id, LocationEntity entity) {
         var databaseLocation = locationRepository.findById(id).get();
         databaseLocation.setProduct(entity.getProduct());
-        databaseLocation.setPresentationDevices(entity.getPresentationDevices());
         databaseLocation.setIdentificationDevices(entity.getIdentificationDevices());
         return locationRepository.save(databaseLocation);
     }
