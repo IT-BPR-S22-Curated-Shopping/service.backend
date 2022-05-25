@@ -41,7 +41,7 @@ public class RecommenderJaccardIndexMergedTags implements IRecommender {
     private void customerLocated(PropertyChangeEvent propertyChangeEvent) {
         DetectionSnapshotEntity dse = (DetectionSnapshotEntity) propertyChangeEvent.getNewValue();
         var recommendedScores = recommend(dse.getCustomer(), dse.getProduct());
-        var dto = new RecommendationDto(dse.getCustomer(), dse.getProduct(), dse.getIdDeviceId(), recommendedScores);
+        var dto = new RecommendationDto(dse.getCustomer(), dse.getProduct(), dse.getLocationId(), recommendedScores);
         eventManager.invoke(Event.NEW_RECOMMENDATION, dto);
     }
 

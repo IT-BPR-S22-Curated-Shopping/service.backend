@@ -2,6 +2,8 @@ package bpr.service.backend.models.entities;
 
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,12 +19,12 @@ public class CustomerEntity implements Serializable {
     private Long id;
 
     @OneToMany
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<UuidEntity> uuids;
 
     @ManyToMany
     @Column(unique=true)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<TagEntity> tags;
 
     public CustomerEntity() {

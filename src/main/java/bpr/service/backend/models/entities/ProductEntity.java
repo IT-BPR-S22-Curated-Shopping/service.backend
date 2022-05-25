@@ -2,6 +2,8 @@ package bpr.service.backend.models.entities;
 
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.transaction.Transactional;
@@ -32,15 +34,10 @@ public class ProductEntity {
     private double price;
 
     @ManyToMany
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<ProductEntity> relatedProducts;
-
-    @ManyToMany
-    @Cascade(org.hibernate.annotations.CascadeType.MERGE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<TagEntity> tags;
 
     public ProductEntity() {
-        relatedProducts = new ArrayList<>();
         tags = new ArrayList<>();
     }
 
@@ -55,6 +52,5 @@ public class ProductEntity {
         this.image = image;
         this.tags = tags;
     }
-
 
 }
