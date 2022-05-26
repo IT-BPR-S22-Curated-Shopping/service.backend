@@ -25,6 +25,7 @@ public class ProductEntity {
 
     private String name;
 
+    @Column(columnDefinition="TEXT")
     private String image;
 
     private String caption;
