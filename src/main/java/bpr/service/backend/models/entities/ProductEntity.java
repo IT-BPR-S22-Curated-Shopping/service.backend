@@ -34,7 +34,7 @@ public class ProductEntity {
 
     private double price;
 
-    @ManyToMany
+    @OneToMany
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<TagEntity> tags;
 
