@@ -20,14 +20,14 @@ class WebSocketHandlerIntegrationTest {
     
     public static void main(String[] args) {
         ApplicationContext applicationContext = SpringApplication.run(Application.class, args);
-        SomeService service = applicationContext.getBean(SomeService.class);
+        WebSocketTestService service = applicationContext.getBean(WebSocketTestService.class);
 
         service.createRecommendation();
     }
 }
 
 @Service
-class SomeService {
+class WebSocketTestService {
 
 
     @Autowired private ICustomerRepository customerRepository;
@@ -37,11 +37,10 @@ class SomeService {
 
     public void createRecommendation() {
         // send event
-        sendEvent(10000, 1L);
+        sendEvent(30000, 3L);
     }
 
     private void sendEvent(int msWait, Long locationId) {
-
 
         // find a customer
         var customerEntity = customerRepository.findById(3L).orElse(null);
@@ -55,7 +54,7 @@ class SomeService {
             System.out.println("--------------------------------------------------------------------------------");
             TimeUnit.MILLISECONDS.sleep(msWait);
             System.out.println("--------------------------------------------------------------------------------");
-            var recommendation = recommender.recommend(customerEntity, productEntity);
+            var recommendation = recommender.recommend(customerEntity, productEntity, 10);
             RecommendationDto payload = new RecommendationDto(customerEntity, productEntity, locationId, recommendation);
             System.out.println("Sending recommendation to location " + locationId + " with content: " + payload.toString());
             System.out.println("--------------------------------------------------------------------------------");

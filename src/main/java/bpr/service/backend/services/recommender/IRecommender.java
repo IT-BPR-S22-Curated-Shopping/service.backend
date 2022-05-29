@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IRecommender {
 
-    List<ProductRecommendation> recommend(CustomerEntity customer, ProductEntity product);
+    List<ProductRecommendation> recommend(CustomerEntity customer, ProductEntity product, int limit);
 
     List<ProductEntity> getProfileProducts(CustomerEntity customer, int size);
 }
