@@ -63,7 +63,7 @@ class RecommenderJaccardIndexTest {
         var expectedWorstProduct = products.get(4);
 
         // act
-        var recommendation = recommender.recommend(customer, products.get(1), 10);
+        var recommendation = recommender.recommend(customer, products.get(1), 7);
 
         // assert
         recommendation.forEach(x -> System.out.println("Product: " + x.getProduct().getName() + ", score: " + x.getScore()));
