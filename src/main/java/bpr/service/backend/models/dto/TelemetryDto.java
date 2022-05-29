@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class TelemetryDto {
-    private long timestamp;
+    private Long timestamp;
     private String deviceId;
     private String level;
     private String message;
@@ -12,7 +12,7 @@ public class TelemetryDto {
     public TelemetryDto() {
     }
 
-    public TelemetryDto(long timestamp, String deviceId, String level, String message) {
+    public TelemetryDto(Long timestamp, String deviceId, String level, String message) {
         this.timestamp = timestamp;
         this.deviceId = deviceId;
         this.level = level;

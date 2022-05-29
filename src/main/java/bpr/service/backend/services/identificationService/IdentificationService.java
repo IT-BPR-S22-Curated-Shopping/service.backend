@@ -28,26 +28,27 @@ public class IdentificationService {
         this.customerRepository = customerRepository;
         this.idRepository = idRepository;
         this.eventManager = eventManager;
-        eventManager.addListener(Event.CUSTOMER_DETECTED, this::IdentifyCustomer);
+        this.eventManager.addListener(Event.CUSTOMER_DETECTED, this::identifyCustomer);
     }
 
-    private void IdentifyCustomer(PropertyChangeEvent propertyChangeEvent) {
+    private void identifyCustomer(PropertyChangeEvent propertyChangeEvent) {
         var detection = (DetectedCustomerDto) propertyChangeEvent.getNewValue();
         var uuid = idRepository.findByUuid(detection.getUuid());
-        if (uuid != null) {
-            var customer = customerRepository.findByUuids(uuid);
-            if (customer != null) {
-                logger.info("Identification Service: Identified UUID: " + uuid.getUuid());
-                eventManager.invoke(
-                        Event.CUSTOMER_IDENTIFIED,
-                        new IdentifiedCustomerDto(
-                                detection.getTimestamp(),
-                                customer,
-                                detection.getDeviceId()));
-            }
-        }
-        else {
+        if (uuid == null) {
             logger.info("Identification Service: UUID not found.");
+            return;
         }
+        var customer = customerRepository.findByUuids(uuid);
+        if (customer == null) {
+            logger.info("Identification Service: UUID not found.");
+            return;
+        }
+        logger.info("Identification Service: Identified UUID: " + uuid.getUuid());
+        eventManager.invoke(
+                Event.CUSTOMER_IDENTIFIED,
+                new IdentifiedCustomerDto(
+                        detection.getTimestamp(),
+                        customer,
+                        detection.getDeviceId()));
     }
 }

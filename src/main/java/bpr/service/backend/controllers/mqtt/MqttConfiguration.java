@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MqttConfiguration {
+class MqttConfiguration {
 
     @Getter
     @Value("${service.mqtt.host}")
@@ -20,7 +20,10 @@ public class MqttConfiguration {
     @Getter
     @Value("${service.mqtt.password}")
     private String password;
-
+    
+    @Getter
+    @Value("${service.mqtt.backendId}")
+    private String backendId;
 
 
     public MqttConfiguration() {

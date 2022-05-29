@@ -1,9 +1,9 @@
 package bpr.service.backend.util;
 
-import bpr.service.backend.models.entities.CustomerEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,24 +13,15 @@ public class JsonSerializer implements ISerializer {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public String toJson(CustomerEntity payload) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException e) {
-            logger.error("Problem Serializing payload: " + payload + ", with error: " + e.getMessage());
+    @Override
+    public String toJson(Object toString) {
+        ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);;
+        try{
+            return mapper.writeValueAsString(mapper.valueToTree(toString));
+        }catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
+            throw new RuntimeException(e);
         }
-        return null;
-    }
-
-    public CustomerEntity fromJsonToCustomer(String json) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(json, CustomerEntity.class);
-        } catch (JsonProcessingException e) {
-            logger.error("Problem deserializing json: " + e.getMessage());
-        }
-        return null;
     }
 
     @Override
@@ -39,6 +30,7 @@ public class JsonSerializer implements ISerializer {
         try {
             return mapper.readTree(json);
         } catch (JsonProcessingException e) {
+            logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }

@@ -1,10 +1,12 @@
 package bpr.service.backend.managers.events;
 
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-@Component("EventManager")
+@Service("EventManager")
 public class EventManager implements IEventManager{
     private final PropertyChangeSupport manager;
 
@@ -20,11 +22,6 @@ public class EventManager implements IEventManager{
     @Override
     public void removeListener(Event event, PropertyChangeListener listener) {
         manager.removePropertyChangeListener(event.name(), listener);
-    }
-
-    @Override
-    public void invoke(Event event, String payload) {
-        manager.firePropertyChange(event.name(), null, payload);
     }
 
     @Override

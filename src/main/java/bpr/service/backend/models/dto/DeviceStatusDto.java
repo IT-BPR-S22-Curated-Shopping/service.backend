@@ -4,16 +4,16 @@ import lombok.Data;
 
 @Data
 public class DeviceStatusDto {
-    private long timestamp;
+    private Long timestamp;
     private String deviceId;
-    private String status;
+    private String state;
 
     public DeviceStatusDto() {
     }
 
-    public DeviceStatusDto(long timestamp, String deviceId, String status) {
+    public DeviceStatusDto(Long timestamp, String deviceId, String state) {
         this.timestamp = timestamp;
         this.deviceId = deviceId;
-        this.status = status;
+        this.state = state;
     }
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ConnectedDeviceDto {
-    private long timestamp;
+    private Long timestamp;
     private String companyId;
     private String deviceId;
     private String deviceType;
@@ -13,7 +13,7 @@ public class ConnectedDeviceDto {
 
     }
 
-    public ConnectedDeviceDto(long timestamp, String companyId, String deviceId, String deviceType) {
+    public ConnectedDeviceDto(Long timestamp, String companyId, String deviceId, String deviceType) {
         this.timestamp = timestamp;
         this.companyId = companyId;
         this.deviceId = deviceId;
