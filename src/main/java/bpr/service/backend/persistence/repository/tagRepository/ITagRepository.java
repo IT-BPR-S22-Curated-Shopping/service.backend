@@ -5,7 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ITagRepository extends CrudRepository<TagEntity, Long> {
 
-    TagEntity findTopByTagEquals(String tag);
-
     TagEntity findTagEntityByTag(String tag);
 }

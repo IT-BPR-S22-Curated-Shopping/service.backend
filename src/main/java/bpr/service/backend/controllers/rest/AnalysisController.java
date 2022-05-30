@@ -47,7 +47,7 @@ public class AnalysisController {
     }
 
     @GetMapping("/device")
-    public ResponseEntity<String> getProductAnalysisById(@RequestParam String deviceId, @RequestParam Long from, @RequestParam Long to) {
+    public ResponseEntity<String> getDeviceAnalysisById(@RequestParam String deviceId, @RequestParam Long from, @RequestParam Long to) {
         if (deviceId == null || deviceId.isEmpty()) {
             return new ResponseEntity<>("Invalid id: Device id cannot be empty", HttpStatus.BAD_REQUEST);
         }

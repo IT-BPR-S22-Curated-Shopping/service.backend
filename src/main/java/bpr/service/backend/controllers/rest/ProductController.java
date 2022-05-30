@@ -2,17 +2,13 @@ package bpr.service.backend.controllers.rest;
 
 import bpr.service.backend.models.entities.ProductEntity;
 import bpr.service.backend.services.productService.IProductService;
-import bpr.service.backend.services.tagService.ITagService;
 import bpr.service.backend.util.ISerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,15 +16,13 @@ import java.util.List;
 public class ProductController {
 
     private final IProductService productService;
-    private final ITagService tagService;
 
     private final ISerializer serializer;
 
     public ProductController(@Autowired @Qualifier("ProductService") IProductService productService,
-                             @Autowired @Qualifier("TagService") ITagService tagService,
                              @Autowired @Qualifier("JsonSerializer") ISerializer serializer) {
         this.productService = productService;
-        this.tagService = tagService;
+
         this.serializer = serializer;
     }
 
@@ -38,16 +32,6 @@ public class ProductController {
         var products = productService.readAll();
 
         if (products != null && products.size() > 0) {
-//            ObjectMapper mapper = new ObjectMapper();
-//            List<ObjectNode> nodes = new ArrayList<>();
-//
-//            for (ProductEntity entity : products) {
-//                ObjectNode node = mapper.createObjectNode();
-//                node.put("id", entity.getId());
-//                node.put("number", entity.getNumber());
-//                node.put("name", entity.getName());
-//                nodes.add(node);
-//            }
             response = new ResponseEntity<>(serializer.toJson(products), HttpStatus.OK);
         } else {
             response = new ResponseEntity<>("No products found.", HttpStatus.NOT_FOUND);
