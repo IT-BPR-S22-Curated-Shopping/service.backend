@@ -11,6 +11,4 @@ public interface IProductService {
     ProductEntity create(ProductEntity entity);
     ProductEntity updateTags(Long id, List<String> tags);
     ProductEntity update(ProductEntity entity);
-
-
 }

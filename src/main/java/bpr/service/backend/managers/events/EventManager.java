@@ -1,6 +1,5 @@
 package bpr.service.backend.managers.events;
 
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.beans.PropertyChangeListener;

@@ -21,12 +21,6 @@ public class TagService implements ITagService {
         this.productRepository = productRepository;
     }
 
-
-    @Override
-    public TagEntity findByTag(String tag) {
-        return tagRepository.findTopByTagEquals(tag);
-    }
-
     @Override
     public List<TagEntity> readAll() {
         var tags = new ArrayList<TagEntity>();

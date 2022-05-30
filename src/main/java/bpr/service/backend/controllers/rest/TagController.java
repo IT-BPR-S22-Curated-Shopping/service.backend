@@ -1,8 +1,5 @@
 package bpr.service.backend.controllers.rest;
 
-import bpr.service.backend.models.entities.ProductEntity;
-import bpr.service.backend.models.entities.TagEntity;
-import bpr.service.backend.services.productService.IProductService;
 import bpr.service.backend.services.tagService.ITagService;
 import bpr.service.backend.util.ISerializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,21 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tag")
 public class TagController {
     private final ITagService tagService;
-    private final IProductService productService;
     private final ISerializer serializer;
 
     public TagController(@Autowired @Qualifier("TagService") ITagService tagService,
-                         @Autowired @Qualifier("ProductService") IProductService productService,
                          @Autowired @Qualifier("JsonSerializer") ISerializer serializer) {
         this.tagService = tagService;
-        this.productService = productService;
         this.serializer = serializer;
     }
 
